@@ -50,7 +50,7 @@ function Footer() {
                         className={({ isActive }) =>
                             isActive
                                 ? "text-yellow-400"
-                                : "hover:text-gray-500 transition text-sm hover:opacity-50"
+                                : "hover:text-gray-500 hover:scale-110 transition text-sm hover:opacity-95"
                         }
                     >
                         {item.text}
