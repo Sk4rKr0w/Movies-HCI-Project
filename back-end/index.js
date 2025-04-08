@@ -5,6 +5,7 @@ const moviesRoute = require("./routes/movies");
 const authRoutes = require("./routes/auth");
 const contactRoutes = require("./routes/contact");
 const protectedRoutes = require("./routes/protectedRoutes");
+const createGroupRoutes = require("./routes/creategroup");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -16,7 +17,7 @@ app.use("/api/movies", moviesRoute);
 app.use("/api/auth", authRoutes); 
 app.use("/api/contact", contactRoutes);
 app.use("/api/protected", protectedRoutes);
-
+app.use("/api/createGroup", createGroupRoutes);
 
 app.listen(PORT, () => {
   console.log(`✅ Server avviato su http://localhost:${PORT}`);

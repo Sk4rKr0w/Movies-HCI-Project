@@ -1,26 +1,56 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import HelloUser from "../components/HelloUser";
 
 function GroupWatch() {
-  //if (!user) return <div>You must be logged in to access this page.</div>;
+  const [groups, setGroups] = useState([]);
+  const [user, setUser] = useState(null);
 
-  // Simuliamo gruppi fittizi per la dashboard
-  const [groups, setGroups] = useState([
-    { id: 1, name: "Group 1", description: "A fun movie group!" },
-    { id: 2, name: "Group 2", description: "Serious movies only." },
-  ]);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return; // oppure: setError("You are not logged in.");
+    }
+  
+    axios.get("http://localhost:3001/api/protected/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then((res) => {
+        if (res.data.error) {
+          console.error("Errore:", res.data.error);
+        } else {
+          setUser(res.data.user);
+        }
+      })
+      .catch((err) => {
+        console.error("Errore nel recupero utente:", err);
+      });
+  }, []);
+  
+    
+  const handleCreateGroup = async () => {
+    const name = prompt("Enter a name for your new group:");
+    if (!name || !user) {
+      alert("Errore durante la creazione del gruppo.");
+      return;
+    } 
 
-  // Funzione per creare un nuovo gruppo
-  const handleCreateGroup = () => {
-    const groupName = prompt("Enter a name for your new group");
-    if (groupName) {
-      const newGroup = { id: groups.length + 1, name: groupName, description: "New movie group." };
-      setGroups([...groups, newGroup]);
+    try {
+      const res = await axios.post("http://localhost:3001/api/creategroup/creategroup", {
+        name,
+        description: "New movie group created by user.",
+        owner: user.id,
+      });
+
+      alert("Gruppo creato con successo!");
+      setGroups((prev) => [...prev, res.data.group]);
+    } catch (err) {
+      console.error("Errore nella creazione del gruppo:", err);
+      alert("Errore durante la creazione del gruppo.");
     }
   };
 
-  // Funzione per cercare un gruppo (simulato)
   const handleSearchGroup = () => {
     const groupName = prompt("Enter the group name you want to search for:");
     if (groupName) {
@@ -31,7 +61,7 @@ function GroupWatch() {
   return (
     <div style={{ padding: 20 }}>
       <h2>📽️ Group Watch Dashboard</h2>
-      <p>Welcome, peppino!</p>
+      {user && <p>Welcome, {user.username}!</p>}
 
       <button onClick={handleCreateGroup}>Create a Group</button>
       <button onClick={handleSearchGroup}>Search a Group</button>
