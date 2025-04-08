@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import MovieQuiz from "./MovieQuiz"; // se è nella stessa cartella
-
+import MovieQuiz from "../components/MovieQuiz";
 
 function Home() {
     const [movies, setMovies] = useState(null);
@@ -67,7 +66,10 @@ function Home() {
                     <span className="text-yellow-400">quiz</span> and find your
                     perfect match!
                 </p>
-                <button className="px-8 py-3 bg-blue-500 text-lg font-semibold text-gray-900 rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transform transition-all duration-300" onClick={() => setStartQuiz(true)}>
+                <button
+                    className="px-8 py-3 bg-blue-500 text-lg font-semibold text-gray-900 rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transform transition-all duration-300"
+                    onClick={() => setStartQuiz(true)}
+                >
                     Start ▶
                 </button>
                 {startQuiz && <MovieQuiz />}
