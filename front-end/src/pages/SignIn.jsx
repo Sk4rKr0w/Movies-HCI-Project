@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function SignIn() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -18,8 +20,12 @@ function SignIn() {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:3001/api/auth/login', formData);
+
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+
       alert('Login avvenuto con successo!');
-      console.log(res.data); // Puoi salvare il token o i dati utente qui
+      navigate('/'); 
     } catch (err) {
       alert('Email o password non validi');
       console.error(err);
