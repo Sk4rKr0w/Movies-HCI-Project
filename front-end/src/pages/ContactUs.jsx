@@ -66,8 +66,8 @@ function ContactUs() {
             <div
                 className="slider w-full my-4"
                 style={{
-                    "--width": "100px",
-                    "--height": "150px",
+                    "--width": "150px",
+                    "--height": "200px",
                     "--quantity": 10,
                 }}
             >
