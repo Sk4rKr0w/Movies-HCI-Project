@@ -17,15 +17,11 @@ const questions = [
   },
   {
     question: "Preferred length?",
-    options: ["Short", "Medium", "Long"]
+    options: ["Short", "Long"]
   },
   {
     question: "What's the age rating you prefer?",
-    options: ["G", "PG", "PG-13", "R", "NC-17"]
-  },
-  {
-    question: "Preferred language?",
-    options: ["None", "en", "it", "fr", "es", "de", "ja", "ko", "zh"]
+    options: ["All Ages", "Teens and up", "Adults only"]
   },
   {
     question: "Do you want a popular or hidden gem?",
@@ -47,8 +43,11 @@ const genreMap = {
 const MovieQuiz = () => {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [movie, setMovie] = useState(null);
+  const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+
+  const MOVIES_PER_PAGE = 3;
 
   const handleClick = async (answer) => {
     const newAnswers = [...answers.slice(0, step), answer];
@@ -57,27 +56,27 @@ const MovieQuiz = () => {
     if (step < questions.length - 1) {
       setStep(step + 1);
     } else {
-      await fetchMovie(newAnswers);
+      await fetchMovies(newAnswers);
     }
   };
 
   const handleBack = () => {
     if (step > 0) {
       setStep(step - 1);
-      setMovie(null);
+      setMovies([]);
     }
   };
 
-  const fetchMovie = async (answers) => {
+  const fetchMovies = async (answers) => {
     setLoading(true);
+    setCurrentPage(0);
 
     const genre = genreMap[answers[0]];
     const recent = answers[1] === "Yes";
     const length = answers[2];
-    const certification = answers[3];
-    const language = answers[4] === "None" ? null : answers[4];
-    const popularity = answers[5];
-    const minRating = answers[6] === "Yes" ? 7 : null;
+    const ageGroup = answers[3];
+    const popularity = answers[4];
+    const minRating = answers[5] === "Yes" ? 7 : null;
 
     const today = new Date();
     const fiveYearsAgo = new Date();
@@ -88,9 +87,8 @@ const MovieQuiz = () => {
       with_genres: genre,
       sort_by: popularity === "Popular" ? "popularity.desc" : "popularity.asc",
       certification_country: "US",
-      certification: certification,
-      language: "en-US",
       include_adult: false,
+      language: "en-US",
       page: 1
     };
 
@@ -101,16 +99,17 @@ const MovieQuiz = () => {
     }
 
     if (length === "Short") {
-      params["with_runtime.lte"] = 90;
-    } else if (length === "Medium") {
-      params["with_runtime.gte"] = 91;
-      params["with_runtime.lte"] = 120;
-    } else if (length === "Long") {
-      params["with_runtime.gte"] = 121;
+      params["with_runtime.lte"] = 100;
+    } else {
+      params["with_runtime.gte"] = 101;
     }
 
-    if (language) {
-      params["with_original_language"] = language;
+    if (ageGroup === "All Ages") {
+      params["certification"] = "G|PG";
+    } else if (ageGroup === "Teens and up") {
+      params["certification"] = "PG-13";
+    } else {
+      params["certification"] = "R|NC-17";
     }
 
     if (minRating) {
@@ -119,48 +118,90 @@ const MovieQuiz = () => {
 
     try {
       const res = await axios.get("https://api.themoviedb.org/3/discover/movie", { params });
-      const movies = res.data.results;
-      if (movies.length > 0) {
-        const pick = movies[Math.floor(Math.random() * movies.length)];
-        setMovie(pick);
-      } else {
-        setMovie({ title: "No movie found", overview: "Try different answers!" });
-      }
+      let results = res.data.results;
+
+      // Rimuove duplicati
+      const seen = new Set();
+      results = results.filter((m) => {
+        if (seen.has(m.title)) return false;
+        seen.add(m.title);
+        return true;
+      });
+
+      setMovies(results);
     } catch (error) {
       console.error("Fetch error:", error);
-      setMovie({ title: "Error", overview: "Something went wrong." });
+      setMovies([]);
     }
 
     setLoading(false);
   };
 
+  const paginatedMovies = movies.slice(
+    currentPage * MOVIES_PER_PAGE,
+    (currentPage + 1) * MOVIES_PER_PAGE
+  );
+
   return (
-    <div className="fixed top-0 left-0 w-screen h-screen bg-black text-white flex items-center justify-center z-50 px-4">
-      <div className="text-center max-w-xl">
+    <div className="fixed top-0 left-0 w-screen h-screen bg-black text-white flex items-center justify-center z-50 px-4 overflow-y-auto">
+      <div className="text-center max-w-4xl py-10">
         {loading ? (
           <h2 className="text-2xl font-bold animate-pulse">Finding your match...</h2>
-        ) : movie ? (
+        ) : movies.length > 0 ? (
           <div>
-            <h2 className="text-3xl font-bold mb-4">We recommend:</h2>
-            <h3 className="text-xl font-semibold">{movie.title}</h3>
-            <p className="text-gray-300 mt-2">{movie.overview}</p>
-            {movie.poster_path && (
-              <img
-                src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                alt={movie.title}
-                className="mx-auto mt-4 rounded shadow"
-              />
-            )}
-            <button
-              onClick={() => {
-                setStep(0);
-                setAnswers([]);
-                setMovie(null);
-              }}
-              className="mt-6 bg-yellow-400 text-black font-bold px-6 py-2 rounded-full hover:bg-yellow-300"
-            >
-              Restart Quiz
-            </button>
+            <h2 className="text-3xl font-bold mb-6">We recommend:</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {paginatedMovies.map((movie, idx) => (
+                <div key={idx} className="bg-[#1e1e1e] p-4 rounded-lg shadow-lg">
+                  {movie.poster_path && (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                      alt={movie.title}
+                      className="mx-auto mb-3 rounded shadow"
+                    />
+                  )}
+                  <h3 className="text-xl font-semibold mb-1">{movie.title}</h3>
+                  <p className="text-sm text-gray-300 line-clamp-4">{movie.overview}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-center gap-4">
+              <button
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+                className="bg-gray-300 text-black font-bold px-4 py-2 rounded-full disabled:opacity-40"
+              >
+                ◀ Prev
+              </button>
+              <button
+                disabled={(currentPage + 1) * MOVIES_PER_PAGE >= movies.length}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                className="bg-gray-300 text-black font-bold px-4 py-2 rounded-full disabled:opacity-40"
+              >
+                Next ▶
+              </button>
+            </div>
+
+            <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => {
+                  setStep(0);
+                  setAnswers([]);
+                  setMovies([]);
+                  setCurrentPage(0);
+                }}
+                className="bg-yellow-400 text-black font-bold px-6 py-2 rounded-full hover:bg-yellow-300"
+              >
+                Restart Quiz
+              </button>
+              <button
+                onClick={() => (window.location.href = "/")}
+                className="bg-white text-black font-bold px-6 py-2 rounded-full hover:bg-gray-300"
+              >
+                Return to Home
+              </button>
+            </div>
           </div>
         ) : (
           <>
