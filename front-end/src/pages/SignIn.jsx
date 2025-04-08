@@ -26,6 +26,7 @@ function SignIn() {
 
       alert('Login avvenuto con successo!');
       navigate('/'); 
+      window.location.reload();
     } catch (err) {
       alert('Email o password non validi');
       console.error(err);

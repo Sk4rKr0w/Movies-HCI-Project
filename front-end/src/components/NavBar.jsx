@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom"; // Cambia Link con NavLink
 import SearchBar from "./SearchBar";
 import HamburgerIcon from "./HamburgerIcon";
 import logo from "../assets/images/logo.svg";
+import HelloUser from "./HelloUser";
 
 function NavBar() {
     return (
@@ -45,8 +46,9 @@ function NavBar() {
                     Contact
                 </NavLink>
             </div>
-
+                    
             <div className="flex items-center gap-10">
+                <HelloUser />
                 <SearchBar />
                 <HamburgerIcon className="md:hidden" />
             </div>
