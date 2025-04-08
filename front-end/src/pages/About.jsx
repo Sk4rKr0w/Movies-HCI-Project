@@ -1,31 +1,13 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useMovieStore } from "../store/useMovieStore";
 
 function About() {
-    const [movies, setMovies] = useState(null);
+    const movies = useMovieStore((state) => state.movies);
+    const fetchMovies = useMovieStore((state) => state.fetchMovies);
+
     useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                const apiKey = import.meta.env.VITE_TMDB_API_KEY;
-                const today = new Date().toISOString().split("T")[0];
-
-                const responses = await Promise.all([
-                    fetch(
-                        `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&release_date.lte=${today}&page=1`
-                    ),
-                ]);
-
-                const data1 = await responses[0].json();
-
-                const allMovies = [...data1.results];
-
-                setMovies(allMovies.slice(0, 10));
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        fetchMovies();
-    }, []);
+        fetchMovies(10);
+    }, [fetchMovies]);
 
     return (
         <div>
