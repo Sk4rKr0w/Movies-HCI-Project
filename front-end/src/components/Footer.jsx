@@ -24,7 +24,7 @@ function Footer() {
     return (
         <div className="px-5 md:px-15 w-full md:h-[120px] bg-[#121212] text-white flex flex-col md:flex-row justify-center items-center">
             <div className="hidden md:flex md:w-1/4 flex-col items-start gap-2">
-                <img src={logo} alt="Logo IMG" className="h-6" />
+                <img src={logo} alt="Logo IMG" className="h-5" />
                 <p className="text-sm max-w-[35ch]">
                     Smart Movie recommendations for you and your friends!
                 </p>
@@ -60,7 +60,7 @@ function Footer() {
             <div className="p-5 md:p-0 md:border-l-2 md:border-l-white h-[80%] flex w-full md:w-1/4 flex-row justify-center items-center gap-x-2">
                 <span className="text-3xl">&copy;</span>
                 <div>
-                    <p>
+                    <p className="text-sm">
                         Copyright 2025 - GURUFILM
                         <br />
                         All Rights Reserved
