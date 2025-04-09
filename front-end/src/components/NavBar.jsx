@@ -9,23 +9,36 @@ function NavBar() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  // Recupera l'utente da localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    // Aggiorna anche se localStorage cambia da un'altra tab
+    const syncUser = (e) => {
+      if (e.key === "user") {
+        const newUser = e.newValue ? JSON.parse(e.newValue) : null;
+        setUser(newUser);
+      }
+    };
+
+    window.addEventListener("storage", syncUser);
+    return () => window.removeEventListener("storage", syncUser);
   }, []);
+
+  const getAvatarUrl = () => {
+    if (!user?.avatar_url) return null;
+    return supabase.storage.from("avatars").getPublicUrl(user.avatar_url).data.publicUrl;
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
     navigate("/signin");
-  };
-
-  const getAvatarUrl = () => {
-    if (!user?.avatar_url) return null;
-    return supabase.storage.from("avatars").getPublicUrl(user.avatar_url).data.publicUrl;
+    window.location.reload();
   };
 
   return (
@@ -80,7 +93,7 @@ function NavBar() {
               />
             ) : (
               <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-sm font-bold">
-                {user.username.charAt(0).toUpperCase()}
+                {user.username?.charAt(0).toUpperCase()}
               </div>
             )}
             <span className="text-sm text-yellow-400 font-bold underline">

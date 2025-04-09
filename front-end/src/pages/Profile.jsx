@@ -12,37 +12,33 @@ function Profile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setError("You are not logged in.");
-      return;
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
 
-    fetch("http://localhost:3001/api/protected/profile", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) {
-          setError(data.error);
-        } else {
-          setUser(data.user);
-        }
-      })
-      .catch((err) => {
-        setError("An error occurred.");
-        console.error(err);
-      });
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("You are not logged in.");
+    }
   }, []);
+
+  const getAvatarUrl = () => {
+    if (!user?.avatar_url) return null;
+    return supabase.storage.from("avatars").getPublicUrl(user.avatar_url).data.publicUrl;
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/signin");
     window.location.reload();
+  };
+
+  const refreshUser = (data) => {
+    setUser(data);
+    localStorage.setItem("user", JSON.stringify(data));
+    window.location.reload(); // forzato per sincronizzazione navbar
   };
 
   const handleUsernameUpdate = async () => {
@@ -58,10 +54,8 @@ function Profile() {
     if (error) {
       setUpdateMessage("❌ Update failed");
     } else {
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
       setUpdateMessage("✅ Username updated!");
-      setEditing(false);
+      refreshUser(data);
     }
   };
 
@@ -69,7 +63,6 @@ function Profile() {
     const file = e.target.files[0];
     if (!file || !user) return;
 
-    // ✅ Validazione: solo JPG o PNG, max 1MB
     const allowedTypes = ["image/jpeg", "image/png"];
     if (!allowedTypes.includes(file.type)) {
       setUpdateMessage("❌ Only JPG or PNG images allowed.");
@@ -82,11 +75,11 @@ function Profile() {
     }
 
     setUploading(true);
-
     const fileExt = file.name.split(".").pop();
     const filePath = `user_${user.id}.${fileExt}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase
+      .storage
       .from("avatars")
       .upload(filePath, file, { upsert: true });
 
@@ -104,19 +97,29 @@ function Profile() {
       .single();
 
     if (updateError) {
-      setUpdateMessage("❌ Failed to update user profile");
+      setUpdateMessage("❌ Failed to update avatar");
     } else {
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
       setUpdateMessage("✅ Avatar updated!");
+      refreshUser(data);
     }
 
     setUploading(false);
   };
 
-  const getAvatarUrl = () => {
-    if (!user?.avatar_url) return null;
-    return supabase.storage.from("avatars").getPublicUrl(user.avatar_url).data.publicUrl;
+  const handleResetAvatar = async () => {
+    const { data, error } = await supabase
+      .from("users")
+      .update({ avatar_url: null })
+      .eq("id", user.id)
+      .select()
+      .single();
+
+    if (error) {
+      setUpdateMessage("❌ Failed to reset avatar");
+    } else {
+      setUpdateMessage("✅ Avatar reset!");
+      refreshUser(data);
+    }
   };
 
   if (error) {
@@ -146,7 +149,7 @@ function Profile() {
               </div>
             )}
 
-            <label className="block text-sm text-gray-400 mb-4 cursor-pointer hover:underline">
+            <label className="block text-sm text-gray-400 mb-2 cursor-pointer hover:underline">
               {uploading ? "Uploading..." : "Upload new avatar"}
               <input
                 type="file"
@@ -155,6 +158,15 @@ function Profile() {
                 className="hidden"
               />
             </label>
+
+            {user.avatar_url && (
+              <button
+                onClick={handleResetAvatar}
+                className="text-sm text-red-400 underline mb-4"
+              >
+                Reset to default avatar
+              </button>
+            )}
 
             <p className="text-lg mb-2"><strong>ID:</strong> {user.id}</p>
             <p className="text-lg mb-2"><strong>Email:</strong> {user.email}</p>
