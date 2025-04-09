@@ -4,6 +4,7 @@ import axios from "axios";
 function GroupWatch() {
   const [groups, setGroups] = useState([]);
   const [user, setUser] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -51,12 +52,18 @@ function GroupWatch() {
     }
   };
 
-  const handleSearchGroup = () => {
+  const handleSearchGroup = async () => {
     const groupName = prompt("Enter the group name you want to search for:");
-    if (groupName) {
-      alert(`Searching for group: ${groupName}`);
+    if (!groupName) return;
+  
+    try {
+      const res = await axios.get(`http://localhost:3001/api/searchgroup/searchgroup?name=${groupName}`);
+      setSearchResults(res.data.groups); // supponendo che res.data.groups sia l’array restituito
+    } catch (err) {
+      console.error("Errore durante la ricerca del gruppo:", err);
+      alert("Errore nella ricerca del gruppo.");
     }
-  };
+  };  
 
   return (
     <div style={{ padding: 20 }}>
@@ -74,6 +81,19 @@ function GroupWatch() {
           </li>
         ))}
       </ul>
+
+      {searchResults.length > 0 && (
+        <div>
+          <h3>🔍 Risultati della ricerca</h3>
+          <ul>
+            {searchResults.map((group) => (
+              <li key={group.id}>
+                <strong>{group.name}</strong>: {group.description}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
