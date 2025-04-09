@@ -9,6 +9,7 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
 import GroupWatch from "./pages/GroupWatch";
+import GroupProfile from "./pages/GroupProfile";
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/groupwatch" element={<GroupWatch />} />
+                <Route path="/groupprofile/:id" element={<GroupProfile />} />
 
             </Routes>
             <Footer />
