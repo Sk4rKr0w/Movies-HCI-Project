@@ -90,7 +90,9 @@ function ContactUs() {
             </div>
 
             <div className="bg-[#2c2c2c] text-white p-8 rounded-lg shadow-xl max-w-3xl mx-auto">
-                <h2 className="text-3xl font-semibold  mb-6">Contattaci</h2>
+                <h2 className="text-3xl font-semibold mb-6 text-center">
+                    Contattaci
+                </h2>
 
                 {error && <div className="text-red-500 mb-4">{error}</div>}
 
