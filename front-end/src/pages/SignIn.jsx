@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useMovieStore } from "../store/useMovieStore";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function SignIn() {
     const movies = useMovieStore((state) => state.movies);
@@ -15,6 +16,7 @@ function SignIn() {
         email: "",
         password: "",
     });
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData((prev) => ({
@@ -30,10 +32,15 @@ function SignIn() {
                 "http://localhost:3001/api/auth/login",
                 formData
             );
-            alert("Accesso effettuato con successo!");
-            console.log(res.data);
+
+            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("user", JSON.stringify(res.data.user));
+
+            alert("Login avvenuto con successo!");
+            navigate("/");
+            window.location.reload();
         } catch (err) {
-            alert("Errore durante l'accesso");
+            alert("Email o password non validi");
             console.error(err);
         }
     };
