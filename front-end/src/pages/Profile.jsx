@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../supabaseClient";
+import * as bcrypt from "bcryptjs";
 
 function Profile() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [updateMessage, setUpdateMessage] = useState("");
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
@@ -23,6 +25,12 @@ function Profile() {
     }
   }, []);
 
+  const refreshUser = (data) => {
+    setUser(data);
+    localStorage.setItem("user", JSON.stringify(data));
+    window.location.reload();
+  };
+
   const getAvatarUrl = () => {
     if (!user?.avatar_url) return null;
     return supabase.storage.from("avatars").getPublicUrl(user.avatar_url).data.publicUrl;
@@ -33,12 +41,6 @@ function Profile() {
     localStorage.removeItem("user");
     navigate("/signin");
     window.location.reload();
-  };
-
-  const refreshUser = (data) => {
-    setUser(data);
-    localStorage.setItem("user", JSON.stringify(data));
-    window.location.reload(); // forzato per sincronizzazione navbar
   };
 
   const handleUsernameUpdate = async () => {
@@ -59,52 +61,83 @@ function Profile() {
     }
   };
 
+  const handlePasswordUpdate = async () => {
+    if (!newPassword.trim() || newPassword.length < 6) {
+      setUpdateMessage("❌ Password must be at least 6 characters.");
+      return;
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    const { data, error } = await supabase
+      .from("users")
+      .update({ password: hashed })
+      .eq("id", user.id)
+      .select()
+      .single();
+
+    if (error) {
+      setUpdateMessage("❌ Failed to update password");
+    } else {
+      setUpdateMessage("✅ Password updated!");
+      refreshUser(data);
+    }
+
+    setNewPassword("");
+  };
+
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !user) return;
-
+  
+    // ✅ Validazione: solo JPG o PNG, max 1MB
     const allowedTypes = ["image/jpeg", "image/png"];
     if (!allowedTypes.includes(file.type)) {
       setUpdateMessage("❌ Only JPG or PNG images allowed.");
       return;
     }
-
+  
     if (file.size > 1024 * 1024) {
       setUpdateMessage("❌ Image must be smaller than 1MB.");
       return;
     }
-
+  
     setUploading(true);
+  
+    // ✅ Usa un nome univoco con timestamp
     const fileExt = file.name.split(".").pop();
-    const filePath = `user_${user.id}.${fileExt}`;
-
-    const { error: uploadError } = await supabase
-      .storage
+    const filePath = `user_${user.id}_${Date.now()}.${fileExt}`;
+  
+    const { error: uploadError } = await supabase.storage
       .from("avatars")
-      .upload(filePath, file, { upsert: true });
-
+      .upload(filePath, file);
+  
     if (uploadError) {
       setUpdateMessage("❌ Failed to upload image");
       setUploading(false);
       return;
     }
-
+  
+    // ✅ Aggiorna avatar_url nel DB
     const { data, error: updateError } = await supabase
       .from("users")
       .update({ avatar_url: filePath })
       .eq("id", user.id)
       .select()
       .single();
-
+  
     if (updateError) {
-      setUpdateMessage("❌ Failed to update avatar");
+      setUpdateMessage("❌ Failed to update user profile");
     } else {
+      setUser(data);
+      localStorage.setItem("user", JSON.stringify(data));
       setUpdateMessage("✅ Avatar updated!");
-      refreshUser(data);
+      window.location.reload(); // ✅ Refresh per riflettere i cambiamenti ovunque
     }
-
+  
     setUploading(false);
   };
+  
 
   const handleResetAvatar = async () => {
     const { data, error } = await supabase
@@ -171,6 +204,7 @@ function Profile() {
             <p className="text-lg mb-2"><strong>ID:</strong> {user.id}</p>
             <p className="text-lg mb-2"><strong>Email:</strong> {user.email}</p>
 
+            {/* Username */}
             {editing ? (
               <div className="mb-4">
                 <label className="block text-lg mb-2"><strong>New Username:</strong></label>
@@ -212,6 +246,24 @@ function Profile() {
                 </button>
               </p>
             )}
+
+            {/* Password */}
+            <div className="mb-4 mt-6 text-left">
+              <label className="block text-sm mb-2 font-semibold">Change Password</label>
+              <input
+                type="password"
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-3 py-2 rounded text-black"
+              />
+              <button
+                onClick={handlePasswordUpdate}
+                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-400 transition"
+              >
+                Save New Password
+              </button>
+            </div>
 
             {updateMessage && (
               <p className="text-sm text-green-400 mt-2">{updateMessage}</p>
