@@ -1,24 +1,31 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useMovieStore } from "../store/useMovieStore";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 function SignIn() {
     const movies = useMovieStore((state) => state.movies);
     const fetchMovies = useMovieStore((state) => state.fetchMovies);
     const [loginMessage, setLoginMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetchMovies(30); // Personalizzabile: 20, 30, 40...
+        fetchMovies(30);
+    }, []);
+
+    // 🔒 Impedisce accesso se già loggato
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            navigate("/");
+        }
     }, []);
 
     const [formData, setFormData] = useState({
         email: "",
         password: "",
     });
-    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData((prev) => ({

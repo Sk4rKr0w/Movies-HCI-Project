@@ -1,48 +1,12 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
+import { useState } from "react";
 import Sidebar from "./Sidebar";
 import SearchBar from "./SearchBar";
 import HamburgerIcon from "./HamburgerIcon";
 import logo from "../assets/images/logo.svg";
-import supabase from "../supabaseClient";
 
 function NavBar() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
-
-    // Recupera l'utente da localStorage
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-
-        // Aggiorna anche se localStorage cambia da un'altra tab
-        const syncUser = (e) => {
-            if (e.key === "user") {
-                const newUser = e.newValue ? JSON.parse(e.newValue) : null;
-                setUser(newUser);
-            }
-        };
-
-        window.addEventListener("storage", syncUser);
-        return () => window.removeEventListener("storage", syncUser);
-    }, []);
-
-    const getAvatarUrl = () => {
-        if (!user?.avatar_url) return null;
-        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url)
-            .data.publicUrl;
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setUser(null);
-        navigate("/");
-        window.location.reload();
-    };
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
         <nav className="h-[92px] w-full bg-[#121212] text-white flex items-center justify-between px-6">
@@ -88,53 +52,15 @@ function NavBar() {
             </div>
 
             <div className="flex items-center gap-6">
-                {user && (
-                    <div
-                        onClick={() => navigate("/profile")}
-                        className="hidden md:flex items-center gap-3 cursor-pointer hover:opacity-90 transition"
-                        title="Go to profile"
-                    >
-                        {getAvatarUrl() ? (
-                            <img
-                                src={getAvatarUrl()}
-                                alt="Avatar"
-                                className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400"
-                            />
-                        ) : (
-                            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-sm font-bold">
-                                {user.username?.charAt(0).toUpperCase()}
-                            </div>
-                        )}
-                        <span className="text-sm text-yellow-400 font-bold underline">
-                            {user.username}
-                        </span>
-                    </div>
-                )}
-
-                {user ? (
-                    <NavLink
-                        onClick={handleLogout}
-                        className="cursor-pointer text-sm bg-yellow-400 text-black px-4 py-2 rounded-full hover:bg-yellow-300 transition"
-                    >
-                        Logout
-                    </NavLink>
-                ) : (
-                    <NavLink
-                        to="/signin"
-                        className="text-sm bg-white text-black px-4 py-2 rounded-full hover:bg-gray-300 transition"
-                    >
-                        Login
-                    </NavLink>
-                )}
-
-        <SearchBar />
-
-        <HamburgerIcon onClick={() => setSidebarOpen(true)} />
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      </div>
-    </nav>
-  );
+                <SearchBar />
+                <HamburgerIcon onClick={() => setSidebarOpen(true)} />
+                <Sidebar
+                    isOpen={sidebarOpen}
+                    onClose={() => setSidebarOpen(false)}
+                />
+            </div>
+        </nav>
+    );
 }
 
 export default NavBar;
