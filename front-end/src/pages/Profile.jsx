@@ -214,8 +214,7 @@ function Profile() {
               <p className="text-left mb-4"><strong>Password:</strong> ••••••••
                 <button onClick={() => setEditingPassword(true)} className="ml-2 text-sm text-yellow-400 underline">Edit</button>
               </p>
-            )}
-
+            )} 
             {updateMessage && (
               <p className="text-sm text-green-400 mt-2">{updateMessage}</p>
             )}
