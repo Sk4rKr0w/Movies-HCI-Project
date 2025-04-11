@@ -1,0 +1,119 @@
+import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+
+function MoviePage() {
+    const { id } = useParams();
+    const [movie, setMovie] = useState(null);
+    const [cast, setCast] = useState([]);
+
+    useEffect(() => {
+        const fetchMovie = async () => {
+            try {
+                const res = await fetch(
+                    `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`
+                );
+                const data = await res.json();
+                console.log(data);
+                setMovie(data);
+            } catch (err) {
+                console.error("Errore nella fetch:", err);
+            }
+        };
+
+        const fetchCast = async () => {
+            try {
+                const res = await fetch(
+                    `https://api.themoviedb.org/3/movie/${id}/credits?api_key=${API_KEY}`
+                );
+                const data = await res.json();
+                setCast(data.cast);
+            } catch (err) {
+                console.error("Errore nella fetch del cast:", err);
+            }
+        };
+
+        fetchMovie();
+        fetchCast();
+    }, [id]);
+
+    return (
+        <div
+            className="min-h-screen bg-cover bg-center"
+            style={{
+                backgroundImage: movie
+                    ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
+                    : "none",
+            }}
+        >
+            {movie ? (
+                <div className="lg:gap-10 md:p-2 min-h-screen flex bg-black/70 flex-col md:flex-row justify-center items-center">
+                    <img
+                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                        alt={`${movie.title} IMG`}
+                        className="border-2 border-transparent hover:scale-105 hover:border-yellow-400 transition max-h-84 md:max-h-96 lg:max-h-[420px] rounded-xl"
+                    />
+                    <div className="text-white mt-4 p-4">
+                        <h1 className="text-3xl font-extrabold mb-2 w-full text-yellow-400">
+                            {movie.title}
+                        </h1>
+                        <div className="flex flex-wrap gap-2 my-4">
+                            {movie.genres?.map((genre) => (
+                                <span
+                                    key={genre.id}
+                                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded-full"
+                                >
+                                    {genre.name}
+                                </span>
+                            ))}
+                        </div>
+                        <div className="flex flex-row gap-x-2">
+                            <span>⭐{movie.vote_average.toFixed(1)}/10</span>
+                            <span>📅{movie.release_date}</span>
+                            <span>🕖{movie.runtime}min</span>
+                        </div>
+                        <p className="w-full text-md md:max-w-[75ch]">
+                            {movie.overview}
+                        </p>
+                    </div>
+                </div>
+            ) : (
+                <p className="text-white">Caricamento...</p>
+            )}
+
+            <div className="bg-black/70 p-4">
+                <h2 className="text-center text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+                    Cast
+                </h2>
+                <div className="flex flex-wrap gap-6 justify-center">
+                    {cast.length > 0 ? (
+                        cast.slice(0, 6).map((actor) => (
+                            <div
+                                key={actor.id}
+                                className="flex flex-col items-center text-white"
+                            >
+                                {actor.profile_path ? (
+                                    <img
+                                        src={`https://image.tmdb.org/t/p/w185${actor.profile_path}`}
+                                        alt={actor.name}
+                                        className="h-24 md:h-32 lg:h-36 rounded-lg hover:scale-105 transition border-2 border-transparent hover:border-yellow-700"
+                                    />
+                                ) : (
+                                    <div className="h-24 md:h-32 lg:h-36 rounded-full bg-gray-500"></div>
+                                )}
+                                <p className="text-sm mt-2">{actor.name}</p>
+                                <p className="text-xs text-gray-300">
+                                    {actor.character}
+                                </p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>Caricamento cast...</p>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default MoviePage;
