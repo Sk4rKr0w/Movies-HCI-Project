@@ -62,7 +62,7 @@ function SearchBar() {
                     {results.map((movie) => (
                         <li
                             key={movie.id}
-                            className="bg-[#2c2c2c] text-white flex flex-row justify-start items-center gap-2 px-4 py-2 hover:bg-gray-100 hover:text-black cursor-pointer"
+                            className="bg-[#2c2c2c] text-white flex flex-row justify-start items-center gap-2 px-4 py-2 hover:bg-gray-100 hover:text-black transition cursor-pointer"
                             onClick={() => handleResultClick(movie.id)}
                         >
                             <img

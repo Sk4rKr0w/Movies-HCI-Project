@@ -14,7 +14,6 @@ function MoviePage() {
                     `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`
                 );
                 const data = await res.json();
-                console.log(data);
                 setMovie(data);
             } catch (err) {
                 console.error("Errore nella fetch:", err);
