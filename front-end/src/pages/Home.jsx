@@ -1,44 +1,20 @@
-import { useState, useEffect } from "react";
-import MovieQuiz from "./MovieQuiz"; // se è nella stessa cartella
-
+import { useEffect, useState } from "react";
+import { useMovieStore } from "../store/useMovieStore";
+import MovieQuiz from "../components/MovieQuiz";
 
 function Home() {
-    const [movies, setMovies] = useState(null);
     const [startQuiz, setStartQuiz] = useState(false);
+    const movies = useMovieStore((state) => state.movies);
+    const fetchMovies = useMovieStore((state) => state.fetchMovies);
 
     useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                const apiKey = import.meta.env.VITE_TMDB_API_KEY;
-                const today = new Date().toISOString().split("T")[0];
-
-                const responses = await Promise.all([
-                    fetch(
-                        `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&release_date.lte=${today}&page=1`
-                    ),
-                    fetch(
-                        `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&release_date.lte=${today}&page=2`
-                    ),
-                ]);
-
-                const data1 = await responses[0].json();
-                const data2 = await responses[1].json();
-
-                const allMovies = [...data1.results, ...data2.results];
-
-                setMovies(allMovies.slice(0, 30));
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        fetchMovies();
+        fetchMovies(30); // Personalizzabile: 20, 30, 40...
     }, []);
 
     return (
         <div className="w-screen h-screen bg-gradient-to-r from-[#1b1b1b] via-[#2d2d2d] to-[#141414] text-white relative overflow-hidden">
             <ul className="absolute inset-0 grid grid-cols-5 md:grid-cols-7 lg:grid-cols-10 gap-3 z-0 opacity-40 filter blur-[1px]">
-                {movies ? (
+                {movies.length > 0 ? (
                     movies.map((movie) => (
                         <li key={movie.id} className="relative w-full h-full">
                             {movie.backdrop_path && (
@@ -67,7 +43,10 @@ function Home() {
                     <span className="text-yellow-400">quiz</span> and find your
                     perfect match!
                 </p>
-                <button className="px-8 py-3 bg-blue-500 text-lg font-semibold text-gray-900 rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transform transition-all duration-300" onClick={() => setStartQuiz(true)}>
+                <button
+                    className="px-8 py-3 cursor-pointer bg-blue-500 text-lg font-semibold text-gray-900 rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transform transition-all duration-300"
+                    onClick={() => setStartQuiz(true)}
+                >
                     Start ▶
                 </button>
                 {startQuiz && <MovieQuiz />}
