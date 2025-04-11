@@ -1,14 +1,22 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom"; 
 import { useMovieStore } from "../store/useMovieStore";
 import axios from "axios";
 
 function SignUp() {
+    const navigate = useNavigate(); // ✅ Hook di navigazione
     const movies = useMovieStore((state) => state.movies);
     const fetchMovies = useMovieStore((state) => state.fetchMovies);
 
     useEffect(() => {
-        fetchMovies(30); // Personalizzabile: 20, 30, 40...
+        fetchMovies(30);
+    }, []);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            navigate("/"); // ✅ Reindirizza alla home se già loggato
+        }
     }, []);
 
     const [formData, setFormData] = useState({
