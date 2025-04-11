@@ -168,11 +168,37 @@ function ContactUs() {
 
                     <button
                         type="submit"
-                        className="w-full py-3 mt-4 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-colors duration-300"
+                        className="cursor-pointer w-full py-3 mt-4 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-colors duration-300"
                     >
                         Invia
                     </button>
                 </form>
+            </div>
+
+            <div
+                className="slider w-full my-4"
+                style={{
+                    "--width": "150px",
+                    "--height": "200px",
+                    "--quantity": 10,
+                }}
+            >
+                <ul className="list flex flex-row gap-2">
+                    {movies &&
+                        movies.map((movie, index) => (
+                            <li
+                                key={movie.id}
+                                style={{ "--position": index + 1 }}
+                                className="item"
+                            >
+                                <img
+                                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                    alt={movie.title}
+                                    className="w-full h-full object-cover rounded-lg shadow-xl"
+                                />
+                            </li>
+                        ))}
+                </ul>
             </div>
         </div>
     );

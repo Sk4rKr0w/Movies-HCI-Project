@@ -10,6 +10,7 @@ import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
 import GroupWatch from "./pages/GroupWatch";
 import GroupProfile from "./pages/GroupProfile";
+import Sidebar from "./components/Sidebar";
 
 
 function App() {
