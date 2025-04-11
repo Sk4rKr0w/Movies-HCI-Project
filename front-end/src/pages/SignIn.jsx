@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 function SignIn() {
     const movies = useMovieStore((state) => state.movies);
     const fetchMovies = useMovieStore((state) => state.fetchMovies);
+    const [loginMessage, setLoginMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
         fetchMovies(30); // Personalizzabile: 20, 30, 40...
@@ -36,11 +38,16 @@ function SignIn() {
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
 
-            alert("Login avvenuto con successo!");
-            navigate("/");
-            window.location.reload();
+            setLoginMessage("✅ Login avvenuto con successo!");
+            setErrorMessage("");
+
+            setTimeout(() => {
+                navigate("/");
+                window.location.reload();
+            }, 1500);
         } catch (err) {
-            alert("Email o password non validi");
+            setErrorMessage("❌ Email o password non validi.");
+            setLoginMessage("");
             console.error(err);
         }
     };
@@ -71,6 +78,18 @@ function SignIn() {
                     <h2 className="text-3xl font-semibold text-yellow-400 text-center mb-6">
                         Login
                     </h2>
+                    {(loginMessage || errorMessage) && (
+                        <div
+                            className={`text-sm text-center mb-4 py-2 px-4 rounded-md ${
+                                loginMessage
+                                    ? "bg-green-600 text-white"
+                                    : "bg-red-600 text-white"
+                            }`}
+                        >
+                            {loginMessage || errorMessage}
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
                             <label
@@ -109,7 +128,7 @@ function SignIn() {
 
                         <button
                             type="submit"
-                            className="w-full py-2 mt-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-md transition-colors duration-200"
+                            className="cursor-pointer w-full py-2 mt-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-md transition-colors duration-200"
                         >
                             Accedi
                         </button>
