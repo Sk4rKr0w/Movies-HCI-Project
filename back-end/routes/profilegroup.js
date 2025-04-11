@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { profileGroup } = require('../controllers/profileGroupController');
+const { profileGroup, deleteGroup } = require("../controllers/profileGroupController");
 
-// Rotta per inviare la richiesta di contatto
-router.get('/profilegroup', profileGroup);
+router.get("/profilegroup", profileGroup);
+router.delete("/delete", deleteGroup);
 
 module.exports = router;
  
