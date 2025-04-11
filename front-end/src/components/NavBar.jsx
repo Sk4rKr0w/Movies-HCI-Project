@@ -53,7 +53,6 @@ function NavBar() {
 
             <div className="flex items-center gap-6">
                 <SearchBar />
-
                 <HamburgerIcon onClick={() => setSidebarOpen(true)} />
                 <Sidebar
                     isOpen={sidebarOpen}
