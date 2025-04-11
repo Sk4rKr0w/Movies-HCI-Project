@@ -1,11 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import Sidebar from "./Sidebar";
 import SearchBar from "./SearchBar";
 import HamburgerIcon from "./HamburgerIcon";
 import logo from "../assets/images/logo.svg";
 import supabase from "../supabaseClient";
 
 function NavBar() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -119,7 +121,10 @@ function NavBar() {
         )}
 
         <SearchBar />
-        <HamburgerIcon className="md:hidden" />
+
+        <HamburgerIcon onClick={() => setSidebarOpen(true)} />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
       </div>
     </nav>
   );
