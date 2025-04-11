@@ -118,7 +118,7 @@ function SignUp() {
 
                         <button
                             type="submit"
-                            className="w-full py-2 mt-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-md transition-colors duration-200"
+                            className="cursor-pointer w-full py-2 mt-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-md transition-colors duration-200"
                         >
                             Registrati
                         </button>
@@ -126,7 +126,7 @@ function SignUp() {
                             to="/signin"
                             className="block text-center text-sm text-gray-400 hover:text-yellow-400 transition-colors duration-200"
                         >
-                            Non hai un account?{" "}
+                            Hai già un account?{" "}
                             <strong className="text-yellow-400">Accedi!</strong>
                         </NavLink>
                     </form>
