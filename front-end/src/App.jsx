@@ -11,8 +11,8 @@ import Profile from "./pages/Profile";
 import GroupWatch from "./pages/GroupWatch";
 import GroupProfile from "./pages/GroupProfile";
 import Sidebar from "./components/Sidebar";
+import MoviePage from "./pages/MoviePage";
 import GroupCreation from "./pages/GroupCreation";
-
 
 function App() {
     return (
@@ -26,9 +26,6 @@ function App() {
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/groupwatch" element={<GroupWatch />} />
-                <Route path="/groupprofile/:id" element={<GroupProfile />} />
-                <Route path="/groupcreation" element={<GroupCreation />} />
-
             </Routes>
             <Footer />
         </Router>
