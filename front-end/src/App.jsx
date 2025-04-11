@@ -8,6 +8,8 @@ import Footer from "./components/Footer";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
+import GroupWatch from "./pages/GroupWatch";
+import Sidebar from "./components/Sidebar";
 
 
 function App() {
@@ -21,6 +23,7 @@ function App() {
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/groupwatch" element={<GroupWatch />} />
 
             </Routes>
             <Footer />
