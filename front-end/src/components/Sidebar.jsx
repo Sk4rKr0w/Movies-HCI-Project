@@ -55,18 +55,18 @@ function Sidebar({ isOpen, onClose }) {
             </button>
 
             <ul className="flex flex-col items-center space-y-4 mt-8">
-                <div className="w-full flex flex-col justify-center items-center lg:flex-row gap-2">
+                <div className="w-full flex flex-col justify-center items-center gap-2">
                     {user && (
                         <div
                             onClick={() => navigate("/profile")}
-                            className="lg:w-[50%] w-full flex flex-row justify-center items-center gap-2 cursor-pointer hover:opacity-90 transition"
+                            className="lg:w-[50%] w-full flex flex-col justify-center items-center gap-2 cursor-pointer hover:opacity-90 transition"
                             title="Go to profile"
                         >
                             {getAvatarUrl() ? (
                                 <img
                                     src={getAvatarUrl()}
                                     alt="Avatar"
-                                    className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400"
+                                    className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full object-cover border-2 border-yellow-400"
                                 />
                             ) : (
                                 <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-sm font-bold">
