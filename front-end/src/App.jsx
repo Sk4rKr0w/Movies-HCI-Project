@@ -10,12 +10,9 @@ import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
 import GroupWatch from "./pages/GroupWatch";
 import GroupProfile from "./pages/GroupProfile";
-import GroupProfile from "./pages/GroupProfile";
+import GroupCreation from "./pages/GroupCreation";
 import Sidebar from "./components/Sidebar";
 import MoviePage from "./pages/MoviePage";
-import GroupCreation from "./pages/GroupCreation";
-import MoviePage from "./pages/MoviePage";
-import GroupCreation from "./pages/GroupCreation";
 
 function App() {
     return (
