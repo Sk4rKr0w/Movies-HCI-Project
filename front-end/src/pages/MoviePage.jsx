@@ -71,11 +71,13 @@ function MoviePage() {
         >
             {movie ? (
                 <div className="lg:gap-10 md:p-2 min-h-screen flex bg-black/70 flex-col md:flex-row justify-center items-center">
-                    <img
-                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                        alt={`${movie.title} IMG`}
-                        className="border-2 border-transparent hover:scale-105 hover:border-yellow-400 transition max-h-84 md:max-h-96 lg:max-h-[420px] rounded-xl"
-                    />
+                    <a href="#target-section">
+                        <img
+                            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                            alt={`${movie.title} IMG`}
+                            className="cursor-pointer border-2 border-transparent hover:scale-105 hover:border-yellow-400 transition max-h-84 md:max-h-96 lg:max-h-[420px] rounded-xl"
+                        />
+                    </a>
                     <div className="text-white mt-4 p-4">
                         <h1 className="text-3xl font-extrabold mb-2 w-full text-yellow-400">
                             {movie.title}
@@ -110,25 +112,28 @@ function MoviePage() {
                 </li>
             )}
 
-            {trailerKey && (
-                <div className="flex flex-col gap-2 justify-center items-center bg-black/70 py-8 px-4">
-                    <h1 className="text-white text-xl font-bold">
-                        Watch the trailer NOW!
-                    </h1>
-                    <div className="flex justify-center items-center w-full max-w-4xl aspect-video">
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            src={`https://www.youtube.com/embed/${trailerKey}`}
-                            title="Trailer YouTube"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="rounded-xl shadow-lg md:w-[80%] md:h-[80%] lg:w-[90%] lg:h-[90%]"
-                        ></iframe>
+            <div id="target-section">
+                {trailerKey && (
+                    <div className="flex flex-col gap-2 justify-center items-center bg-black/70 py-8 px-4">
+                        <h1 className="text-white text-xl font-bold">
+                            Watch the trailer NOW!
+                        </h1>
+                        <div className="flex justify-center items-center w-full max-w-4xl aspect-video">
+                            <iframe
+                                id="iframe-target"
+                                width="100%"
+                                height="100%"
+                                src={`https://www.youtube.com/embed/${trailerKey}`}
+                                title="Trailer YouTube"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="rounded-xl shadow-lg md:w-[80%] md:h-[80%] lg:w-[90%] lg:h-[90%]"
+                            ></iframe>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
 
             <div className="bg-black/70 p-4">
                 <h2 className="text-center text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
