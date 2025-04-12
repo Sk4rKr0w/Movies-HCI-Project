@@ -27,6 +27,7 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/groupwatch" element={<GroupWatch />} />
                 <Route path="/movie/:id" element={<MoviePage />} />{" "}
+                <Route path="/movie/:id" element={<MoviePage />} />{" "}
             </Routes>
             <Footer />
         </Router>
