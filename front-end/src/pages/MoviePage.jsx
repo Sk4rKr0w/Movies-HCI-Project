@@ -6,6 +6,20 @@ function MoviePage() {
     const { id } = useParams();
     const [movie, setMovie] = useState(null);
     const [cast, setCast] = useState([]);
+    const [trailerKey, setTrailerKey] = useState(null);
+
+    const fetchYouTubeTrailer = async (movieId) => {
+        const res = await fetch(
+            `https://api.themoviedb.org/3/movie/${movieId}/videos?api_key=${API_KEY}`
+        );
+        const data = await res.json();
+
+        const trailer = data.results.find(
+            (vid) => vid.site === "YouTube" && vid.type === "Trailer"
+        );
+
+        return trailer ? trailer.key : null;
+    };
 
     useEffect(() => {
         const fetchMovie = async () => {
@@ -32,8 +46,18 @@ function MoviePage() {
             }
         };
 
+        const fetchTrailer = async () => {
+            try {
+                const key = await fetchYouTubeTrailer(id);
+                setTrailerKey(key);
+            } catch (err) {
+                console.error("Errore nella fetch del trailer:", err);
+            }
+        };
+
         fetchMovie();
         fetchCast();
+        fetchTrailer();
     }, [id]);
 
     return (
@@ -84,6 +108,26 @@ function MoviePage() {
                         <span className="w-3 h-3 bg-white rounded-full animate-bounce"></span>
                     </div>
                 </li>
+            )}
+
+            {trailerKey && (
+                <div className="flex flex-col gap-2 justify-center items-center bg-black/70 py-8 px-4">
+                    <h1 className="text-white text-xl font-bold">
+                        Watch the trailer NOW!
+                    </h1>
+                    <div className="flex justify-center items-center w-full max-w-4xl aspect-video">
+                        <iframe
+                            width="100%"
+                            height="100%"
+                            src={`https://www.youtube.com/embed/${trailerKey}`}
+                            title="Trailer YouTube"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="rounded-xl shadow-lg md:w-[80%] md:h-[80%] lg:w-[90%] lg:h-[90%]"
+                        ></iframe>
+                    </div>
+                </div>
             )}
 
             <div className="bg-black/70 p-4">
