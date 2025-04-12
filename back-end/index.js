@@ -6,7 +6,11 @@ const authRoutes = require("./routes/auth");
 const contactRoutes = require("./routes/contact");
 const protectedRoutes = require("./routes/protectedRoutes");
 const createGroupRoutes = require("./routes/creategroup");
-const searchGroupRoutes = require("./routes/searchgroup")
+const searchGroupRoutes = require("./routes/searchgroup");
+const profileGroupRoutes = require("./routes/profilegroup");
+const yourGroupRoutes = require("./routes/yourgroups");
+const searchMembersGroup = require("./routes/searchMembersGroup");
+const addMembersGroup = require("./routes/addMembersGroup");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -20,6 +24,10 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/protected", protectedRoutes);
 app.use("/api/createGroup", createGroupRoutes);
 app.use("/api/searchGroup", searchGroupRoutes);
+app.use("/api/profileGroup", profileGroupRoutes);
+app.use("/api/yourgroups", yourGroupRoutes);
+app.use("/api/searchmembersgroup", searchMembersGroup);
+app.use("/api/addmembersgroup", addMembersGroup);
 
 app.listen(PORT, () => {
   console.log(`✅ Server avviato su http://localhost:${PORT}`);

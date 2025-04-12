@@ -1,15 +1,29 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import supabase from "../supabaseClient";
+import * as bcrypt from "bcryptjs";
 
 function GroupWatch() {
   const [groups, setGroups] = useState([]);
   const [user, setUser] = useState(null);
+  const [error, setError] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const navigate = useNavigate();
+  const goToGroupProfile = (groupId) => {
+    navigate(`/groupprofile/${groupId}`);
+  };
 
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
     const token = localStorage.getItem("token");
     if (!token) {
-      return; // oppure: setError("You are not logged in.");
+      //setError("You are not logged in.");
+      return;
     }
   
     axios.get("http://localhost:3001/api/protected/profile", {
@@ -28,7 +42,12 @@ function GroupWatch() {
         console.error("Errore nel recupero utente:", err);
       });
   }, []);
-  
+
+  useEffect(() => {
+    if (user && user.id) {
+      handleYourGroups();
+    }
+  }, [user]);
     
   const handleCreateGroup = async () => {
     const name = prompt("Enter a name for your new group:");
@@ -65,22 +84,50 @@ function GroupWatch() {
     }
   };  
 
+  const handleYourGroups = async () => {
+    if (!user || !user.id) {
+      console.error("No user logged in or user ID missing");
+      return;
+    }
+
+    try {
+      const res = await axios.get(`http://localhost:3001/api/yourgroups/yourgroups?userId=${user.id}`);
+      setGroups(res.data.groups); // Supponendo che l'API restituisca un array di gruppi
+    } catch (err) {
+      console.error("Errore durante il recupero dei gruppi dell'utente:", err);
+      alert("Errore nel recupero dei gruppi.");
+    }
+  };
+
+  const moveToCreation = () => {
+    navigate("/groupcreation")
+  };
+
   return (
     <div style={{ padding: 20 }}>
       <h2>📽️ Group Watch Dashboard</h2>
       {user && <p>Welcome, {user.username}!</p>}
 
-      <button onClick={handleCreateGroup}>Create a Group</button>
+      <button onClick={moveToCreation}>Create a Group</button><br />
       <button onClick={handleSearchGroup}>Search a Group</button>
 
       <h3>Your Groups</h3>
-      <ul>
-        {groups.map((group) => (
-          <li key={group.id}>
-            <strong>{group.name}</strong>: {group.description}
-          </li>
-        ))}
-      </ul>
+      {groups.length === 0 ? (
+        <p>
+        {user
+          ? "You don't have any groups yet."
+          : "Please log in to see your groups."}
+        </p>
+      ) : (
+        <ul>
+          {groups.map((group) => (
+            <li key={group.id}>
+              <strong>{group.name}</strong>: {group.description}{" "}
+              <button onClick={() => goToGroupProfile(group.id)}><strong>View Group</strong></button>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {searchResults.length > 0 && (
         <div>
@@ -88,7 +135,8 @@ function GroupWatch() {
           <ul>
             {searchResults.map((group) => (
               <li key={group.id}>
-                <strong>{group.name}</strong>: {group.description}
+                <strong>{group.name}</strong>: {group.description}{" "}
+                <button onClick={() => goToGroupProfile(group.id)}><strong>View Group</strong></button>
               </li>
             ))}
           </ul>
