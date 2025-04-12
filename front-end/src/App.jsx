@@ -11,10 +11,7 @@ import Profile from "./pages/Profile";
 import GroupWatch from "./pages/GroupWatch";
 import GroupProfile from "./pages/GroupProfile";
 import GroupCreation from "./pages/GroupCreation";
-import GroupProfile from "./pages/GroupProfile";
-import GroupCreation from "./pages/GroupCreation";
 import Sidebar from "./components/Sidebar";
-import MoviePage from "./pages/MoviePage";
 import MoviePage from "./pages/MoviePage";
 
 function App() {
