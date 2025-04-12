@@ -10,7 +10,10 @@ import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
 import GroupWatch from "./pages/GroupWatch";
 import GroupProfile from "./pages/GroupProfile";
+import GroupProfile from "./pages/GroupProfile";
 import Sidebar from "./components/Sidebar";
+import MoviePage from "./pages/MoviePage";
+import GroupCreation from "./pages/GroupCreation";
 import MoviePage from "./pages/MoviePage";
 import GroupCreation from "./pages/GroupCreation";
 
@@ -26,7 +29,6 @@ function App() {
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/groupwatch" element={<GroupWatch />} />
-                <Route path="/movie/:id" element={<MoviePage />} />{" "}
                 <Route path="/movie/:id" element={<MoviePage />} />{" "}
             </Routes>
             <Footer />
