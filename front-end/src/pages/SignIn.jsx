@@ -75,9 +75,13 @@ function SignIn() {
                         </li>
                     ))
                 ) : (
-                    <p className="text-center text-lg">
-                        Caricamento in corso...
-                    </p>
+                    <li className="col-span-full flex justify-center items-center h-full">
+                        <div className="flex space-x-2">
+                            <span className="w-3 h-3 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                            <span className="w-3 h-3 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                            <span className="w-3 h-3 bg-white rounded-full animate-bounce"></span>
+                        </div>
+                    </li>
                 )}
             </ul>
             <div className="absolute top-0 left-0 right-0 bottom-0 p-6 flex flex-col items-center justify-start z-10 text-center">
