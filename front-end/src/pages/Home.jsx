@@ -1,19 +1,57 @@
 import { useEffect, useState } from "react";
 import { useMovieStore } from "../store/useMovieStore";
 import MovieQuiz from "../components/MovieQuiz";
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 function Home() {
     const [startQuiz, setStartQuiz] = useState(false);
     const movies = useMovieStore((state) => state.movies);
     const fetchMovies = useMovieStore((state) => state.fetchMovies);
+    const [trending, setTrending] = useState([]);
 
     useEffect(() => {
-        fetchMovies(30); // Personalizzabile: 20, 30, 40...
+        fetchMovies(30);
+        fetchTrendingMovies();
     }, []);
 
+    const fetchTrendingMovies = async () => {
+        try {
+            const res = await fetch(
+                `https://api.themoviedb.org/3/trending/movie/day?api_key=${API_KEY}`
+            );
+            const data = await res.json();
+            const top5 = data.results.slice(0, 5);
+
+            const moviesWithTrailers = await Promise.all(
+                top5.map(async (movie) => {
+                    const trailerRes = await fetch(
+                        `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${API_KEY}`
+                    );
+                    const trailerData = await trailerRes.json();
+                    const youtubeTrailer = trailerData.results.find(
+                        (vid) =>
+                            vid.site === "YouTube" && vid.type === "Trailer"
+                    );
+                    return {
+                        id: movie.id,
+                        title: movie.title,
+                        poster: movie.poster_path,
+                        trailerUrl: youtubeTrailer
+                            ? `https://www.youtube.com/watch?v=${youtubeTrailer.key}`
+                            : null,
+                    };
+                })
+            );
+
+            setTrending(moviesWithTrailers);
+        } catch (err) {
+            console.error("Errore nel recupero dei film in tendenza", err);
+        }
+    };
+
     return (
-        <div className="w-screen h-screen bg-gradient-to-r from-[#1b1b1b] via-[#2d2d2d] to-[#141414] text-white relative overflow-hidden">
-            <ul className="absolute inset-0 grid grid-cols-5 md:grid-cols-7 lg:grid-cols-10 gap-3 z-0 opacity-40 filter blur-[1px]">
+        <div className="w-screen min-h-screen bg-gradient-to-r from-[#1b1b1b] via-[#2d2d2d] to-[#141414] text-white relative overflow-hidden">
+            <ul className="absolute inset-0 grid grid-cols-5 md:grid-cols-6 lg:grid-cols-10 gap-3 z-0 opacity-40 filter blur-[1px]">
                 {movies.length > 0 ? (
                     movies.map((movie) => (
                         <li key={movie.id} className="relative w-full h-full">
@@ -37,7 +75,7 @@ function Home() {
                 )}
             </ul>
 
-            <div className="absolute top-0 left-0 right-0 bottom-0 p-6 flex flex-col items-center justify-start z-10 text-center">
+            <div className="relative z-10 px-6 py-10 flex flex-col items-center text-center overflow-x-hidden">
                 <h1 className="text-3xl font-extrabold text-white leading-tight mb-4 drop-shadow-lg">
                     Movie Recommendations Quiz
                 </h1>
@@ -54,6 +92,43 @@ function Home() {
                     Start ▶
                 </button>
                 {startQuiz && <MovieQuiz />}
+
+                <div className="mt-12 w-full">
+                    <h2 className="text-2xl font-extrabold mb-4 text-yellow-400">
+                        Trending Now
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        {trending.map((movie) => (
+                            <a
+                                key={movie.id}
+                                href={movie.trailerUrl || "#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="border border-gray-700 bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition"
+                            >
+                                {movie.poster && (
+                                    <img
+                                        src={`https://image.tmdb.org/t/p/w500${movie.poster}`}
+                                        alt={movie.title}
+                                        className="w-full h-64 object-cover rounded-md mb-2"
+                                    />
+                                )}
+                                <h3 className="text-lg font-semibold">
+                                    {movie.title}
+                                </h3>
+                                {movie.trailerUrl ? (
+                                    <p className="text-yellow-400 text-sm mt-1">
+                                        Watch Trailer ▶
+                                    </p>
+                                ) : (
+                                    <p className="text-gray-400 text-sm mt-1">
+                                        No trailer available
+                                    </p>
+                                )}
+                            </a>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
