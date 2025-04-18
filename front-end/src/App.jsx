@@ -26,6 +26,8 @@ function App() {
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/groupwatch" element={<GroupWatch />} />
+                <Route path="/groupprofile/:id" element={<GroupProfile />} />
+                <Route path="/groupcreation" element={<GroupCreation />} />
                 <Route path="/movie/:id" element={<MoviePage />} />{" "}
             </Routes>
             <Footer />

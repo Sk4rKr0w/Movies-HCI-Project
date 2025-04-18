@@ -9,6 +9,7 @@ function GroupWatch() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [searchMessage, setSearchMessage] = useState("");
   const navigate = useNavigate();
   const goToGroupProfile = (groupId) => {
     navigate(`/groupprofile/${groupId}`);
@@ -49,40 +50,40 @@ function GroupWatch() {
     }
   }, [user]);
     
-  const handleCreateGroup = async () => {
-    const name = prompt("Enter a name for your new group:");
-    if (!name || !user) {
-      alert("Errore durante la creazione del gruppo.");
-      return;
-    } 
-
-    try {
-      const res = await axios.post("http://localhost:3001/api/creategroup/creategroup", {
-        name,
-        description: "New movie group created by user.",
-        owner: user.id,
-      });
-
-      alert("Gruppo creato con successo!");
-      setGroups((prev) => [...prev, res.data.group]);
-    } catch (err) {
-      console.error("Errore nella creazione del gruppo:", err);
-      alert("Errore durante la creazione del gruppo.");
-    }
-  };
-
   const handleSearchGroup = async () => {
     const groupName = prompt("Enter the group name you want to search for:");
     if (!groupName) return;
   
     try {
-      const res = await axios.get(`http://localhost:3001/api/searchgroup/searchgroup?name=${groupName}`);
+      const res = await axios.get(`http://localhost:3001/api/searchgroup/searchgroup`, {
+        params: {
+          name: groupName,
+          userId: user.id,
+        }
+      });      
       setSearchResults(res.data.groups); // supponendo che res.data.groups sia l’array restituito
+      setSearchMessage(res.data.message || "");
     } catch (err) {
       console.error("Errore durante la ricerca del gruppo:", err);
       alert("Errore nella ricerca del gruppo.");
     }
   };  
+
+  const handleJoinGroup = async (groupName) => {
+    if (!groupName) return;
+  
+    try {
+      await axios.post(`http://localhost:3001/api/joingroup/joingroup`, {
+        groupId: groupName,
+        userId: user.id,
+      });           
+      alert("Sei entrato nel gruppo con successo!");
+      window.location.reload();
+    } catch (err) {
+      console.error("Errore durante il tentativo di unione al gruppo:", err);
+      alert("Errore nell'unione al gruppo.");
+    }
+  };
 
   const handleYourGroups = async () => {
     if (!user || !user.id) {
@@ -128,7 +129,6 @@ function GroupWatch() {
           ))}
         </ul>
       )}
-
       {searchResults.length > 0 && (
         <div>
           <h3>🔍 Risultati della ricerca</h3>
@@ -136,11 +136,19 @@ function GroupWatch() {
             {searchResults.map((group) => (
               <li key={group.id}>
                 <strong>{group.name}</strong>: {group.description}{" "}
-                <button onClick={() => goToGroupProfile(group.id)}><strong>View Group</strong></button>
+                <button onClick={() => goToGroupProfile(group.id)}>
+                  <strong>View Group</strong>
+                </button>
+                <button onClick={() => handleJoinGroup(group.id)}>
+                  <strong>Join Group</strong>
+                </button>
               </li>
             ))}
           </ul>
         </div>
+      )}
+      {searchMessage && (
+        <p style={{ color: "gray", marginTop: "10px" }}>{searchMessage}</p>
       )}
     </div>
   );
