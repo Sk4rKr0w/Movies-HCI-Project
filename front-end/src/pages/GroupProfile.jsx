@@ -60,6 +60,10 @@ function GroupProfile() {
     }
   };
 
+  const goToGroupEdit = (groupId) => {
+    navigate(`/groupedit/${groupId}`);
+  };
+
   const handleSearchUsers = async () => {
     if (!searchInput.trim()) return;
   
@@ -116,13 +120,18 @@ function GroupProfile() {
       <h2>{group.name} - Group Profile</h2>
       <p><strong>Description:</strong> {group.description}</p>
       <p><strong>Owner:</strong> {group.owner_username}</p>
-      
       <h3><strong>Members:</strong></h3>
       <ul>
         {group.members && group.members.length > 0 ? (
           group.members.map((member) => (
             <li key={member.id}>{member.username}
-            {user && group.owner === user.id && (
+            {member.id === group.owner && (
+              <span style={{ marginLeft: "8px", fontWeight: "bold", color: "black" }}>Owner</span>
+            )}
+            {user && member.id === user.id && (
+              <span style={{ marginLeft: "8px", fontWeight: "bold", color: "gray" }}>(You)</span>
+            )}
+            {user && member.id != group.owner && group.owner === user.id && (
               <button
                 style={{
                   marginLeft: "10px",
@@ -161,10 +170,10 @@ function GroupProfile() {
           <button onClick={() => setShowAddMembers(true)}>
             Add Members
           </button>
-          <button onClick={() => goToGroupProfile(group.id)}><strong>Edit Group</strong></button>
+          <button onClick={() => goToGroupEdit(group.id)}><strong>Edit Group</strong></button>
           </>
         )}
-        {user && user.id != group.owner && (
+        {user && user.id != group.owner && group.members?.some(member => member.id === user.id) && (
           <>
           <button
             onClick={handleLeaveGroup}

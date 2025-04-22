@@ -13,6 +13,7 @@ import GroupProfile from "./pages/GroupProfile";
 import GroupCreation from "./pages/GroupCreation";
 import Sidebar from "./components/Sidebar";
 import MoviePage from "./pages/MoviePage";
+import EditPage from "./pages/GroupEdit";
 
 function App() {
     return (
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/groupprofile/:id" element={<GroupProfile />} />
                 <Route path="/groupcreation" element={<GroupCreation />} />
                 <Route path="/movie/:id" element={<MoviePage />} />{" "}
+                <Route path="/groupedit/:id" element={<EditPage/>}/>
             </Routes>
             <Footer />
         </Router>

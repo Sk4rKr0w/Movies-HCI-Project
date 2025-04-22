@@ -58,7 +58,7 @@ function GroupWatch() {
       const res = await axios.get(`http://localhost:3001/api/searchgroup/searchgroup`, {
         params: {
           name: groupName,
-          userId: user.id,
+          userId: user?.id ?? Math.floor(Math.random() * 1000000),
         }
       });      
       setSearchResults(res.data.groups); // supponendo che res.data.groups sia l’array restituito
@@ -71,7 +71,7 @@ function GroupWatch() {
 
   const handleJoinGroup = async (groupName) => {
     if (!groupName) return;
-  
+    if (!user) alert("Devi essere loggato prima di entrare in un gruppo!");
     try {
       await axios.post(`http://localhost:3001/api/joingroup/joingroup`, {
         groupId: groupName,
