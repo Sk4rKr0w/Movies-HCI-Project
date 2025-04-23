@@ -11,6 +11,10 @@ const profileGroupRoutes = require("./routes/profilegroup");
 const yourGroupRoutes = require("./routes/yourgroups");
 const searchMembersGroup = require("./routes/searchMembersGroup");
 const addMembersGroup = require("./routes/addMembersGroup");
+const removeMembersGroup = require("./routes/removeMembersGroup");
+const joinGroup = require("./routes/joinGroup");
+const leaveGroup = require("./routes/leaveGroup");
+const editGroup = require("./routes/editgroup");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +32,10 @@ app.use("/api/profileGroup", profileGroupRoutes);
 app.use("/api/yourgroups", yourGroupRoutes);
 app.use("/api/searchmembersgroup", searchMembersGroup);
 app.use("/api/addmembersgroup", addMembersGroup);
+app.use("/api/removemembersgroup", removeMembersGroup);
+app.use("/api/joingroup", joinGroup);
+app.use("/api/leavegroup", leaveGroup);
+app.use("/api/editgroup", editGroup);
 
 app.listen(PORT, () => {
   console.log(`✅ Server avviato su http://localhost:${PORT}`);

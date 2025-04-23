@@ -44,6 +44,26 @@ function GroupProfile() {
     }
   };
 
+  const handleLeaveGroup = async () => {
+    if (!window.confirm("Sei sicuro di voler abbandonare questo gruppo?")) return;
+      
+    try {
+      await axios.post(`http://localhost:3001/api/leavegroup/leavegroup`, {
+        groupId: group.id,
+        userId: user.id,
+      });
+      alert("Gruppo abbandonato con successo.");
+      navigate("/groupwatch");
+    } catch (err) {
+      console.error("Errore durante l'abbandono del gruppo:", err);
+      alert("Errore durante l'abbandono del gruppo.");
+    }
+  };
+
+  const goToGroupEdit = (groupId) => {
+    navigate(`/groupedit/${groupId}`);
+  };
+
   const handleSearchUsers = async () => {
     if (!searchInput.trim()) return;
   
@@ -57,8 +77,6 @@ function GroupProfile() {
   };
   
   const handleAddUserToGroup = async (userIdToAdd) => {
-    console.log("groupId:", group.id);  // Verifica che group.id esista
-    console.log("userId:", userIdToAdd);      // Verifica che userId sia valido
     try {
       await axios.post("http://localhost:3001/api/addmembersgroup/addMembersGroup", {
         groupId: group.id,
@@ -71,6 +89,21 @@ function GroupProfile() {
     } catch (err) {
       console.error("Errore durante l'aggiunta dell'utente al gruppo:", err);
       alert("Errore durante l'aggiunta dell'utente.");
+    }
+  };  
+
+  const handleRemoveUserFromGroup = async (userIdToRemove) => {
+    if (!window.confirm("Sei sicuro di voler rimuovere questo membro dal gruppo?")) return;
+    try {
+      await axios.post("http://localhost:3001/api/removemembersgroup/removeMembersGroup", {
+        groupId: group.id,
+        userId: userIdToRemove,
+      });
+      alert("Utente rimosso con successo!");
+      window.location.reload(); // oppure aggiorna lo stato del gruppo manualmente
+    } catch (err) {
+      console.error("Errore durante la rimozione dell'utente dal gruppo:", err);
+      alert("Errore durante la rimozione dell'utente.");
     }
   };  
 
@@ -87,12 +120,33 @@ function GroupProfile() {
       <h2>{group.name} - Group Profile</h2>
       <p><strong>Description:</strong> {group.description}</p>
       <p><strong>Owner:</strong> {group.owner_username}</p>
-      
       <h3><strong>Members:</strong></h3>
       <ul>
         {group.members && group.members.length > 0 ? (
           group.members.map((member) => (
-            <li key={member.id}>{member.username}</li>
+            <li key={member.id}>{member.username}
+            {member.id === group.owner && (
+              <span style={{ marginLeft: "8px", fontWeight: "bold", color: "black" }}>Owner</span>
+            )}
+            {user && member.id === user.id && (
+              <span style={{ marginLeft: "8px", fontWeight: "bold", color: "gray" }}>(You)</span>
+            )}
+            {user && member.id != group.owner && group.owner === user.id && (
+              <button
+                style={{
+                  marginLeft: "10px",
+                  backgroundColor: "red",
+                  color: "white",
+                  border: "none",
+                  padding: "5px 10px",
+                  cursor: "pointer"
+                }}
+                onClick={() => handleRemoveUserFromGroup(member.id)}
+              >
+                Remove
+              </button>
+            )}
+            </li>
           ))
         ) : (
           <p>No members yet.</p>
@@ -114,7 +168,26 @@ function GroupProfile() {
             🗑️ Delete Group
           </button>
           <button onClick={() => setShowAddMembers(true)}>
-            Aggiungi membri
+            Add Members
+          </button>
+          <button onClick={() => goToGroupEdit(group.id)}><strong>Edit Group</strong></button>
+          </>
+        )}
+        {user && user.id != group.owner && group.members?.some(member => member.id === user.id) && (
+          <>
+          <button
+            onClick={handleLeaveGroup}
+            style={{
+              marginTop: "20px",
+              padding: "10px 15px",
+              backgroundColor: "#dc2626",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            🗑️ Leave Group
           </button>
           </>
         )}
