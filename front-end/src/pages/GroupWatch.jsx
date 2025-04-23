@@ -1,157 +1,264 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { truncateText } from "../utils/truncateText";
 import { useNavigate } from "react-router-dom";
 import supabase from "../supabaseClient";
 import * as bcrypt from "bcryptjs";
 
 function GroupWatch() {
-  const [groups, setGroups] = useState([]);
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchMessage, setSearchMessage] = useState("");
-  const navigate = useNavigate();
-  const goToGroupProfile = (groupId) => {
-    navigate(`/groupprofile/${groupId}`);
-  };
+    const [groups, setGroups] = useState([]);
+    const [user, setUser] = useState(null);
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchMessage, setSearchMessage] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [joinMessage, setJoinMessage] = useState(""); // 👈 nuovo stato per messaggio join
+    const navigate = useNavigate();
+    const resultsRef = useRef(null);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const goToGroupProfile = (groupId) => {
+        navigate(`/groupprofile/${groupId}`);
+    };
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      //setError("You are not logged in.");
-      return;
-    }
-  
-    axios.get("http://localhost:3001/api/protected/profile", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then((res) => {
-        if (res.data.error) {
-          console.error("Errore:", res.data.error);
-        } else {
-          setUser(res.data.user);
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
         }
-      })
-      .catch((err) => {
-        console.error("Errore nel recupero utente:", err);
-      });
-  }, []);
 
-  useEffect(() => {
-    if (user && user.id) {
-      handleYourGroups();
-    }
-  }, [user]);
-    
-  const handleSearchGroup = async () => {
-    const groupName = prompt("Enter the group name you want to search for:");
-    if (!groupName) return;
-  
-    try {
-      const res = await axios.get(`http://localhost:3001/api/searchgroup/searchgroup`, {
-        params: {
-          name: groupName,
-          userId: user?.id ?? Math.floor(Math.random() * 1000000),
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        axios
+            .get("http://localhost:3001/api/protected/profile", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => {
+                if (!res.data.error) {
+                    setUser(res.data.user);
+                }
+            })
+            .catch((err) => {
+                console.error("Errore nel recupero utente:", err);
+            });
+    }, []);
+
+    useEffect(() => {
+        if (user?.id) {
+            handleYourGroups();
         }
-      });      
-      setSearchResults(res.data.groups); // supponendo che res.data.groups sia l’array restituito
-      setSearchMessage(res.data.message || "");
-    } catch (err) {
-      console.error("Errore durante la ricerca del gruppo:", err);
-      alert("Errore nella ricerca del gruppo.");
-    }
-  };  
+    }, [user]);
 
-  const handleJoinGroup = async (groupName) => {
-    if (!groupName) return;
-    if (!user) alert("Devi essere loggato prima di entrare in un gruppo!");
-    try {
-      await axios.post(`http://localhost:3001/api/joingroup/joingroup`, {
-        groupId: groupName,
-        userId: user.id,
-      });           
-      alert("Sei entrato nel gruppo con successo!");
-      window.location.reload();
-    } catch (err) {
-      console.error("Errore durante il tentativo di unione al gruppo:", err);
-      alert("Errore nell'unione al gruppo.");
-    }
-  };
+    const handleSearchGroup = async () => {
+        if (!searchTerm.trim()) return;
 
-  const handleYourGroups = async () => {
-    if (!user || !user.id) {
-      console.error("No user logged in or user ID missing");
-      return;
-    }
+        try {
+            const res = await axios.get(
+                `http://localhost:3001/api/searchgroup/searchgroup`,
+                {
+                    params: {
+                        name: searchTerm.trim(),
+                        userId: user?.id ?? Math.floor(Math.random() * 1000000),
+                    },
+                }
+            );
+            setSearchResults(res.data.groups || []);
+            setSearchMessage(res.data.message || "");
+            setJoinMessage("");
 
-    try {
-      const res = await axios.get(`http://localhost:3001/api/yourgroups/yourgroups?userId=${user.id}`);
-      setGroups(res.data.groups); // Supponendo che l'API restituisca un array di gruppi
-    } catch (err) {
-      console.error("Errore durante il recupero dei gruppi dell'utente:", err);
-      alert("Errore nel recupero dei gruppi.");
-    }
-  };
+            setTimeout(() => {
+                resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+        } catch (err) {
+            console.error("Errore durante la ricerca del gruppo:", err);
+            setSearchMessage("Errore nella ricerca del gruppo.");
+        }
+    };
 
-  const moveToCreation = () => {
-    navigate("/groupcreation")
-  };
+    const handleJoinGroup = async (groupId) => {
+        if (!groupId || !user) {
+            setJoinMessage(
+                "Devi essere loggato prima di entrare in un gruppo!"
+            );
+            return;
+        }
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h2>📽️ Group Watch Dashboard</h2>
-      {user && <p>Welcome, {user.username}!</p>}
+        try {
+            await axios.post(`http://localhost:3001/api/joingroup/joingroup`, {
+                groupId,
+                userId: user.id,
+            });
+            setJoinMessage("Sei entrato nel gruppo con successo!");
+            handleYourGroups(); // 👈 aggiorna i tuoi gruppi
+        } catch (err) {
+            console.error("Errore durante l'unione al gruppo:", err);
+            setJoinMessage("Errore nell'unione al gruppo.");
+        }
+    };
 
-      <button onClick={moveToCreation}>Create a Group</button><br />
-      <button onClick={handleSearchGroup}>Search a Group</button>
+    const handleYourGroups = async () => {
+        if (!user?.id) return;
 
-      <h3>Your Groups</h3>
-      {groups.length === 0 ? (
-        <p>
-        {user
-          ? "You don't have any groups yet."
-          : "Please log in to see your groups."}
-        </p>
-      ) : (
-        <ul>
-          {groups.map((group) => (
-            <li key={group.id}>
-              <strong>{group.name}</strong>: {group.description}{" "}
-              <button onClick={() => goToGroupProfile(group.id)}><strong>View Group</strong></button>
-            </li>
-          ))}
-        </ul>
-      )}
-      {searchResults.length > 0 && (
-        <div>
-          <h3>🔍 Risultati della ricerca</h3>
-          <ul>
-            {searchResults.map((group) => (
-              <li key={group.id}>
-                <strong>{group.name}</strong>: {group.description}{" "}
-                <button onClick={() => goToGroupProfile(group.id)}>
-                  <strong>View Group</strong>
+        try {
+            const res = await axios.get(
+                `http://localhost:3001/api/yourgroups/yourgroups?userId=${user.id}`
+            );
+            setGroups(res.data.groups || []);
+        } catch (err) {
+            console.error("Errore nel recupero dei gruppi:", err);
+        }
+    };
+
+    const moveToCreation = () => {
+        navigate("/groupcreation");
+    };
+
+    return (
+        <div className="bg-black text-white flex flex-col justify-start items-center px-2 py-4 md:min-h-[90vh]">
+            <h2 className="py-4 text-2xl md:text-3xl font-bold text-center text-yellow-400">
+                📽️ Group Watch Dashboard 📽
+            </h2>
+
+            {user && (
+                <p className="text-center text-yellow-400 text-lg md:text-xl mb-4">
+                    Welcome, {user.username}!
+                </p>
+            )}
+
+            <div className="w-[90%] md:w-[75%] lg:w-[65%] flex flex-row my-2">
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search for a group..."
+                    className="bg-gray-600 focus:bg-gray-800 flex-grow px-4 py-2 text-white rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                />
+                <button
+                    onClick={handleSearchGroup}
+                    className="bg-yellow-500 hover:bg-yellow-600 cursor-pointer text-black px-4 py-2 rounded-r-md transition"
+                >
+                    Search
                 </button>
-                <button onClick={() => handleJoinGroup(group.id)}>
-                  <strong>Join Group</strong>
-                </button>
-              </li>
-            ))}
-          </ul>
+            </div>
+
+            <button
+                onClick={moveToCreation}
+                className="text-black w-[90%] md:w-[75%] lg:w-[65%] cursor-pointer bg-yellow-500 py-2 my-2 hover:bg-yellow-600 rounded-md transition"
+            >
+                Create a Group
+            </button>
+
+            <hr className="m-4 w-[60%] border"></hr>
+
+            <h3 className="text-lg m-2 mb-6">Your Current Groups</h3>
+
+            {groups.length === 0 ? (
+                <p>
+                    {user
+                        ? "You don't have any groups yet."
+                        : "Please log in to see your groups."}
+                </p>
+            ) : (
+                <table className="min-w-[90%] table-auto border-collapse border border-gray-700">
+                    <thead className="bg-gray-800 text-white">
+                        <tr>
+                            <th className="text-md border border-gray-700 p-2 text-center">
+                                Group Name
+                            </th>
+                            <th className="text-md border border-gray-700 p-2 text-center">
+                                Description
+                            </th>
+                            <th className="text-md border border-gray-700 p-2 text-center">
+                                N° Users
+                            </th>
+                            <th className="text-md border border-gray-700 p-2 text-center">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {groups.map((group) => (
+                            <tr
+                                key={group.id}
+                                className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            >
+                                <td className="border border-gray-700 px-4 py-2 text-center">
+                                    {group.name}
+                                </td>
+                                <td className="border border-gray-700 px-4 py-2 text-left">
+                                    {truncateText(group.description, 15)}
+                                </td>
+                                <td className="border border-gray-700 px-4 py-2 text-center">
+                                    {group.membersCount || "???"}
+                                </td>
+                                <td className="border border-gray-700 px-4 py-2 text-center">
+                                    <button
+                                        onClick={() =>
+                                            goToGroupProfile(group.id)
+                                        }
+                                        className="text-blue-500 hover:text-blue-400 cursor-pointer"
+                                    >
+                                        View Group
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+
+            {searchResults.length > 0 && (
+                <div ref={resultsRef} className="min-w-[90%] mt-6">
+                    <h3 className="text-xl mb-2 text-yellow-300">
+                        🔍 Risultati della ricerca
+                    </h3>
+                    {joinMessage && (
+                        <p className="text-green-300 my-4 text-sm">
+                            {joinMessage}
+                        </p>
+                    )}
+                    <ul className="space-y-2">
+                        {searchResults.map((group) => (
+                            <li
+                                key={group.id}
+                                className="bg-gray-900 p-3 rounded-md"
+                            >
+                                <p>
+                                    <strong className="text-yellow-400">
+                                        {group.name}
+                                    </strong>
+                                    : {truncateText(group.description, 50)}
+                                </p>
+                                <div className="flex gap-4 mt-2">
+                                    <button
+                                        onClick={() =>
+                                            goToGroupProfile(group.id)
+                                        }
+                                        className="cursor-pointer px-3 py-2 bg-blue-400 hover:bg-blue-300 text-black text-sm rounded-lg"
+                                    >
+                                        View Group
+                                    </button>
+                                    <button
+                                        onClick={() =>
+                                            handleJoinGroup(group.id)
+                                        }
+                                        className="cursor-pointer px-3 py-2 bg-green-400 hover:bg-green-300 text-black text-[12px] rounded-lg"
+                                    >
+                                        Join Group
+                                    </button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {searchMessage && (
+                <p className="text-green-400 mt-4">{searchMessage}</p>
+            )}
         </div>
-      )}
-      {searchMessage && (
-        <p style={{ color: "gray", marginTop: "10px" }}>{searchMessage}</p>
-      )}
-    </div>
-  );
+    );
 }
 
 export default GroupWatch;
