@@ -75,7 +75,7 @@ function MoviePage() {
                         <img
                             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                             alt={`${movie.title} IMG`}
-                            className="cursor-pointer border-2 border-transparent hover:scale-105 hover:border-yellow-400 transition max-h-84 md:max-h-96 lg:max-h-[420px] rounded-xl"
+                            className="mt-4 md:mt-0 cursor-pointer border-2 border-transparent hover:scale-105 hover:border-yellow-400 transition max-h-84 md:max-h-96 lg:max-h-[420px] rounded-xl"
                         />
                     </a>
                     <div className="text-white mt-4 p-4">
