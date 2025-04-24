@@ -153,135 +153,145 @@ function GroupProfile() {
     }
 
     const getAvatarUrl = (user) => {
-        const fileName = user?.avatar_url && user.avatar_url !== "default_avatar.png"
-            ? user.avatar_url
-            : "default_avatar.png";
-        return supabase.storage.from("avatars").getPublicUrl(fileName).data.publicUrl;
+        const fileName =
+            user?.avatar_url && user.avatar_url !== "default_avatar.png"
+                ? user.avatar_url
+                : "default_avatar.png";
+        return supabase.storage.from("avatars").getPublicUrl(fileName).data
+            .publicUrl;
     };
 
     return (
-        <div className="min-h-screen bg-black text-white flex flex-col justify-start items-center p-4">
-            <h2 className="py-4 text-3xl md:text-3xl font-bold text-center text-yellow-400">
-                {group.name} - Group Profile
-            </h2>
-            <p className="p-5 text-center italic max-w-prose md:max-w-[80ch] lg:max-w-[100ch]">
-                <strong className="text-yellow-400">Description:</strong>{" "}
-                {group.description}
-            </p>
-            <h3 className="font-bold text-yellow-400 m-4 text-2xl">Members:</h3>
-            <ul className="w-full md:w-[70%] bg-gray-900 rounded-lg p-2">
-                {group.members && group.members.length > 0 ? (
-                    group.members.map((member) => (
-                        <li
-                            className="flex flex-row justify-between items-center my-2 mx-3 bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition"
-                            key={member.id}
-                        >
-                            <div className="flex items-center space-x-4">
-                                <img
-                                    src={getAvatarUrl(member)}
-                                    alt={`${member.username}'s avatar`}
-                                    className="w-10 h-10 rounded-full hidden md:flex"
-                                />
-                                <span className="font-semibold text-white">
-                                    {member.username}
-                                </span>
-                            </div>
+        <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-gray-900 text-gray-100 p-6 flex flex-col items-center gap-10">
+            <header className="text-center">
+                <h2 className="text-4xl font-bold text-yellow-400">
+                    {group.name}
+                </h2>
+                <p className="mt-4 italic max-w-3xl mx-auto">
+                    <strong className="text-yellow-400">Description:</strong>{" "}
+                    {group.description}
+                </p>
+            </header>
 
-                            <div className="flex items-center space-x-3">
-                                {member.id === group.owner && (
-                                    <span className="text-sm text-yellow-400 font-extrabold">
-                                        Owner
+            <section className="w-full max-w-4xl space-y-6">
+                <h3 className="text-2xl font-semibold text-yellow-400">
+                    👥 Members
+                </h3>
+                <ul className="space-y-4">
+                    {group.members.length > 0 ? (
+                        group.members.map((member) => (
+                            <li
+                                key={member.id}
+                                className="flex justify-between items-center p-4 rounded-xl bg-white/5 backdrop-blur-sm shadow-md"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <img
+                                        src={getAvatarUrl(member)}
+                                        alt={`${member.username}'s avatar`}
+                                        className="w-10 h-10 rounded-full hidden md:block"
+                                    />
+                                    <span className="font-semibold">
+                                        {member.username}
                                     </span>
-                                )}
-                                {user && member.id === user.id && (
-                                    <span className="text-sm text-blue-400 font-bold">
-                                        (You)
-                                    </span>
-                                )}
-                                {user &&
-                                    user.id === group.owner &&
-                                    member.id !== group.owner && (
-                                        <button
-                                            className="cursor-pointer flex flex-row gap-2 justify-center items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                                            onClick={() =>
-                                                handleRemoveUserFromGroup(
-                                                    member.id
-                                                )
-                                            }
-                                        >
-                                            <img
-                                                src={removeMember}
-                                                className="w-6 h-6"
-                                            />
-                                            Remove
-                                        </button>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    {member.id === group.owner && (
+                                        <span className="text-yellow-400 font-bold">
+                                            Owner
+                                        </span>
                                     )}
-                            </div>
-                        </li>
-                    ))
-                ) : (
-                    <p>No members yet.</p>
-                )}
-            </ul>
+                                    {user?.id === member.id && (
+                                        <span className="text-blue-400 font-medium">
+                                            (You)
+                                        </span>
+                                    )}
+                                    {user?.id === group.owner &&
+                                        member.id !== group.owner && (
+                                            <button
+                                                onClick={() =>
+                                                    handleRemoveUserFromGroup(
+                                                        member.id
+                                                    )
+                                                }
+                                                className="cursor-pointer flex flex-row justify-center items-center gap-x-1 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                                            >
+                                                <img
+                                                    src={removeMember}
+                                                    className="w-6 h-6"
+                                                />
+                                                <span>Remove</span>
+                                            </button>
+                                        )}
+                                </div>
+                            </li>
+                        ))
+                    ) : (
+                        <p className="text-center text-gray-400">
+                            No members yet.
+                        </p>
+                    )}
+                </ul>
+            </section>
 
-            <div className="flex flex-col md:flex-row justify-center items-center my-5">
-                {user && user.id === group.owner && (
-                    <div className="flex flex-row md:flex-row gap-5 my-2">
+            <div className="flex flex-wrap gap-4 justify-center items-center">
+                {user?.id === group.owner && (
+                    <>
                         <button
-                            className="px-3 py-2 text-sm bg-yellow-500 rounded-md text-black cursor-pointer transition hover:bg-yellow-600"
                             onClick={() => goToGroupEdit(group.id)}
+                            className="cursor-pointer px-4 py-2 bg-yellow-500 text-black font-semibold rounded-md hover:bg-yellow-600 transition"
                         >
-                            Edit Group
+                            ✏️ Edit Group
                         </button>
                         <button
-                            className="px-3 py-2 text-sm bg-red-500 rounded-md cursor-pointer transition hover:bg-red-600"
                             onClick={handleDeleteGroup}
+                            className="cursor-pointer px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition"
                         >
-                            Delete Group
+                            🗑 Delete Group
                         </button>
-                    </div>
+                    </>
                 )}
                 {user &&
                     user.id !== group.owner &&
-                    group.members?.some((member) => member.id === user.id) && (
+                    group.members.some((member) => member.id === user.id) && (
                         <button
                             onClick={handleLeaveGroup}
-                            className="flex flex-row gap-2 justify-center items-center my-4 px-3 py-2 bg-red-500 text-white cursor-pointer rounded-md"
+                            className="cursor-pointer flex flex-row justify-center items-center px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition"
                         >
                             <img src={leaveIcon} className="w-6 h-6" />
-                            Leave Group
+                            <span>Leave Group</span>
                         </button>
                     )}
                 <a
                     href="/groupwatch"
-                    className="px-3 py-2 text-sm text-yellow-400 hover:text-yellow-500 transition"
+                    className="text-sm text-yellow-400 hover:text-yellow-500 underline"
                 >
                     Return to Home
                 </a>
             </div>
 
-            <div className="w-full md:w-[70%] flex flex-col justify-center items-center">
-                <div className="w-full text-black flex flex-row">
+            <section className="w-full max-w-xl space-y-4">
+                <div className="flex">
                     <input
                         type="text"
                         placeholder="Search Users..."
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
-                        className="text-white flex-grow bg-gray-500 px-4 py-2 rounded-l-lg focus:outline-2 focus:outline-yellow-400"
+                        className="flex-grow px-4 py-2 rounded-l-lg bg-gray-800 text-white outline-2 focus:outline-yellow-400"
                     />
                     <button
-                        className="cursor-pointer bg-yellow-300 px-4 py-2 rounded-r-lg"
                         onClick={handleSearchUsers}
+                        className="cursor-pointer px-4 py-2 bg-yellow-400 text-black font-semibold rounded-r-lg hover:bg-yellow-500 "
                     >
                         Search
                     </button>
                 </div>
+
                 {searchResults.length > 0 && (
-                    <div className="my-4 w-full">
-                        <h2 className="text-xl text-yellow-400 font-semibold mb-4 text-center">
+                    <div>
+                        <h2 className="text-xl text-yellow-400 font-semibold text-center">
                             🔍 Search Results
                         </h2>
-                        <ul className="space-y-4">
+                        <ul className="space-y-3 mt-3">
                             {searchResults
                                 .filter(
                                     (u) =>
@@ -293,23 +303,21 @@ function GroupProfile() {
                                 .map((u) => (
                                     <li
                                         key={u.id}
-                                        className="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-lg hover:bg-gray-700 transition"
+                                        className="flex justify-between items-center p-4 bg-white/5 rounded-lg shadow-sm"
                                     >
-                                        <div className="flex items-center space-x-3">
+                                        <div className="flex items-center gap-3">
                                             <img
                                                 src={getAvatarUrl(u)}
                                                 alt="User avatar"
-                                                className="hidden md:flex w-10 h-10 rounded-full"
+                                                className="w-10 h-10 rounded-full hidden md:block"
                                             />
-                                            <span className="text-white font-semibold">
-                                                {u.username}
-                                            </span>
+                                            <span>{u.username}</span>
                                         </div>
                                         <button
-                                            className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
                                             onClick={() =>
                                                 handleAddUserToGroup(u.id)
                                             }
+                                            className="cursor-pointer px-4 py-1 bg-green-600 text-white rounded-md hover:bg-green-500"
                                         >
                                             Add Member
                                         </button>
@@ -318,10 +326,10 @@ function GroupProfile() {
                         </ul>
                     </div>
                 )}
-            </div>
+            </section>
 
             {message && (
-                <p className="mt-2 text-center text-yellow-400">{message}</p>
+                <p className="text-center text-yellow-400 mt-4">{message}</p>
             )}
         </div>
     );
