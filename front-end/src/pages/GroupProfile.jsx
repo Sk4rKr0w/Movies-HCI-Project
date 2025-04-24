@@ -153,9 +153,10 @@ function GroupProfile() {
     }
 
     const getAvatarUrl = (user) => {
-        if (!user?.avatar_url) return null;
-        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url)
-            .data.publicUrl;
+        const fileName = user?.avatar_url && user.avatar_url !== "default_avatar.png"
+            ? user.avatar_url
+            : "default_avatar.png";
+        return supabase.storage.from("avatars").getPublicUrl(fileName).data.publicUrl;
     };
 
     return (

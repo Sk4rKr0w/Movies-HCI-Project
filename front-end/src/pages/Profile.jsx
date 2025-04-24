@@ -22,7 +22,7 @@ function Profile() {
     }, []);
 
     const refreshUser = (data) => {
-        setUser(data);
+        (data);
         localStorage.setItem("user", JSON.stringify(data));
         setUpdateMessage("✅ Modifiche salvate con successo!");
 
@@ -32,9 +32,8 @@ function Profile() {
     };
 
     const getAvatarUrl = () => {
-        if (!user?.avatar_url) return null;
-        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url)
-            .data.publicUrl;
+        if (!user?.avatar_url) return supabase.storage.from("avatars").getPublicUrl("default_avatar.png").data.publicUrl;
+        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url).data.publicUrl;
     };
 
     const handleUsernameUpdate = async () => {
@@ -126,7 +125,7 @@ function Profile() {
     const handleResetAvatar = async () => {
         const { data, error } = await supabase
             .from("users")
-            .update({ avatar_url: null })
+            .update({ avatar_url: "default_avatar.png" })
             .eq("id", user.id)
             .select()
             .single();
@@ -180,7 +179,7 @@ function Profile() {
                             />
                         </label>
 
-                        {user.avatar_url && (
+                        {user.avatar_url && user.avatar_url !== "default_avatar.png" && (
                             <button
                                 onClick={handleResetAvatar}
                                 className="cursor-pointer hover:text-red-700 text-sm text-red-400 underline mb-4"
