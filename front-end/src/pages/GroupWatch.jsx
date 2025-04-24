@@ -187,7 +187,7 @@ function GroupWatch() {
                                     {group.name}
                                 </td>
                                 <td className="border border-gray-700 px-4 py-2 text-left">
-                                    {truncateText(group.description, 15)}
+                                    {truncateText(group.description, 7)}
                                 </td>
                                 <td className="border border-gray-700 px-4 py-2 text-center">
                                     {group.membersCount || "???"}
