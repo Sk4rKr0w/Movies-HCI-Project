@@ -14,7 +14,7 @@ function SignIn() {
         fetchMovies(30);
     }, []);
 
-    // 🔒 Impedisce accesso se già loggato
+    // Impedisce accesso se già loggato
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {

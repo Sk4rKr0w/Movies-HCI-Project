@@ -15,7 +15,7 @@ const registerUser = async (req, res) => {
 
     const { data, error } = await supabase
       .from("users")
-      .insert([{ username, email, password: hashedPassword }])
+      .insert([{ username, email, password: hashedPassword, avatar_url: 'default_avatar.png' }])
       .select();
 
     if (error) {

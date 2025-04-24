@@ -27,9 +27,10 @@ function Sidebar({ isOpen, onClose }) {
     }, []);
 
     const getAvatarUrl = () => {
-        if (!user?.avatar_url) return null;
-        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url)
-            .data.publicUrl;
+        if (!user?.avatar_url || user.avatar_url === "default_avatar.png") {
+            return supabase.storage.from("avatars").getPublicUrl("default_avatar.png").data.publicUrl;
+          }
+        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url).data.publicUrl;
     };
 
     const handleLogout = () => {
@@ -62,17 +63,11 @@ function Sidebar({ isOpen, onClose }) {
                             className="lg:w-[50%] w-full flex flex-col justify-center items-center gap-2 cursor-pointer hover:opacity-90 transition"
                             title="Go to profile"
                         >
-                            {getAvatarUrl() ? (
-                                <img
-                                    src={getAvatarUrl()}
-                                    alt="Avatar"
-                                    className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full object-cover border-2 border-yellow-400"
-                                />
-                            ) : (
-                                <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-sm font-bold">
-                                    {user.username?.charAt(0).toUpperCase()}
-                                </div>
-                            )}
+                            <img 
+                                src={getAvatarUrl()}
+                                alt="Avatar"
+                                className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full object-cover border-2 border-yellow-400"
+                            />    
                             <span className="text-sm text-yellow-400 font-bold underline">
                                 {user.username}
                             </span>
