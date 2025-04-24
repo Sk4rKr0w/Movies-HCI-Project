@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 const questions = [
@@ -183,7 +184,7 @@ const MovieQuiz = () => {
     return (
         <div className="fixed top-0 left-0 w-screen h-screen bg-black text-white z-50 overflow-y-auto">
             <div className="min-h-screen flex items-center justify-center px-4 py-10">
-                <div className="text-center max-w-4xl w-full">
+                <div className="text-center w-full">
                     {loading ? (
                         <h2 className="text-2xl font-bold animate-pulse">
                             Finding your match...
@@ -195,9 +196,10 @@ const MovieQuiz = () => {
                             </h2>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                 {paginatedMovies.map((movie, idx) => (
-                                    <div
+                                    <Link
+                                        to={`/movie/${movie.id}`}
                                         key={idx}
-                                        className="bg-[#1e1e1e] p-4 rounded-lg shadow-lg"
+                                        className="block bg-[#1e1e1e] p-4 rounded-lg shadow-lg hover:bg-[#2a2a2a] transition"
                                     >
                                         {movie.poster_path && (
                                             <img
@@ -212,7 +214,10 @@ const MovieQuiz = () => {
                                         <p className="text-sm max-w-[55ch] text-gray-300 line-clamp-4">
                                             {movie.overview}
                                         </p>
-                                    </div>
+                                        <p className="text-yellow-400 text-[12px] mt-1">
+                                            Get More Info 🎬
+                                        </p>
+                                    </Link>
                                 ))}
                             </div>
 
@@ -276,7 +281,7 @@ const MovieQuiz = () => {
                                     <button
                                         key={i}
                                         onClick={() => handleClick(option)}
-                                        className="cursor-pointer bg-white text-black font-semibold py-3 px-6 rounded-full hover:bg-yellow-400 transition-all duration-200"
+                                        className="cursor-pointer bg-white text-black font-semibold py-2 px-4 rounded-full hover:bg-yellow-400 transition-all duration-200"
                                     >
                                         {option}
                                     </button>

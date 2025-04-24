@@ -86,7 +86,7 @@ function Home() {
                     perfect match!
                 </p>
                 <button
-                    className="px-8 py-3 cursor-pointer bg-blue-500 text-lg font-semibold text-gray-900 rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transform transition-all duration-300"
+                    className="text-white px-8 py-3 cursor-pointer bg-blue-500 text-lg font-semibold hover:text-gray-900 rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transform transition-all duration-300"
                     onClick={() => setStartQuiz(true)}
                 >
                     Start ▶
@@ -101,10 +101,10 @@ function Home() {
                         {trending.map((movie) => (
                             <a
                                 key={movie.id}
-                                href={movie.trailerUrl || "#"}
+                                href={`/movie/${movie.id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="border border-gray-700 bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition"
+                                className="border border-gray-600 bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition"
                             >
                                 {movie.poster && (
                                     <img
@@ -117,8 +117,8 @@ function Home() {
                                     {movie.title}
                                 </h3>
                                 {movie.trailerUrl ? (
-                                    <p className="text-yellow-400 text-sm mt-1">
-                                        Watch Trailer ▶
+                                    <p className="text-yellow-400 text-[12px] mt-1">
+                                        Get More Info 🎬
                                     </p>
                                 ) : (
                                     <p className="text-gray-400 text-sm mt-1">
