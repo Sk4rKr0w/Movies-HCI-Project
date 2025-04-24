@@ -203,9 +203,9 @@ const MovieQuiz = () => {
                                     >
                                         {movie.poster_path && (
                                             <img
-                                                src={`https://image.tmdb.org/t/p/w300${movie.backdrop_path}`}
+                                                src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
                                                 alt={movie.title}
-                                                className="mx-auto mb-3 rounded shadow"
+                                                className="lg:w-86 mx-auto mb-3 rounded shadow"
                                             />
                                         )}
                                         <h3 className="text-xl font-semibold mb-1">
