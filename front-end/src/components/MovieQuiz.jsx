@@ -281,7 +281,7 @@ const MovieQuiz = () => {
                                     <button
                                         key={i}
                                         onClick={() => handleClick(option)}
-                                        className="cursor-pointer bg-white text-black font-semibold py-3 px-6 rounded-full hover:bg-yellow-400 transition-all duration-200"
+                                        className="cursor-pointer bg-white text-black font-semibold py-2 px-4 rounded-full hover:bg-yellow-400 transition-all duration-200"
                                     >
                                         {option}
                                     </button>
