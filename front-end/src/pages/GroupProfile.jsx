@@ -171,6 +171,20 @@ function GroupProfile() {
                     <strong className="text-yellow-400">Description:</strong>{" "}
                     {group.description}
                 </p>
+                <p className="mt-4 italic max-w-3xl mx-auto">
+                    <strong className="text-yellow-400">Genres:</strong>{" "}
+                    {(() => {
+                        try {
+                        const parsedGenres = typeof group.genres === "string" ? JSON.parse(group.genres) : group.genres;
+                        return Array.isArray(parsedGenres) && parsedGenres.length > 0
+                            ? parsedGenres.join(", ")
+                            : "No genres";
+                        } catch (err) {
+                        console.error("Errore nel parsing dei generi:", err);
+                        return "No genres";
+                        }
+                    })()}
+                </p>
             </header>
 
             <section className="w-full max-w-4xl space-y-6">

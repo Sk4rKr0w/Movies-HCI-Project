@@ -190,7 +190,7 @@ function GroupWatch() {
                                     {truncateText(group.description, 7)}
                                 </td>
                                 <td className="border border-gray-700 px-4 py-2 text-center">
-                                    {group.membersCount || "???"}
+                                    {group.users?.length || "???"}
                                 </td>
                                 <td className="border border-gray-700 px-4 py-2 text-center">
                                     <button
