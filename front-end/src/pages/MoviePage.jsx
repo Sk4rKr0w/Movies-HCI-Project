@@ -71,7 +71,7 @@ function MoviePage() {
         >
             {movie ? (
                 <div className="lg:gap-10 md:p-2 min-h-screen flex bg-black/70 flex-col md:flex-row justify-center items-center">
-                    <a href="#target-section">
+                    <a href="#trailer">
                         <img
                             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                             alt={`${movie.title} IMG`}
@@ -112,7 +112,7 @@ function MoviePage() {
                 </li>
             )}
 
-            <div id="target-section">
+            <div id="trailer">
                 {trailerKey && (
                     <div className="flex flex-col gap-2 justify-center items-center bg-black/70 py-8 px-4">
                         <h1 className="text-white text-xl font-bold">
@@ -142,9 +142,10 @@ function MoviePage() {
                 <div className="flex flex-wrap gap-6 justify-center">
                     {cast.length > 0 ? (
                         cast.slice(0, 6).map((actor) => (
-                            <div
+                            <a
                                 key={actor.id}
-                                className="flex flex-col items-center text-white"
+                                className="cursor-pointer flex flex-col items-center text-white"
+                                href={`https://it.wikipedia.org/wiki/${actor.name}`}
                             >
                                 {actor.profile_path ? (
                                     <img
@@ -159,7 +160,7 @@ function MoviePage() {
                                 <p className="text-xs text-gray-300">
                                     {actor.character}
                                 </p>
-                            </div>
+                            </a>
                         ))
                     ) : (
                         <p>Caricamento cast...</p>
