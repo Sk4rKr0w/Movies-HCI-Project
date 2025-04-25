@@ -142,9 +142,10 @@ function MoviePage() {
                 <div className="flex flex-wrap gap-6 justify-center">
                     {cast.length > 0 ? (
                         cast.slice(0, 6).map((actor) => (
-                            <div
+                            <a
                                 key={actor.id}
-                                className="flex flex-col items-center text-white"
+                                className="cursor-pointer flex flex-col items-center text-white"
+                                href={`https://it.wikipedia.org/wiki/${actor.name}`}
                             >
                                 {actor.profile_path ? (
                                     <img
@@ -159,7 +160,7 @@ function MoviePage() {
                                 <p className="text-xs text-gray-300">
                                     {actor.character}
                                 </p>
-                            </div>
+                            </a>
                         ))
                     ) : (
                         <p>Caricamento cast...</p>
