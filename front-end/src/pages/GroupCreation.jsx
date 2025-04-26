@@ -94,7 +94,7 @@ function GroupCreation() {
             )}
             <form
                 onSubmit={handleCreateGroup}
-                className="space-y-4 w-full md:w-[75%]"
+                className="space-y-4 w-full md:w-[75%] lg:w-[50%]"
             >
                 <div>
                     <label className="block font-medium">
