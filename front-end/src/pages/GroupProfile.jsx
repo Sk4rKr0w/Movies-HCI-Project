@@ -224,7 +224,7 @@ function GroupProfile() {
             {/* Message display */}
             {message && (
                 <div
-                    className={`w-full text-center font-bold p-2 rounded-lg ${
+                    className={`w-full md:w-[75%] lg:w-[50%] text-center font-bold p-2 rounded-lg ${
                         message.type === "success"
                             ? "bg-green-500 text-black"
                             : "bg-red-500 text-black"
@@ -330,64 +330,66 @@ function GroupProfile() {
                 </a>
             </div>
 
-            <section className="w-full max-w-xl space-y-4">
-                <div className="flex">
-                    <input
-                        type="text"
-                        placeholder="Search Users..."
-                        value={searchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                        className="flex-grow px-4 py-2 rounded-l-lg bg-gray-800 text-white outline-2 focus:outline-yellow-400"
-                    />
-                    <button
-                        onClick={handleSearchUsers}
-                        className="cursor-pointer px-4 py-2 bg-yellow-400 text-black font-semibold rounded-r-lg hover:bg-yellow-500 "
-                    >
-                        Search
-                    </button>
-                </div>
-
-                {searchResults.length > 0 && (
-                    <div>
-                        <h2 className="text-xl text-yellow-400 font-semibold text-center">
-                            🔍 Search Results
-                        </h2>
-                        <ul className="space-y-3 mt-3">
-                            {searchResults
-                                .filter(
-                                    (u) =>
-                                        u.id !== user?.id &&
-                                        !group.members.some(
-                                            (member) => member.id === u.id
-                                        )
-                                )
-                                .map((u) => (
-                                    <li
-                                        key={u.id}
-                                        className="flex justify-between items-center p-4 bg-white/5 rounded-lg shadow-sm"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <img
-                                                src={getAvatarUrl(u)}
-                                                alt="User avatar"
-                                                className="w-10 h-10 rounded-full hidden md:block"
-                                            />
-                                            <span>{u.username}</span>
-                                        </div>
-                                        <button
-                                            onClick={() =>
-                                                handleAddUserToGroup(u.id)
-                                            }
-                                            className="cursor-pointer px-4 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-                                        >
-                                            Add
-                                        </button>
-                                    </li>
-                                ))}
-                        </ul>
+            {user?.id === group.owner && (
+                <section className="w-full max-w-xl space-y-4">
+                    <div className="flex">
+                        <input
+                            type="text"
+                            placeholder="Add Users..."
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                            className="flex-grow px-4 py-2 rounded-l-lg bg-gray-800 text-white outline-2 focus:outline-yellow-400"
+                        />
+                        <button
+                            onClick={handleSearchUsers}
+                            className="cursor-pointer px-4 py-2 bg-yellow-400 text-black font-semibold rounded-r-lg hover:bg-yellow-500 "
+                        >
+                            Search
+                        </button>
                     </div>
-                )}
-            </section>
+
+                    {searchResults.length > 0 && (
+                        <div>
+                            <h2 className="text-xl text-yellow-400 font-semibold text-center">
+                                🔍 Search Results
+                            </h2>
+                            <ul className="space-y-3 mt-3">
+                                {searchResults
+                                    .filter(
+                                        (u) =>
+                                            u.id !== user?.id &&
+                                            !group.members.some(
+                                                (member) => member.id === u.id
+                                            )
+                                    )
+                                    .map((u) => (
+                                        <li
+                                            key={u.id}
+                                            className="flex justify-between items-center p-4 bg-white/5 rounded-lg shadow-sm"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src={getAvatarUrl(u)}
+                                                    alt="User avatar"
+                                                    className="w-10 h-10 rounded-full hidden md:block"
+                                                />
+                                                <span>{u.username}</span>
+                                            </div>
+                                            <button
+                                                onClick={() =>
+                                                    handleAddUserToGroup(u.id)
+                                                }
+                                                className="cursor-pointer px-4 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                                            >
+                                                Add
+                                            </button>
+                                        </li>
+                                    ))}
+                            </ul>
+                        </div>
+                    )}
+                </section>
+            )}
         </div>
     );
 }

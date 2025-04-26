@@ -211,7 +211,7 @@ function GroupEdit() {
                 <div className="flex flex-col gap-2">
                     <button
                         type="submit"
-                        className="w-full font-semibold bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        className="cursor-pointer w-full font-semibold bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                     >
                         Update Group
                     </button>
