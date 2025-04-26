@@ -44,13 +44,19 @@ function GroupProfile() {
             await axios.delete(
                 `http://localhost:3001/api/profileGroup/delete?id=${group.id}`
             );
-            setMessage("Gruppo eliminato con successo.");
+            setMessage({
+                text: "Gruppo eliminato con successo.",
+                type: "success",
+            });
             setTimeout(() => {
                 navigate("/groupwatch");
             }, 1500);
         } catch (err) {
             console.error("Errore durante l'eliminazione del gruppo:", err);
-            setMessage("Errore durante l'eliminazione del gruppo.");
+            setMessage({
+                text: "Errore durante l'eliminazione del gruppo.",
+                type: "error",
+            });
         }
     };
 
@@ -66,13 +72,19 @@ function GroupProfile() {
                     userId: user.id,
                 }
             );
-            setMessage("Gruppo abbandonato con successo.");
+            setMessage({
+                text: "Gruppo abbandonato con successo.",
+                type: "success",
+            });
             setTimeout(() => {
                 navigate("/groupwatch");
             }, 1500);
         } catch (err) {
             console.error("Errore durante l'abbandono del gruppo:", err);
-            setMessage("Errore durante l'abbandono del gruppo.");
+            setMessage({
+                text: "Errore durante l'abbandono del gruppo.",
+                type: "error",
+            });
         }
     };
 
@@ -90,7 +102,10 @@ function GroupProfile() {
             setSearchResults(res.data.users);
         } catch (err) {
             console.error("Errore nella ricerca degli utenti:", err);
-            setMessage("Errore nella ricerca degli utenti.");
+            setMessage({
+                text: "Errore nella ricerca degli utenti.",
+                type: "error",
+            });
         }
     };
 
@@ -103,7 +118,10 @@ function GroupProfile() {
                     userId: userIdToAdd,
                 }
             );
-            setMessage("Utente aggiunto con successo!");
+            setMessage({
+                text: "Utente aggiunto con successo!",
+                type: "success",
+            });
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
@@ -112,7 +130,10 @@ function GroupProfile() {
                 "Errore durante l'aggiunta dell'utente al gruppo:",
                 err
             );
-            setMessage("Errore durante l'aggiunta dell'utente.");
+            setMessage({
+                text: "Errore durante l'aggiunta dell'utente.",
+                type: "error",
+            });
         }
     };
 
@@ -131,7 +152,10 @@ function GroupProfile() {
                     userId: userIdToRemove,
                 }
             );
-            setMessage("Utente rimosso con successo!");
+            setMessage({
+                text: "Utente rimosso con successo!",
+                type: "success",
+            });
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
@@ -140,7 +164,10 @@ function GroupProfile() {
                 "Errore durante la rimozione dell'utente dal gruppo:",
                 err
             );
-            setMessage("Errore durante la rimozione dell'utente.");
+            setMessage({
+                text: "Errore durante la rimozione dell'utente.",
+                type: "error",
+            });
         }
     };
 
@@ -164,7 +191,7 @@ function GroupProfile() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-gray-900 text-gray-100 p-6 flex flex-col items-center gap-10">
             <header className="text-center">
-                <h2 className="text-4xl font-bold text-yellow-400">
+                <h2 className="text-4xl w-full font-bold text-yellow-400">
                     {group.name}
                 </h2>
                 <p className="mt-4 italic max-w-3xl mx-auto">
@@ -175,17 +202,37 @@ function GroupProfile() {
                     <strong className="text-yellow-400">Genres:</strong>{" "}
                     {(() => {
                         try {
-                        const parsedGenres = typeof group.genres === "string" ? JSON.parse(group.genres) : group.genres;
-                        return Array.isArray(parsedGenres) && parsedGenres.length > 0
-                            ? parsedGenres.join(", ")
-                            : "No genres";
+                            const parsedGenres =
+                                typeof group.genres === "string"
+                                    ? JSON.parse(group.genres)
+                                    : group.genres;
+                            return Array.isArray(parsedGenres) &&
+                                parsedGenres.length > 0
+                                ? parsedGenres.join(", ")
+                                : "No genres";
                         } catch (err) {
-                        console.error("Errore nel parsing dei generi:", err);
-                        return "No genres";
+                            console.error(
+                                "Errore nel parsing dei generi:",
+                                err
+                            );
+                            return "No genres";
                         }
                     })()}
                 </p>
             </header>
+
+            {/* Message display */}
+            {message && (
+                <div
+                    className={`w-full text-center font-bold p-2 rounded-lg ${
+                        message.type === "success"
+                            ? "bg-green-500 text-black"
+                            : "bg-red-500 text-black"
+                    }`}
+                >
+                    {message.text}
+                </div>
+            )}
 
             <section className="w-full max-w-4xl space-y-6">
                 <h3 className="text-2xl font-semibold text-yellow-400">
@@ -331,9 +378,9 @@ function GroupProfile() {
                                             onClick={() =>
                                                 handleAddUserToGroup(u.id)
                                             }
-                                            className="cursor-pointer px-4 py-1 bg-green-600 text-white rounded-md hover:bg-green-500"
+                                            className="cursor-pointer px-4 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
                                         >
-                                            Add Member
+                                            Add
                                         </button>
                                     </li>
                                 ))}
@@ -341,10 +388,6 @@ function GroupProfile() {
                     </div>
                 )}
             </section>
-
-            {message && (
-                <p className="text-center text-yellow-400 mt-4">{message}</p>
-            )}
         </div>
     );
 }

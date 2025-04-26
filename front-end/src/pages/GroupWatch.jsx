@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { truncateText } from "../utils/truncateText";
 import { useNavigate } from "react-router-dom";
 import supabase from "../supabaseClient";
 import * as bcrypt from "bcryptjs";
@@ -117,7 +116,7 @@ function GroupWatch() {
     return (
         <div className="bg-black text-white flex flex-col justify-start items-center px-2 py-4 md:min-h-[90vh]">
             <h2 className="py-4 text-2xl md:text-3xl font-bold text-center text-yellow-400">
-                📽️ Group Watch Dashboard 📽
+                📽️ Group Watch Dashboard 📽️
             </h2>
 
             {user && (
@@ -183,11 +182,11 @@ function GroupWatch() {
                                 key={group.id}
                                 className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                             >
-                                <td className="border border-gray-700 px-4 py-2 text-center">
+                                <td className="max-w-[12ch] truncate overflow-hidden border border-gray-700 px-4 py-2 text-center">
                                     {group.name}
                                 </td>
-                                <td className="border border-gray-700 px-4 py-2 text-left">
-                                    {truncateText(group.description, 7)}
+                                <td className="max-w-[12ch] truncate border border-gray-700 px-4 py-2 text-left">
+                                    {group.description}
                                 </td>
                                 <td className="border border-gray-700 px-4 py-2 text-center">
                                     {group.users?.length || "???"}
@@ -228,7 +227,7 @@ function GroupWatch() {
                                     <strong className="text-yellow-400">
                                         {group.name}
                                     </strong>
-                                    : {truncateText(group.description, 50)}
+                                    : {group.description}
                                 </p>
                                 <div className="flex gap-4 mt-2">
                                     <button
