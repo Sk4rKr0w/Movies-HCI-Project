@@ -1,128 +1,255 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from 'react-router-dom';  // Per prendere l'ID del gruppo dalla URL
+import { useParams, useNavigate } from "react-router-dom";
 import supabase from "../supabaseClient";
 import * as bcrypt from "bcryptjs";
+import { useMovieStore } from "../store/useMovieStore";
 
-function GroupCreation() {
-  const { id } = useParams(); // Estrae l'ID del gruppo dalla URL 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [genres, setGenres] = useState([]);
-  const [image, setImage] = useState(null);
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+function GroupEdit() {
+    const { id } = useParams();
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [genres, setGenres] = useState([]);
+    const [image, setImage] = useState(null);
+    const [user, setUser] = useState(null);
+    const [error, setError] = useState("");
+    const [message, setMessage] = useState({ text: "", type: "" });
+    const navigate = useNavigate();
+    const movies = useMovieStore((state) => state.movies);
+    const fetchMovies = useMovieStore((state) => state.fetchMovies);
 
-  const genreOptions = ["Action", "Comedy", "Drama", "Horror", "Sci-Fi", "Romance", "Thriller"];
+    useEffect(() => {
+        fetchMovies(15);
+    }, [fetchMovies]);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("You are not logged in.");
-    }
-  }, []);
+    const genreOptions = [
+        "Action",
+        "Comedy",
+        "Drama",
+        "Horror",
+        "Sci-Fi",
+        "Romance",
+        "Thriller",
+    ];
 
-  useEffect(() => {
-    const fetchGroupData = async () => {
-      try {
-        const res = await axios.get(`http://localhost:3001/api/profilegroup/profilegroup?id=${id}`);
-        const group = res.data.group;
-  
-        setName(group.name);
-        setDescription(group.description);
-        setGenres(group.genres || []);
-      } catch (err) {
-        console.error("Errore nel recupero del gruppo:", err);
-      }
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setError("You are not logged in.");
+        }
+    }, []);
+
+    useEffect(() => {
+        const fetchGroupData = async () => {
+            try {
+                const res = await axios.get(
+                    `http://localhost:3001/api/profilegroup/profilegroup?id=${id}`
+                );
+                const group = res.data.group;
+
+                setName(group.name);
+                setDescription(group.description);
+
+                if (typeof group.genres === "string") {
+                    try {
+                        const parsedGenres = JSON.parse(group.genres);
+                        setGenres(
+                            Array.isArray(parsedGenres) ? parsedGenres : []
+                        );
+                    } catch (err) {
+                        console.error("Errore parsing generi:", err);
+                        setGenres([]);
+                    }
+                } else {
+                    setGenres(group.genres || []);
+                }
+            } catch (err) {
+                console.error("Errore nel recupero del gruppo:", err);
+            }
+        };
+
+        fetchGroupData();
+    }, [id]);
+
+    const handleEditGroup = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await axios.post(
+                "http://localhost:3001/api/editgroup/editgroup",
+                {
+                    groupId: id,
+                    name,
+                    description,
+                    genres,
+                }
+            );
+
+            setMessage({
+                text: "✅ Gruppo modificato con successo!",
+                type: "success",
+            });
+
+            // Dopo 1.5 secondi, reindirizza a "/groupwatch"
+            setTimeout(() => {
+                navigate("/groupwatch");
+            }, 1500);
+        } catch (err) {
+            console.error("Errore nella modifica del gruppo:", err);
+            setMessage({
+                text: "❌ Errore nella modifica del gruppo.",
+                type: "error",
+            });
+        }
     };
-  
-    fetchGroupData();
-  }, [id]);  
 
-  const handleEditGroup = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:3001/api/editgroup/editgroup", {
-        groupId: id,
-        name,
-        description,
-        genres
-      });
-
-      alert("✅ Gruppo modificato con successo!");
-      navigate("/groupwatch"); // o dove preferisci
-    } catch (err) {
-      console.error("Errore nella modifica del gruppo:", err);
-      alert("❌ Errore nella modifica del gruppo.");
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#121212] text-red-400 text-lg px-4">
+                ⚠️ {error}
+            </div>
+        );
     }
-  };
 
-  if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#121212] text-red-400 text-lg px-4">
-        ⚠️ {error}
-      </div>
+        <div className="min-h-screen flex-grow flex flex-col justify-start items-center bg-gradient-to-br from-black via-zinc-900 to-gray-900 text-white w-full  p-6 bg-white shadow-md">
+            <h2 className="text-2xl text-center w-full font-bold mb-4 text-yellow-400">
+                🎬 Update your Group
+            </h2>
+            {message.text && (
+                <p
+                    className={`mb-2 text-center font-semibold ${
+                        message.type === "success"
+                            ? "text-green-500"
+                            : "text-red-500"
+                    }`}
+                >
+                    {message.text}
+                </p>
+            )}
+            <form
+                onSubmit={handleEditGroup}
+                className="space-y-4 w-full md:w-[75%] lg:w-[50%]"
+            >
+                <div>
+                    <label className="block font-medium">
+                        Group Name{" "}
+                        <strong className="text-gray-500 text-sm">
+                            (Up to 32 characters allowed)
+                        </strong>
+                    </label>{" "}
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full border rounded px-3 py-2"
+                        required
+                        maxLength={32}
+                    />
+                </div>
+
+                <div>
+                    <label className="block font-medium">
+                        Description{" "}
+                        <strong className="text-gray-500 text-sm">
+                            (Up to 500 characters allowed)
+                        </strong>
+                    </label>{" "}
+                    <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        className="w-full border rounded px-3 py-2 resize-none"
+                        rows="15"
+                        maxLength={500}
+                        required
+                    ></textarea>
+                </div>
+
+                <div>
+                    <label className="block font-medium mb-3">
+                        Favourite Genres
+                    </label>
+
+                    <div className="grid grid-cols-3 space-y-2">
+                        {genreOptions.map((genre) => (
+                            <label
+                                key={genre}
+                                className="flex items-center space-x-2"
+                            >
+                                <input
+                                    type="checkbox"
+                                    value={genre}
+                                    checked={genres.includes(genre)}
+                                    onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        const value = e.target.value;
+
+                                        if (checked) {
+                                            setGenres((prevGenres) => [
+                                                ...prevGenres,
+                                                value,
+                                            ]);
+                                        } else {
+                                            setGenres((prevGenres) =>
+                                                prevGenres.filter(
+                                                    (g) => g !== value
+                                                )
+                                            );
+                                        }
+                                    }}
+                                    className="h-5 w-5"
+                                />
+                                <span className="text-yellow-400">{genre}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <button
+                        type="submit"
+                        className="cursor-pointer w-full font-semibold bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                        Update Group
+                    </button>
+                    <a
+                        href="/groupwatch"
+                        className="mt-3 cursor-pointer text-yellow-500 hover:text-yellow-400 transition text-center"
+                    >
+                        Return to Home
+                    </a>
+                </div>
+            </form>
+            <div
+                className="slider w-full my-4"
+                style={{
+                    "--width": "150px",
+                    "--height": "200px",
+                    "--quantity": 10,
+                }}
+            >
+                <ul className="list flex flex-row gap-2">
+                    {movies &&
+                        movies.map((movie, index) => (
+                            <li
+                                key={movie.id}
+                                style={{ "--position": index + 1 }}
+                                className="item"
+                            >
+                                <img
+                                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                    alt={movie.title}
+                                    className="w-full h-full object-cover rounded-lg shadow-xl"
+                                />
+                            </li>
+                        ))}
+                </ul>
+            </div>
+        </div>
     );
-  }
-
-  return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
-      <h2 className="text-2xl font-bold mb-4">🎬 Update your Group</h2>
-      <form onSubmit={handleEditGroup} className="space-y-4">
-
-        <div>
-          <label className="block font-medium">Nome del gruppo</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Descrizione</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-            rows="3"
-            required
-          ></textarea>
-        </div>
-
-        <div>
-          <label className="block font-medium">Generi preferiti</label>
-          <select
-            multiple
-            value={genres}
-            onChange={(e) => {
-              const options = Array.from(e.target.selectedOptions).map(opt => opt.value);
-              setGenres(options);
-            }}
-            className="w-full border rounded px-3 py-2"
-          >
-            {genreOptions.map((genre) => (
-              <option key={genre} value={genre}>{genre}</option>
-            ))}
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Update Group
-        </button>
-      </form>
-    </div>
-  );
 }
 
-export default GroupCreation;
+export default GroupEdit;

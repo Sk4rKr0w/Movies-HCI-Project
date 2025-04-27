@@ -145,7 +145,7 @@ function MoviePage() {
                             <a
                                 key={actor.id}
                                 className="cursor-pointer flex flex-col items-center text-white"
-                                href={`https://it.wikipedia.org/wiki/${actor.name}`}
+                                href={`https://en.wikipedia.org/wiki/${actor.name}`}
                             >
                                 {actor.profile_path ? (
                                     <img

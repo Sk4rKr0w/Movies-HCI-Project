@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import supabase from "../supabaseClient";
-import * as bcrypt from "bcryptjs";
-
+import { useMovieStore } from "../store/useMovieStore";
 function GroupCreation() {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [genres, setGenres] = useState([]);
-    const [image, setImage] = useState(null);
     const [user, setUser] = useState(null);
-    const [error, setError] = useState("");
+    const [message, setMessage] = useState(""); // Stato per il messaggio di errore/successo
     const navigate = useNavigate();
+    const movies = useMovieStore((state) => state.movies);
+    const fetchMovies = useMovieStore((state) => state.fetchMovies);
+
+    useEffect(() => {
+        fetchMovies(15);
+    }, [fetchMovies]);
 
     const genreOptions = [
         "Action",
@@ -25,20 +28,26 @@ function GroupCreation() {
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
         const token = localStorage.getItem("token");
         if (!token) {
-            setError("You are not logged in.");
+            setMessage("You are not logged in.");
+            navigate("/login"); // Redirect to login if not logged in
+        } else if (storedUser) {
+            setUser(JSON.parse(storedUser));
         }
-    }, []);
+    }, [navigate]);
 
     const handleCreateGroup = async (e) => {
         e.preventDefault();
 
         if (!user) {
-            alert("Devi essere loggato per creare un gruppo.");
+            setMessage("Devi essere loggato per creare un gruppo.");
+            return;
+        }
+
+        // Basic validation before submitting
+        if (!name || !description || genres.length === 0) {
+            setMessage("Please fill out all fields.");
             return;
         }
 
@@ -53,31 +62,50 @@ function GroupCreation() {
                 }
             );
 
-            alert("✅ Gruppo creato con successo!");
-            navigate("/groupwatch"); // o dove preferisci
+            setMessage("✅ Gruppo creato con successo!");
+
+            setTimeout(() => {
+                navigate(`/groupwatch`);
+            }, 1500);
         } catch (err) {
             console.error("Errore nella creazione del gruppo:", err);
-            alert("❌ Errore nella creazione del gruppo.");
+            const errorMessage =
+                err.response?.data?.message ||
+                "❌ Errore nella creazione del gruppo.";
+            setMessage(errorMessage);
         }
     };
 
-    if (error) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-[#121212] text-red-400 text-lg px-4">
-                ⚠️ {error}
-            </div>
-        );
-    }
-
     return (
-        <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
-            <h2 className="text-2xl font-bold mb-4">🎬 Crea un Nuovo Gruppo</h2>
-            <form onSubmit={handleCreateGroup} className="space-y-4">
+        <div className="min-h-screen flex-grow flex flex-col justify-start items-center bg-gradient-to-br from-black via-zinc-900 to-gray-900 text-white w-full  p-6 bg-white shadow-md">
+            <h2 className="text-2xl text-center w-full font-bold mb-4 text-yellow-400">
+                🎬 Create a New Group 🎬
+            </h2>
+            {message && (
+                <p
+                    className={`text-center font-semibold mb-2 ${
+                        message.startsWith("❌")
+                            ? "text-red-400"
+                            : "text-green-400"
+                    }`}
+                >
+                    {message}
+                </p>
+            )}
+            <form
+                onSubmit={handleCreateGroup}
+                className="space-y-4 w-full md:w-[75%] lg:w-[50%]"
+            >
                 <div>
-                    <label className="block font-medium">Group Name</label>
+                    <label className="block font-medium">
+                        Group Name{" "}
+                        <strong className="text-gray-500 text-sm">
+                            (Up to 32 characters allowed)
+                        </strong>
+                    </label>
                     <input
                         type="text"
-                        maxLength={32}
+                        maxLength={25}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="w-full border rounded px-3 py-2"
@@ -86,22 +114,27 @@ function GroupCreation() {
                 </div>
 
                 <div>
-                    <label className="block font-medium">Description</label>
+                    <label className="block font-medium">
+                        Description{" "}
+                        <strong className="text-gray-500 text-sm">
+                            (Up to 500 characters allowed)
+                        </strong>
+                    </label>
                     <textarea
                         value={description}
                         maxLength={500}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="w-full border rounded px-3 py-2"
-                        rows="3"
+                        className="w-full border rounded px-3 py-2 resize-none"
+                        rows="15"
                         required
                     ></textarea>
                 </div>
 
                 <div>
-                    <label className="block font-medium">
+                    <label className="block font-medium mb-3">
                         Favourite Genres
                     </label>
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-3 space-y-2">
                         {genreOptions.map((genre) => (
                             <label
                                 key={genre}
@@ -117,21 +150,54 @@ function GroupCreation() {
                                             : genres.filter((g) => g !== genre);
                                         setGenres(updatedGenres);
                                     }}
-                                    className="form-checkbox h-5 w-5 text-yellow-500"
+                                    className="h-5 w-5"
                                 />
-                                <span className="text-gray-800">{genre}</span>
+                                <span className="text-yellow-400">{genre}</span>
                             </label>
                         ))}
                     </div>
                 </div>
 
-                <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                    Create Group
-                </button>
+                <div className="flex flex-col gap-2">
+                    <button
+                        type="submit"
+                        className="cursor-pointer w-full font-semibold bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                        Create Group
+                    </button>
+                    <a
+                        href="/groupwatch"
+                        className="mt-3 cursor-pointer text-yellow-500 hover:text-yellow-400 transition text-center"
+                    >
+                        Return to Home
+                    </a>
+                </div>
             </form>
+            <div
+                className="slider w-full my-4"
+                style={{
+                    "--width": "150px",
+                    "--height": "200px",
+                    "--quantity": 10,
+                }}
+            >
+                <ul className="list flex flex-row gap-2">
+                    {movies &&
+                        movies.map((movie, index) => (
+                            <li
+                                key={movie.id}
+                                style={{ "--position": index + 1 }}
+                                className="item"
+                            >
+                                <img
+                                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                    alt={movie.title}
+                                    className="w-full h-full object-cover rounded-lg shadow-xl"
+                                />
+                            </li>
+                        ))}
+                </ul>
+            </div>
         </div>
     );
 }
