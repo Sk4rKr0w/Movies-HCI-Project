@@ -28,9 +28,12 @@ function Sidebar({ isOpen, onClose }) {
 
     const getAvatarUrl = () => {
         if (!user?.avatar_url || user.avatar_url === "default_avatar.png") {
-            return supabase.storage.from("avatars").getPublicUrl("default_avatar.png").data.publicUrl;
-          }
-        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url).data.publicUrl;
+            return supabase.storage
+                .from("avatars")
+                .getPublicUrl("default_avatar.png").data.publicUrl;
+        }
+        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url)
+            .data.publicUrl;
     };
 
     const handleLogout = () => {
@@ -63,11 +66,11 @@ function Sidebar({ isOpen, onClose }) {
                             className="lg:w-[50%] w-full flex flex-col justify-center items-center gap-2 cursor-pointer hover:opacity-90 transition"
                             title="Go to profile"
                         >
-                            <img 
+                            <img
                                 src={getAvatarUrl()}
                                 alt="Avatar"
                                 className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full object-cover border-2 border-yellow-400"
-                            />    
+                            />
                             <span className="text-sm text-yellow-400 font-bold underline">
                                 {user.username}
                             </span>
@@ -130,14 +133,6 @@ function Sidebar({ isOpen, onClose }) {
                     }
                 >
                     Contact Us
-                </NavLink>
-                <NavLink
-                    to="/"
-                    className={
-                        "hover:text-yellow-400 transition hover:scale-105 w-full text-md"
-                    }
-                >
-                    BOH POI SI VEDE
                 </NavLink>
             </ul>
         </div>

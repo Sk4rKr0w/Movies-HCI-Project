@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom"; 
+import { NavLink, useNavigate } from "react-router-dom";
 import { useMovieStore } from "../store/useMovieStore";
 import axios from "axios";
 
@@ -40,7 +40,7 @@ function SignUp() {
                 formData
             );
             alert("Registrazione avvenuta con successo!");
-            console.log(res.data);
+            navigate("/");
         } catch (err) {
             alert("Errore nella registrazione");
             console.error(err);

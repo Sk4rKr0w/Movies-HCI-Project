@@ -196,7 +196,7 @@ function GroupWatch() {
                                         onClick={() =>
                                             goToGroupProfile(group.id)
                                         }
-                                        className="text-blue-500 hover:text-blue-400 cursor-pointer"
+                                        className="text-blue-300 hover:text-blue-400 cursor-pointer"
                                     >
                                         View Group
                                     </button>
@@ -234,7 +234,7 @@ function GroupWatch() {
                                         onClick={() =>
                                             goToGroupProfile(group.id)
                                         }
-                                        className="cursor-pointer px-3 py-2 bg-blue-400 hover:bg-blue-300 text-black text-sm rounded-lg"
+                                        className="font-semibold cursor-pointer px-3 py-2 bg-blue-400 hover:bg-blue-300 text-black text-sm rounded-lg"
                                     >
                                         View Group
                                     </button>
@@ -242,7 +242,7 @@ function GroupWatch() {
                                         onClick={() =>
                                             handleJoinGroup(group.id)
                                         }
-                                        className="cursor-pointer px-3 py-2 bg-green-400 hover:bg-green-300 text-black text-[12px] rounded-lg"
+                                        className="font-semibold cursor-pointer px-3 py-2 bg-green-400 hover:bg-green-300 text-black text-[12px] rounded-lg"
                                     >
                                         Join Group
                                     </button>
