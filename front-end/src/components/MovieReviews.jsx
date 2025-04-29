@@ -4,6 +4,8 @@ const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 const MovieReviews = ({ movieId }) => {
     const [reviews, setReviews] = useState([]);
+    const [allReviews, setAllReviews] = useState([]); // Tutte le recensioni
+    const [loadedReviews, setLoadedReviews] = useState(5); // Iniziamo caricando le prime 5
     const [expandedReviews, setExpandedReviews] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -22,8 +24,8 @@ const MovieReviews = ({ movieId }) => {
                         },
                     }
                 );
-                setReviews(response.data.results);
-                setExpandedReviews({}); // reset espansioni su cambio film
+                setAllReviews(response.data.results); // Salviamo tutte le recensioni
+                setReviews(response.data.results.slice(0, 5)); // Mostriamo solo le prime 5 inizialmente
             } catch (err) {
                 setError("Errore nel recupero delle recensioni.");
             } finally {
@@ -43,11 +45,16 @@ const MovieReviews = ({ movieId }) => {
         }));
     };
 
+    const loadMoreReviews = () => {
+        setLoadedReviews(loadedReviews + 5);
+        setReviews(allReviews.slice(0, loadedReviews + 5)); // Aggiungiamo altre 5 recensioni
+    };
+
     if (loading) return <p>Caricamento...</p>;
     if (error) return <p>{error}</p>;
 
     return (
-        <div className="w-full md:w-[85%] lg:w-[75%] my-4 flex flex-col justify-center items-center ">
+        <div className="w-full md:w-[85%] lg:w-[75%] mt-4 flex flex-col justify-center items-center">
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold ml-2 md:ml-0 my-4 text-yellow-400">
                 Reviews
             </h2>
@@ -119,6 +126,14 @@ const MovieReviews = ({ movieId }) => {
                         );
                     })}
                 </ul>
+            )}
+            {reviews.length < allReviews.length && (
+                <button
+                    onClick={loadMoreReviews}
+                    className="cursor-pointer font-semibold mt-8 px-6 py-2 bg-yellow-400 text-black rounded-lg hover:bg-yellow-500 transition"
+                >
+                    Show More
+                </button>
             )}
         </div>
     );

@@ -228,9 +228,12 @@ function MoviePage() {
                         <p>Caricamento cast...</p>
                     )}
                 </div>
+
                 <MovieReviews movieId={id} />
 
-                <div className="w-full md:w-[85%] lg:w-[75%] my-2 flex flex-col justify-center items-center">
+                <hr className="mt-6 w-[60%] border border-white"></hr>
+
+                <div className="w-full md:w-[85%] lg:w-[75%] mb-2 flex flex-col justify-center items-center">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                         {provider.buy && provider.buy.length > 0 && (
                             <ul className="list-none text-white flex flex-col">
