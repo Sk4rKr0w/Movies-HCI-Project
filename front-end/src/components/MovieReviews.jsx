@@ -47,12 +47,12 @@ const MovieReviews = ({ movieId }) => {
     if (error) return <p>{error}</p>;
 
     return (
-        <div className="w-full my-4 md:w-[85%] lg:w-[75%] flex flex-col justify-center items-center ">
+        <div className="w-full md:w-[85%] lg:w-[75%] my-4 flex flex-col justify-center items-center ">
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold ml-2 md:ml-0 my-4 text-yellow-400">
                 Reviews
             </h2>
             {reviews.length === 0 ? (
-                <p className="text-gray-400">Nessuna recensione trovata.</p>
+                <p className="text-gray-400 italic">No reviews found.</p>
             ) : (
                 <ul className="grid gap-4">
                     {reviews.map((review) => {

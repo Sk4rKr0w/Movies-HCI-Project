@@ -8,7 +8,7 @@ function MoviePage() {
     const [movie, setMovie] = useState(null);
     const [cast, setCast] = useState([]);
     const [trailerKey, setTrailerKey] = useState(null);
-    const [provider, setProvider] = useState([]);
+    const [provider, setProvider] = useState({});
     const COUNTRY_CODE = "IT";
 
     const fetchYouTubeTrailer = async (movieId) => {
@@ -64,12 +64,20 @@ function MoviePage() {
                     `https://api.themoviedb.org/3/movie/${id}/watch/providers?api_key=${API_KEY}`
                 );
                 const data = await res.json();
-                console.log(data);
                 const countryData = data.results[COUNTRY_CODE];
-                if (countryData && countryData.flatrate) {
-                    setProvider(countryData.flatrate);
+                if (
+                    countryData &&
+                    (countryData.flatrate ||
+                        countryData.buy ||
+                        countryData.rent)
+                ) {
+                    setProvider({
+                        flatrate: countryData.flatrate || [],
+                        buy: countryData.buy || [],
+                        rent: countryData.rent || [],
+                    });
                 } else {
-                    setProvider([]);
+                    setProvider({ flatrate: [], buy: [], rent: [] });
                 }
             } catch (error) {
                 console.error("Errore nel recupero dei provider:", error);
@@ -126,20 +134,21 @@ function MoviePage() {
                             <span className="text-2xl font-semibold">
                                 Available on:{" "}
                             </span>
-                            {provider.length > 0 ? (
+                            {provider.flatrate &&
+                            provider.flatrate.length > 0 ? (
                                 <ul className="flex flex-col justify-center items-start">
-                                    {provider.map((provider) => (
+                                    {provider.flatrate.map((providerItem) => (
                                         <li
-                                            key={provider.provider_id}
+                                            key={providerItem.provider_id}
                                             className="flex flex-row gap-3 my-1 justify-center items-center"
                                         >
                                             <img
-                                                src={`https://image.tmdb.org/t/p/w45${provider.logo_path}`}
-                                                alt={provider.provider_name}
+                                                src={`https://image.tmdb.org/t/p/w45${providerItem.logo_path}`}
+                                                alt={providerItem.provider_name}
                                                 className="h-8 w-8 rounded-full"
                                             />
                                             <strong className="text-yellow-400">
-                                                {provider.provider_name}
+                                                {providerItem.provider_name}
                                             </strong>
                                         </li>
                                     ))}
@@ -220,6 +229,52 @@ function MoviePage() {
                     )}
                 </div>
                 <MovieReviews movieId={id} />
+
+                <div className="w-full md:w-[85%] lg:w-[75%] my-2 flex flex-col justify-center items-center">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                        {provider.buy && provider.buy.length > 0 && (
+                            <ul className="list-none text-white flex flex-col">
+                                <li className="text-lg md:text-xl lg:text-2xl mt-8 text-center font-semibold text-yellow-400">
+                                    Available for Purchase:
+                                </li>
+                                {provider.buy.map((item) => (
+                                    <li
+                                        key={item.provider_id}
+                                        className="flex justify-center items-center gap-3 mt-2"
+                                    >
+                                        <img
+                                            src={`https://image.tmdb.org/t/p/w45${item.logo_path}`}
+                                            alt={item.provider_name}
+                                            className="h-8 w-8 rounded-full"
+                                        />
+                                        <span>{item.provider_name}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        {provider.rent && provider.rent.length > 0 && (
+                            <ul className="list-none text-white flex flex-col">
+                                <li className="text-lg md:text-xl lg:text-2xl mt-8 text-center font-semibold text-yellow-400">
+                                    Available for Rent:
+                                </li>
+                                {provider.rent.map((item) => (
+                                    <li
+                                        key={item.provider_id}
+                                        className="flex justify-center items-center gap-3 mt-2"
+                                    >
+                                        <img
+                                            src={`https://image.tmdb.org/t/p/w45${item.logo_path}`}
+                                            alt={item.provider_name}
+                                            className="h-8 w-8 rounded-full"
+                                        />
+                                        <span>{item.provider_name}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
