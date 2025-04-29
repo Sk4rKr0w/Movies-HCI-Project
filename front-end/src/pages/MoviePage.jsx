@@ -91,77 +91,89 @@ function MoviePage() {
     }, [id]);
 
     return (
-        <div
-            className="min-h-screen bg-cover bg-center"
-            style={{
-                backgroundImage: movie
-                    ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
-                    : "none",
-            }}
-        >
+        <div className="min-h-screen bg-black">
             {movie ? (
-                <div className="lg:gap-10 md:p-2 min-h-screen flex bg-black/70 flex-col md:flex-row justify-center items-center">
-                    <a
-                        href="#trailer"
-                        className="cursor-pointer mt-4 md:mt-0 border-1 border-gray-600 rounded-xl"
-                    >
-                        <img
-                            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                            alt={`${movie.title} IMG`}
-                            className="border-2 border-transparent hover:scale-105 hover:border-yellow-400 transition max-h-84 md:max-h-96 lg:max-h-[420px] rounded-xl"
-                        />
-                    </a>
-                    <div className="text-white mt-4 p-4">
-                        <h1 className="text-3xl font-extrabold mb-2 w-full text-yellow-400">
-                            {movie.title}
-                        </h1>
-                        <div className="flex flex-wrap gap-2 my-4">
-                            {movie.genres?.map((genre) => (
-                                <span
-                                    key={genre.id}
-                                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded-full"
-                                >
-                                    {genre.name}
+                <div className="relative min-h-screen">
+                    <div
+                        className="absolute inset-0 bg-cover bg-center z-0 after:absolute after:inset-0 after:bg-gradient-to-b after:from-transparent after:to-black"
+                        style={{
+                            backgroundImage: `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`,
+                        }}
+                    ></div>
+
+                    <div className="relative z-10 w-full h-full bg-black/70 flex flex-col lg:gap-10 md:p-2 md:flex-row justify-center items-center min-h-screen">
+                        <a
+                            href="#trailer"
+                            className="cursor-pointer mt-4 md:mt-0 border-1 border-gray-600 rounded-xl"
+                        >
+                            <img
+                                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                alt={`${movie.title} IMG`}
+                                className="border-2 border-transparent hover:scale-105 hover:border-yellow-400 transition max-h-84 md:max-h-96 lg:max-h-[420px] rounded-xl"
+                            />
+                        </a>
+                        <div className="text-white mt-4 p-4">
+                            <h1 className="text-3xl font-extrabold mb-2 w-full text-yellow-400">
+                                {movie.title}
+                            </h1>
+                            <div className="flex flex-wrap gap-2 my-4">
+                                {movie.genres?.map((genre) => (
+                                    <span
+                                        key={genre.id}
+                                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded-full"
+                                    >
+                                        {genre.name}
+                                    </span>
+                                ))}
+                            </div>
+                            <div className="flex flex-row gap-x-2">
+                                <span>
+                                    ⭐{movie.vote_average.toFixed(1)}/10
                                 </span>
-                            ))}
+                                <span>📅{movie.release_date}</span>
+                                <span>🕖{movie.runtime}min</span>
+                            </div>
+                            <div className="mt-6">
+                                <span className="text-2xl font-semibold">
+                                    Available on:{" "}
+                                </span>
+                                {provider.flatrate &&
+                                provider.flatrate.length > 0 ? (
+                                    <ul className="flex flex-col justify-center items-start">
+                                        {provider.flatrate.map(
+                                            (providerItem) => (
+                                                <li
+                                                    key={
+                                                        providerItem.provider_id
+                                                    }
+                                                    className="flex flex-row gap-3 my-1 justify-center items-center"
+                                                >
+                                                    <img
+                                                        src={`https://image.tmdb.org/t/p/w45${providerItem.logo_path}`}
+                                                        alt={
+                                                            providerItem.provider_name
+                                                        }
+                                                        className="h-8 w-8 rounded-full"
+                                                    />
+                                                    <strong className="text-yellow-400">
+                                                        {
+                                                            providerItem.provider_name
+                                                        }
+                                                    </strong>
+                                                </li>
+                                            )
+                                        )}
+                                    </ul>
+                                ) : (
+                                    <p className="underline">
+                                        Not currently available in your country
+                                    </p>
+                                )}
+                            </div>
+                            <p className="w-full text-md md:max-w-[75ch]">
+                                {movie.overview}
+                            </p>
                         </div>
-                        <div className="flex flex-row gap-x-2">
-                            <span>⭐{movie.vote_average.toFixed(1)}/10</span>
-                            <span>📅{movie.release_date}</span>
-                            <span>🕖{movie.runtime}min</span>
-                        </div>
-                        <div className="my-2">
-                            <span className="text-2xl font-semibold">
-                                Available on:{" "}
-                            </span>
-                            {provider.flatrate &&
-                            provider.flatrate.length > 0 ? (
-                                <ul className="flex flex-col justify-center items-start">
-                                    {provider.flatrate.map((providerItem) => (
-                                        <li
-                                            key={providerItem.provider_id}
-                                            className="flex flex-row gap-3 my-1 justify-center items-center"
-                                        >
-                                            <img
-                                                src={`https://image.tmdb.org/t/p/w45${providerItem.logo_path}`}
-                                                alt={providerItem.provider_name}
-                                                className="h-8 w-8 rounded-full"
-                                            />
-                                            <strong className="text-yellow-400">
-                                                {providerItem.provider_name}
-                                            </strong>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="underline">
-                                    Not currently available in your country
-                                </p>
-                            )}
-                        </div>
-                        <p className="w-full text-md md:max-w-[75ch]">
-                            {movie.overview}
-                        </p>
                     </div>
                 </div>
             ) : (
