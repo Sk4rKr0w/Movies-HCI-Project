@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import MovieReviews from "../components/MovieReviews";
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 function MoviePage() {
@@ -187,7 +188,7 @@ function MoviePage() {
                 )}
             </div>
 
-            <div className="bg-black/70 p-4">
+            <div className="bg-black/70 p-4 flex flex-col justify-center items-center">
                 <h2 className="text-center text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
                     Cast
                 </h2>
@@ -218,6 +219,7 @@ function MoviePage() {
                         <p>Caricamento cast...</p>
                     )}
                 </div>
+                <MovieReviews movieId={id} />
             </div>
         </div>
     );
