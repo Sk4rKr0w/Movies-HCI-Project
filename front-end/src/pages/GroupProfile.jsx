@@ -57,15 +57,14 @@ function GroupProfile() {
 
     useEffect(() => {
     if (!group?.id) return;
-
-    // Funzione per arricchire il messaggio con username
+    
     const fetchSenderUsername = async (senderId) => {
         const { data, error } = await supabase
         .from("users")
         .select("username")
         .eq("id", senderId)
         .single();
-
+    
         return data?.username || "Anon";
     };
     
@@ -79,27 +78,32 @@ function GroupProfile() {
             table: "messages",
             filter: `group_id=eq.${group.id}`,
         },
-        (payload) => {
+        async (payload) => {
             const newMessage = payload.new;
-          
-            // Evita duplicati: controlla se esiste già quel messaggio
-            setMessages((prev) => {
-              const exists = prev.some((msg) => msg.id === newMessage.id);
-              if (exists) return prev;
-          
-              return [...prev, {
+    
+            // Evita duplicati
+            const exists = messages.some((msg) => msg.id === newMessage.id);
+            if (exists) return;
+    
+            // 🔄 Recupera il nome utente in modo asincrono
+            const username = await fetchSenderUsername(newMessage.sender_id);
+    
+            setMessages((prev) => [
+            ...prev,
+            {
                 ...newMessage,
-                sender: { username }, // recuperato separatamente
-              }];
-            });
-          }          
+                sender: { username },
+            },
+            ]);
+        }
         )
         .subscribe();
     
     return () => {
         supabase.removeChannel(channel);
     };
-    }, [group?.id]);
+    }, [group?.id, messages]);
+      
       
     const sendMessage = async () => {
         if (!newMessage.trim()) return;
