@@ -57,6 +57,17 @@ function GroupProfile() {
 
     useEffect(() => {
     if (!group?.id) return;
+
+    // Funzione per arricchire il messaggio con username
+    const fetchSenderUsername = async (senderId) => {
+        const { data, error } = await supabase
+        .from("users")
+        .select("username")
+        .eq("id", senderId)
+        .single();
+
+        return data?.username || "Anon";
+    };
     
     const channel = supabase
         .channel("realtime-chat")
@@ -69,8 +80,19 @@ function GroupProfile() {
             filter: `group_id=eq.${group.id}`,
         },
         (payload) => {
-            setMessages((prev) => [...prev, payload.new]);
-        }
+            const newMessage = payload.new;
+          
+            // Evita duplicati: controlla se esiste già quel messaggio
+            setMessages((prev) => {
+              const exists = prev.some((msg) => msg.id === newMessage.id);
+              if (exists) return prev;
+          
+              return [...prev, {
+                ...newMessage,
+                sender: { username: "..." } // recuperato separatamente
+              }];
+            });
+          }          
         )
         .subscribe();
     
