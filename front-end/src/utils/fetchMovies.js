@@ -20,7 +20,16 @@ export const fetchMovies = async (totalMovies = 30) => {
 
         const allMovies = allData.flatMap((data) => data.results);
 
-        return allMovies.slice(0, totalMovies);
+        const uniqueMoviesMap = new Map();
+        allMovies.forEach((movie) => {
+            if (!uniqueMoviesMap.has(movie.id)) {
+                uniqueMoviesMap.set(movie.id, movie);
+            }
+        });
+
+        const uniqueMovies = Array.from(uniqueMoviesMap.values());
+
+        return uniqueMovies.slice(0, totalMovies);
     } catch (error) {
         console.error("Errore nel fetch dei film:", error);
         throw error;
