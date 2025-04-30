@@ -11,19 +11,22 @@ function About() {
 
     return (
         <div>
-            <ul className="grid grid-cols-5  md:grid-cols-10 gap-2 bg-[#141414]">
-                {movies ? (
-                    movies.map((movie) => (
-                        <li key={movie.id} className="relative w-full h-full">
-                            {movie.backdrop_path && (
+            <ul className="grid grid-cols-5 md:grid-cols-10 gap-2 bg-[#141414]">
+                {movies && movies.length > 0 ? (
+                    movies.map((movie) =>
+                        movie.poster_path ? (
+                            <li
+                                key={movie.id}
+                                className="relative w-full h-full"
+                            >
                                 <img
-                                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                    src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
                                     alt={movie.title}
                                     className="blur-[1px] w-full h-full object-cover rounded-lg shadow-xl"
                                 />
-                            )}
-                        </li>
-                    ))
+                            </li>
+                        ) : null
+                    )
                 ) : (
                     <li className="col-span-full flex justify-center items-center h-full">
                         <div className="flex space-x-2">
@@ -34,6 +37,7 @@ function About() {
                     </li>
                 )}
             </ul>
+
             <div className="grid grid-cols-1 md:grid-cols-2 px-10 py-5 bg-black text-white gap-y-2">
                 <div className="md:col-span-2 m-5 flex flex-col justify-center items-center">
                     <h1 className="text-center text-3xl md:text-4xl font-semibold mb-2">
