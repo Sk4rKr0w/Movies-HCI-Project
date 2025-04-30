@@ -49,19 +49,22 @@ function SignUp() {
 
     return (
         <div className="w-screen h-screen bg-gradient-to-r from-[#1b1b1b] via-[#2d2d2d] to-[#141414] text-white relative overflow-hidden">
-            <ul className="absolute inset-0 grid grid-cols-5 md:grid-cols-7 lg:grid-cols-10 gap-3 z-0 opacity-40 filter blur-[1px]">
+            <ul className="absolute inset-0 grid grid-cols-3 md:grid-cols-6 gap-3 z-0 opacity-40 filter blur-[5px]">
                 {movies.length > 0 ? (
-                    movies.map((movie) => (
-                        <li key={movie.id} className="relative w-full h-full">
-                            {movie.backdrop_path && (
+                    movies.map((movie) =>
+                        movie.poster_path ? (
+                            <li
+                                key={`store-${movie.id}`}
+                                className="relative w-full h-full"
+                            >
                                 <img
-                                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                    src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
                                     alt={movie.title}
-                                    className="w-full h-full object-cover rounded-lg shadow-xl hover:scale-105 transform transition-all duration-300"
+                                    className="w-full h-full object-cover rounded-lg shadow-xl"
                                 />
-                            )}
-                        </li>
-                    ))
+                            </li>
+                        ) : null
+                    )
                 ) : (
                     <li className="col-span-full flex justify-center items-center h-full">
                         <div className="flex space-x-2">
