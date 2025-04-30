@@ -13,6 +13,8 @@ function GroupProfile() {
     const [searchInput, setSearchInput] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [message, setMessage] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,6 +37,92 @@ function GroupProfile() {
 
         fetchGroupDetails();
     }, [id]);
+
+    useEffect(() => {
+        if (group) {
+            fetchMessages();
+        }
+    }, [group]);
+
+    const fetchMessages = async () => {
+        try {
+            const res = await axios.get(
+                "http://localhost:3001/api/chatgroup/listMessages",
+                {
+                    params: { groupId: group.id },
+                }
+            );
+            setMessages(res.data.messages);
+        } catch (error) {
+            console.error("Errore nel recupero dei messaggi:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (!group?.id) return;
+
+        const fetchSenderUsername = async (senderId) => {
+            const { data, error } = await supabase
+                .from("users")
+                .select("username")
+                .eq("id", senderId)
+                .single();
+
+            return data?.username || "Anon";
+        };
+
+        const channel = supabase
+            .channel("realtime-chat")
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "messages",
+                    filter: `group_id=eq.${group.id}`,
+                },
+                async (payload) => {
+                    const newMessage = payload.new;
+
+                    // Evita duplicati controllando lo stato più aggiornato
+                    const username = await fetchSenderUsername(
+                        newMessage.sender_id
+                    );
+
+                    setMessages((prevMessages) => {
+                        if (
+                            prevMessages.some((msg) => msg.id === newMessage.id)
+                        ) {
+                            return prevMessages;
+                        }
+
+                        return [
+                            ...prevMessages,
+                            {
+                                ...newMessage,
+                                sender: { username },
+                            },
+                        ];
+                    });
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [group?.id]);
+
+    const sendMessage = async () => {
+        if (!newMessage.trim()) return;
+        await axios.post("http://localhost:3001/api/chatgroup/addMessage", {
+            groupId: group.id,
+            senderId: user.id,
+            content: newMessage,
+        });
+        setNewMessage("");
+        fetchMessages();
+    };
 
     const handleDeleteGroup = async () => {
         if (!window.confirm("Sei sicuro di voler eliminare questo gruppo?"))
@@ -182,21 +270,15 @@ function GroupProfile() {
     const getAvatarUrl = (user) => {
         // se l'utente ha effettivamente caricato un avatar, usalo
         if (user?.avatar_url && user.avatar_url !== "default_avatar.png") {
-          return supabase
-            .storage
-            .from("avatars")
-            .getPublicUrl(user.avatar_url)
-            .data
-            .publicUrl;
+            return supabase.storage
+                .from("avatars")
+                .getPublicUrl(user.avatar_url).data.publicUrl;
         }
         // altrimenti, mostra l'avatar di default
-        return supabase
-          .storage
-          .from("avatars")
-          .getPublicUrl("default_avatar.png")
-          .data
-          .publicUrl;
-      };
+        return supabase.storage
+            .from("avatars")
+            .getPublicUrl("default_avatar.png").data.publicUrl;
+    };
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-gray-900 text-gray-100 p-6 flex flex-col items-center gap-10">
             <header className="text-center">
@@ -399,6 +481,37 @@ function GroupProfile() {
                     )}
                 </section>
             )}
+            <div style={{ padding: 20 }}>
+                <h3>💬 Chat of the Group</h3>
+                <div
+                    style={{
+                        maxHeight: 300,
+                        overflowY: "auto",
+                        border: "1px solid #ccc",
+                        padding: 10,
+                        marginBottom: 10,
+                    }}
+                >
+                    {messages.map((msg) => (
+                        <p key={msg.id}>
+                            <strong>{msg.sender?.username || "Anon"}:</strong>{" "}
+                            {msg.content}
+                        </p>
+                    ))}
+                </div>
+                {user && (
+                    <div style={{ display: "flex", gap: "10px" }}>
+                        <input
+                            type="text"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            placeholder="Write a message..."
+                            style={{ flex: 1, padding: "8px" }}
+                        />
+                        <button onClick={sendMessage}>Send</button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

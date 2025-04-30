@@ -180,47 +180,42 @@ function GroupWatch() {
                         </tr>
                     </thead>
                     <tbody>
-                        {[...groups]
-                            .sort((a, b) => {
-                                const aIsOwner = a.owner === user?.id ? -1 : 1;
-                                const bIsOwner = b.owner === user?.id ? -1 : 1;
-                                return aIsOwner - bIsOwner;
-                            })
-                            .map((group) => (
-                                <tr
-                                    key={group.id}
-                                    className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                                >
-                                    <td className="max-w-[12ch] truncate overflow-hidden border border-gray-700 px-4 py-2 text-center">
-                                        <span className="font-semibold">
-                                            {group.name}
-                                        </span>
-                                    </td>
-                                    <td className="max-w-[12ch] truncate border border-gray-700 px-4 py-2 text-left">
-                                        {group.description}
-                                    </td>
-                                    <td className="border border-gray-700 px-4 py-2 text-center">
-                                        {group.users?.length || "???"}
-                                    </td>
-                                    <td className="border border-gray-700 px-4 py-2 text-center">
-                                        <span className="font-semibold">
-                                            {group.owner === user.id
-                                                ? "Yes"
-                                                : "No"}
-                                        </span>
-                                    </td>
-                                    <td className="border border-gray-700 px-4 py-2 text-center">
-                                        <button
-                                            onClick={() =>
-                                                goToGroupProfile(group.id)
-                                            }
-                                            className="text-blue-300 hover:text-blue-400 cursor-pointer"
-                                        >
-                                            View Group
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                        {groups.map((group) => (
+                            <tr
+                                key={group.id}
+                                className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            >
+                                <td className="max-w-[12ch] truncate overflow-hidden border border-gray-700 px-4 py-2 text-center">
+                                    <span className="font-semibold">
+                                        {group.name}
+                                    </span>
+                                </td>
+                                <td className="max-w-[12ch] truncate border border-gray-700 px-4 py-2 text-left">
+                                    {group.description}
+                                </td>
+                                <td className="border border-gray-700 px-4 py-2 text-center">
+                                    {group.users?.length || "???"}
+                                </td>
+                                <td className="border border-gray-700 px-4 py-2 text-center">
+                                    <span className="font-semibold">
+                                        {group.owner === user?.id
+                                            ? "Yes"
+                                            : "No"}
+                                    </span>
+                                </td>
+
+                                <td className="border border-gray-700 px-4 py-2 text-center">
+                                    <button
+                                        onClick={() =>
+                                            goToGroupProfile(group.id)
+                                        }
+                                        className="text-blue-300 hover:text-blue-400 cursor-pointer"
+                                    >
+                                        View Group
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             )}
