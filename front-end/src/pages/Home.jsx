@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMovieStore } from "../store/useMovieStore";
 import MovieQuiz from "../components/MovieQuiz";
+// import { Link } from "react-router-dom"; // Se usi React Router
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 function Home() {
@@ -8,11 +9,6 @@ function Home() {
     const movies = useMovieStore((state) => state.movies);
     const fetchMovies = useMovieStore((state) => state.fetchMovies);
     const [trending, setTrending] = useState([]);
-
-    useEffect(() => {
-        fetchMovies(30);
-        fetchTrendingMovies();
-    }, []);
 
     const fetchTrendingMovies = async () => {
         try {
@@ -35,7 +31,7 @@ function Home() {
                     return {
                         id: movie.id,
                         title: movie.title,
-                        poster: movie.poster_path,
+                        poster_path: movie.poster_path,
                         trailerUrl: youtubeTrailer
                             ? `https://www.youtube.com/watch?v=${youtubeTrailer.key}`
                             : null,
@@ -49,20 +45,36 @@ function Home() {
         }
     };
 
+    useEffect(() => {
+        fetchMovies(30);
+        fetchTrendingMovies();
+    }, [fetchMovies]);
+
+    // Rimuove duplicati nello store basandosi su ID
+    const deduplicatedMovies = Array.from(
+        new Map(movies.map((m) => [m.id, m])).values()
+    );
+
+    // Esclude film trending dallo sfondo
+    const trendingIds = new Set(trending.map((m) => m.id));
+    const backgroundMovies = deduplicatedMovies.filter(
+        (m) => !trendingIds.has(m.id)
+    );
+
     return (
         <div className="w-screen min-h-screen bg-gradient-to-r from-[#1b1b1b] via-[#2d2d2d] to-[#141414] text-white relative overflow-hidden">
-            <ul className="absolute inset-0 grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3 z-0 opacity-40 filter blur-[2px]">
-                {movies.length > 0 ? (
-                    movies.map((movie) =>
-                        movie.backdrop_path ? (
+            <ul className="absolute inset-0 grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3 z-0 opacity-40 filter blur-[5px]">
+                {backgroundMovies.length > 0 ? (
+                    backgroundMovies.map((movie) =>
+                        movie.poster_path ? (
                             <li
-                                key={movie.id}
+                                key={`store-${movie.id}`}
                                 className="relative w-full h-full"
                             >
                                 <img
-                                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                    src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
                                     alt={movie.title}
-                                    className="w-full h-full object-cover rounded-lg shadow-xl hover:scale-105 transform transition-all duration-300"
+                                    className="w-full h-full object-cover rounded-lg shadow-xl"
                                 />
                             </li>
                         ) : null
@@ -103,15 +115,15 @@ function Home() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         {trending.map((movie) => (
                             <a
-                                key={movie.id}
+                                key={`trending-${movie.id}`}
                                 href={`/movie/${movie.id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="border border-gray-600 bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition"
                             >
-                                {movie.poster && (
+                                {movie.poster_path && (
                                     <img
-                                        src={`https://image.tmdb.org/t/p/w500${movie.poster}`}
+                                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                                         alt={movie.title}
                                         className="w-full h-64 object-cover rounded-md mb-2"
                                     />
