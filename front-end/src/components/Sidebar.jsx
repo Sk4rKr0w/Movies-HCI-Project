@@ -134,6 +134,15 @@ function Sidebar({ isOpen, onClose }) {
                 >
                     Contact Us
                 </NavLink>
+                <NavLink
+                    to="/favorites"
+                    className={
+                        "hover:text-yellow-400 transition hover:scale-105 w-full text-md"
+                     }
+                >
+                    Favorites
+                </NavLink>
+                
             </ul>
         </div>
     );
