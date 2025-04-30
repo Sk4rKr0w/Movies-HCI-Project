@@ -45,50 +45,103 @@ function About() {
                     </h1>
                     <hr className="w-[80%] md:w-[50%]" />
                 </div>
-                <div className="flex flex-col justify-center items-center">
-                    <h1 className="text-2xl mt-2 text-yellow-400 font-semibold">
+
+                <div className="mt-4 md:mt-0 flex flex-col justify-center items-center">
+                    <h1 className="text-2xl text-yellow-400 font-semibold">
                         Who are we?
                     </h1>
-                    <p className="text-sm max-w-prose md:max-w-[55ch] mt-5 text-center">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Voluptatem ab atque fugit minus. Veritatis aliquam
-                        aspernatur autem. Soluta, culpa minus magni assumenda
-                        distinctio quod fuga laboriosam tempore veniam
-                        recusandae. Beatae officia sit officiis accusantium
-                        dicta doloribus aperiam. Et quos, eveniet veniam ex
-                        perferendis sequi quisquam magni mollitia, optio omnis
-                        dolorem.
+                    <p className="text-md lg:text-lg max-w-prose md:max-w-[55ch] mt-5 text-center">
+                        We are a passionate team of{" "}
+                        <strong className="font-extrabold text-yellow-400">
+                            movie lovers
+                        </strong>{" "}
+                        dedicated to making film selection more fun,
+                        interactive, and social. Whether you're into
+                        blockbusters or indie gems, we believe that{" "}
+                        <em className="italic font-semibold">
+                            discovering what to watch should be as exciting as
+                            the movie itself
+                        </em>
+                        .
                     </p>
                 </div>
-                <div className="flex flex-col justify-center items-center">
-                    <h1 className="text-2xl mt-2 text-yellow-400 font-semibold">
+
+                <div className="mt-6 md:mt-0 flex flex-col justify-center items-center">
+                    <h1 className="text-2xl text-yellow-400 font-semibold">
                         What do we do?
                     </h1>
-                    <p className="text-sm max-w-prose md:max-w-[55ch] mt-5 text-center">
-                        Lorem ipsum dolor, sit amet consectetur adipisicing
-                        elit. Deserunt nesciunt expedita saepe rem sint, ipsa
-                        autem non consequuntur voluptatibus laborum nemo
-                        veritatis, rerum nam eum repellendus aspernatur
-                        obcaecati sequi nisi aliquam quod molestiae eius magni.
-                        Ipsam esse, repudiandae deserunt odio tempore ad nostrum
-                        necessitatibus ipsum expedita, magnam aperiam!
+                    <p className="text-md lg:text-lg max-w-prose md:max-w-[55ch] mt-5 text-center">
+                        Our platform helps users explore new movies through an
+                        engaging{" "}
+                        <strong className="font-extrabold text-yellow-400">
+                            quiz system
+                        </strong>{" "}
+                        that understands your taste and mood. Plus, with our
+                        group feature, you can{" "}
+                        <em className="italic font-semibold">
+                            team up with friends
+                        </em>{" "}
+                        to vote and choose the perfect film for your next movie
+                        night.
                     </p>
                 </div>
-                <div className="md:col-span-2 flex flex-col justify-center items-center">
+
+                <div className="mt-6 md:mt-8 md:col-span-1 flex flex-col justify-center items-center">
                     <h1 className="text-2xl mt-2 text-yellow-400 font-semibold">
                         What do we offer?
                     </h1>
-                    <p className="text-sm mt-5 text-center md:max-w-[90%]">
-                        Lorem ipsum, dolor sit amet consectetur adipisicing
-                        elit. Enim commodi ipsum, aut nam nemo quo natus
-                        excepturi ut magnam. Cupiditate recusandae autem
-                        incidunt fugiat ex. Eveniet ullam fugit praesentium
-                        accusantium omnis dignissimos dolorum nulla ipsa
-                        quisquam odio, ea eligendi molestiae enim
-                        necessitatibus. Libero ullam, cupiditate autem possimus
-                        dicta maiores beatae?
+                    <p className="text-md lg:text-lg mt-5 text-center md:max-w-[90%]">
+                        We offer a smart movie discovery tool powered by data
+                        from TMDb, a unique recommendation quiz, and the ability
+                        to{" "}
+                        <strong className="font-extrabold text-yellow-400">
+                            create private or public groups
+                        </strong>{" "}
+                        where everyone can contribute to the film choice. It's
+                        like having your own digital cinema club at your
+                        fingertips.
                     </p>
-                    <hr className="my-5 col-span-2 w-[80%] md:w-[50%]" />
+                    <hr className="hidden md:flex my-5 col-span-2 w-[80%] md:w-[50%]" />
+                </div>
+
+                <div className="mt-6 md:mt-0 md:col-span-1 flex flex-col justify-center items-center">
+                    <h1 className="text-2xl mt-2 text-yellow-400 font-semibold">
+                        What can you do?
+                    </h1>
+                    <p className="text-md lg:text-lg mt-5 text-center md:max-w-[90%]">
+                        As a user, you can{" "}
+                        <strong className="font-extrabold text-yellow-400">
+                            explore popular and hidden gems
+                        </strong>
+                        , take a quiz to find a movie that matches your
+                        preferences, and{" "}
+                        <em className="italic font-semibold">
+                            invite friends to join your group
+                        </em>
+                        . Once inside, everyone can suggest titles and vote
+                        together to decide what to watch next.
+                    </p>
+                    <hr className="hidden md:flex my-5 col-span-2 w-[80%] md:w-[50%]" />
+                </div>
+
+                <div className="mt-6 md:mt-8 md:col-span-2 flex flex-col justify-center items-center">
+                    <h1 className="text-2xl mt-2 text-yellow-400 font-semibold">
+                        Why does it matter?
+                    </h1>
+                    <p className="text-md lg:text-lg mt-5 text-center md:max-w-[90%] lg:max-w-[70%]">
+                        Choosing a movie doesn't have to be a chore. With our
+                        platform, it becomes a{" "}
+                        <strong className="font-extrabold text-yellow-400">
+                            shared experience
+                        </strong>
+                        , fostering connection and fun. Whether it's a cozy
+                        night in or a long-distance movie session, we make it
+                        easy to{" "}
+                        <em className="italic font-semibold">
+                            come together around great stories
+                        </em>
+                        .
+                    </p>
                 </div>
             </div>
         </div>
