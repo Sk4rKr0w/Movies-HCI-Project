@@ -32,11 +32,19 @@ const questions = [
     },
     {
         question: "Preferred length?",
-        options: ["Short", "Long"],
+        options: [
+            "Short (up to 1h 30min)",
+            "Medium (between 1h 30min and 2h 30min)",
+            "Long (over 2h 30min)",
+        ],
     },
     {
         question: "What's the age rating you prefer?",
-        options: ["All Ages", "Teens and up", "Adults only"],
+        options: [
+            "All Ages",
+            "Teens and Up (PG-13)",
+            "Adults Only (18+ / R-rated)",
+        ],
     },
     {
         question: "Do you want a popular or hidden gem?",
@@ -133,9 +141,12 @@ const MovieQuiz = () => {
         }
 
         if (length === "Short") {
-            params["with_runtime.lte"] = 100;
-        } else {
-            params["with_runtime.gte"] = 101;
+            params["with_runtime.lte"] = 90;
+        } else if (length === "Medium") {
+            params["with_runtime.gte"] = 91;
+            params["with_runtime.lte"] = 150;
+        } else if (length === "Long") {
+            params["with_runtime.gte"] = 151;
         }
 
         if (ageGroup === "All Ages") {
@@ -290,7 +301,7 @@ const MovieQuiz = () => {
                             {step > 0 && (
                                 <button
                                     onClick={handleBack}
-                                    className="w-[25%] cursor-pointer mt-6 bg-yellow-400 text-black px-6 py-2 rounded-full hover:bg-yellow-500"
+                                    className="font-semibold w-[25%] cursor-pointer mt-6 bg-yellow-400 text-black px-6 py-2 rounded-full hover:bg-yellow-500"
                                 >
                                     Back
                                 </button>
