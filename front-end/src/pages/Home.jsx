@@ -91,14 +91,14 @@ function Home() {
             </ul>
 
             <div className="relative z-10 px-6 py-10 flex flex-col items-center text-center overflow-x-hidden">
-                <h1 className="text-3xl font-extrabold text-white leading-tight mb-4 drop-shadow-lg">
-                    Movie Recommendations Quiz
+                <h1 className="text-lg md:text-2xl lg:text-3xl text-yellow-400 outline-3 rounded-lg p-2 bg-[#121212] font-extrabold leading-tight mb-4 drop-shadow-lg">
+                    🍿 What Should I Watch Tonight? 🍿
                 </h1>
                 <p className="text-xl font-medium mb-6 max-w-lg mx-auto text-gray-200">
                     Don't know what to{" "}
-                    <span className="text-yellow-400">watch</span>? Take our{" "}
-                    <span className="text-yellow-400">quiz</span> and find your
-                    perfect match!
+                    <span className="text-yellow-400">watch</span>? <br />
+                    Take our <span className="text-yellow-400">quiz</span> and
+                    find your perfect match!
                 </p>
                 <button
                     className="text-white px-8 py-3 cursor-pointer bg-blue-500 text-lg font-semibold hover:text-gray-900 rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transform transition-all duration-300"
@@ -108,7 +108,7 @@ function Home() {
                 </button>
                 {startQuiz && <MovieQuiz />}
 
-                <div className="mt-12 w-full">
+                <div className="mt-12 md:px-24 w-full">
                     <h2 className="text-2xl font-extrabold mb-4 text-yellow-400">
                         Trending Now
                     </h2>
