@@ -133,7 +133,7 @@ function MoviePage() {
                                 <span>📅{movie.release_date}</span>
                                 <span>🕖{movie.runtime}min</span>
                             </div>
-                            <div className="mt-6">
+                            <div className="my-4">
                                 <span className="text-2xl font-semibold">
                                     Available on:{" "}
                                 </span>
@@ -225,7 +225,7 @@ function MoviePage() {
                                     <img
                                         src={`https://image.tmdb.org/t/p/w185${actor.profile_path}`}
                                         alt={actor.name}
-                                        className="h-24 md:h-32 lg:h-36 rounded-lg hover:scale-105 transition border-2 border-transparent hover:border-yellow-700"
+                                        className="h-24 md:h-32 lg:h-36 rounded-lg hover:scale-105 transition border-3 border-transparent hover:border-yellow-600"
                                     />
                                 ) : (
                                     <div className="h-24 md:h-32 lg:h-36 rounded-full bg-gray-500"></div>

@@ -4,8 +4,8 @@ const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 const MovieReviews = ({ movieId }) => {
     const [reviews, setReviews] = useState([]);
-    const [allReviews, setAllReviews] = useState([]); // Tutte le recensioni
-    const [loadedReviews, setLoadedReviews] = useState(5); // Iniziamo caricando le prime 5
+    const [allReviews, setAllReviews] = useState([]);
+    const [loadedReviews, setLoadedReviews] = useState(5);
     const [expandedReviews, setExpandedReviews] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -24,8 +24,15 @@ const MovieReviews = ({ movieId }) => {
                         },
                     }
                 );
-                setAllReviews(response.data.results); // Salviamo tutte le recensioni
-                setReviews(response.data.results.slice(0, 5)); // Mostriamo solo le prime 5 inizialmente
+                // Rimuove recensioni duplicate per ID
+                const uniqueReviews = Array.from(
+                    new Map(
+                        response.data.results.map((r) => [r.id, r])
+                    ).values()
+                );
+
+                setAllReviews(uniqueReviews);
+                setReviews(uniqueReviews.slice(0, 5));
             } catch (err) {
                 setError("Errore nel recupero delle recensioni.");
             } finally {
@@ -46,8 +53,11 @@ const MovieReviews = ({ movieId }) => {
     };
 
     const loadMoreReviews = () => {
-        setLoadedReviews(loadedReviews + 5);
-        setReviews(allReviews.slice(0, loadedReviews + 5)); // Aggiungiamo altre 5 recensioni
+        const next = allReviews.slice(0, loadedReviews + 5);
+        // Filtra eventuali duplicati già visibili
+        const newSet = Array.from(new Map(next.map((r) => [r.id, r])).values());
+        setLoadedReviews((prev) => prev + 5);
+        setReviews(newSet);
     };
 
     if (loading) return <p>Caricamento...</p>;

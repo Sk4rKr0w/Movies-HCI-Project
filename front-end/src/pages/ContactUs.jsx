@@ -91,7 +91,7 @@ function ContactUs() {
 
             <div className="bg-[#2c2c2c] text-white p-8 rounded-lg shadow-xl max-w-3xl mx-auto">
                 <h2 className="text-3xl font-semibold mb-6 text-center">
-                    Contattaci
+                    Contact Us
                 </h2>
 
                 {error && <div className="text-red-500 mb-4">{error}</div>}
@@ -114,7 +114,7 @@ function ContactUs() {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="Inserisci la tua email"
+                            placeholder="(e.g. mariorossi@example.com)"
                             required
                             className="w-full p-3 mt-2 bg-gray-800 text-white border border-yellow-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         />
@@ -153,14 +153,14 @@ function ContactUs() {
                             htmlFor="message"
                             className="block text-lg font-medium"
                         >
-                            Messaggio:
+                            Message:
                         </label>
                         <textarea
                             id="message"
                             name="message"
                             value={formData.message}
                             onChange={handleChange}
-                            placeholder="Scrivi il tuo messaggio"
+                            placeholder="Enter your message..."
                             required
                             className="w-full p-3 mt-2 bg-gray-800 text-white border border-yellow-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 h-40"
                         />
@@ -170,7 +170,7 @@ function ContactUs() {
                         type="submit"
                         className="cursor-pointer w-full py-3 mt-4 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-colors duration-300"
                     >
-                        Invia
+                        Send
                     </button>
                 </form>
             </div>

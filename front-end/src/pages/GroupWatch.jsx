@@ -159,19 +159,22 @@ function GroupWatch() {
                         : "Please log in to see your groups."}
                 </p>
             ) : (
-                <table className="min-w-[90%] table-auto border-collapse border border-gray-700">
+                <table className="scale-80 md:scale-90 lg:scale-100 min-w-[90%] table-auto border-collapse border border-gray-700">
                     <thead className="bg-gray-800 text-white">
                         <tr>
-                            <th className="text-md border border-gray-700 p-2 text-center">
+                            <th className="text-md border border-gray-700 p-2 text-center text-yellow-400">
                                 Group Name
                             </th>
-                            <th className="text-md border border-gray-700 p-2 text-center">
+                            <th className="text-md border border-gray-700 p-2 text-center text-yellow-400">
                                 Description
                             </th>
-                            <th className="text-md border border-gray-700 p-2 text-center">
+                            <th className="text-md border border-gray-700 p-2 text-center text-yellow-400">
                                 N° Users
                             </th>
-                            <th className="text-md border border-gray-700 p-2 text-center">
+                            <th className="text-md border border-gray-700 p-2 text-center text-yellow-400">
+                                Owner
+                            </th>
+                            <th className="text-md border border-gray-700 p-2 text-center text-yellow-400">
                                 Actions
                             </th>
                         </tr>
@@ -183,7 +186,9 @@ function GroupWatch() {
                                 className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                             >
                                 <td className="max-w-[12ch] truncate overflow-hidden border border-gray-700 px-4 py-2 text-center">
-                                    {group.name}
+                                    <span className="font-semibold">
+                                        {group.name}
+                                    </span>
                                 </td>
                                 <td className="max-w-[12ch] truncate border border-gray-700 px-4 py-2 text-left">
                                     {group.description}
@@ -191,6 +196,14 @@ function GroupWatch() {
                                 <td className="border border-gray-700 px-4 py-2 text-center">
                                     {group.users?.length || "???"}
                                 </td>
+                                <td className="border border-gray-700 px-4 py-2 text-center">
+                                    <span className="font-semibold">
+                                        {group.owner === user?.id
+                                            ? "Yes"
+                                            : "No"}
+                                    </span>
+                                </td>
+
                                 <td className="border border-gray-700 px-4 py-2 text-center">
                                     <button
                                         onClick={() =>
