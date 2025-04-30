@@ -13,6 +13,8 @@ function GroupProfile() {
     const [searchInput, setSearchInput] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [message, setMessage] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,6 +37,34 @@ function GroupProfile() {
 
         fetchGroupDetails();
     }, [id]);
+
+    useEffect(() => {
+        if (group) {
+            fetchMessages();
+        }
+    }, [group]);
+
+    const fetchMessages = async () => {
+        try {
+          const res = await axios.get("http://localhost:3001/api/chatgroup/listMessages", {
+            params: { groupId: group.id },
+          });
+          setMessages(res.data.messages);
+        } catch (error) {
+          console.error("Errore nel recupero dei messaggi:", error);
+        }
+      };      
+
+    const sendMessage = async () => {
+        if (!newMessage.trim()) return;
+        await axios.post("http://localhost:3001/api/chatgroup/addMessage", {
+            groupId: group.id,
+            senderId: user.id,
+            content: newMessage
+        });          
+        setNewMessage("");
+        fetchMessages();
+    };
 
     const handleDeleteGroup = async () => {
         if (!window.confirm("Sei sicuro di voler eliminare questo gruppo?"))
@@ -399,6 +429,26 @@ function GroupProfile() {
                     )}
                 </section>
             )}
+            <div style={{ padding: 20 }}>
+                <h3>💬 Chat of the Group</h3>
+                <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #ccc', padding: 10, marginBottom: 10 }}>
+                    {messages.map((msg) => (
+                        <p key={msg.id}><strong>{msg.sender?.username || "Anon"}:</strong> {msg.content}</p>
+                    ))}
+                </div>
+                {user && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <input
+                            type="text"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            placeholder="Write a message..."
+                            style={{ flex: 1, padding: '8px' }}
+                        />
+                        <button onClick={sendMessage}>Send</button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
