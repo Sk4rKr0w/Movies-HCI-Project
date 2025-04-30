@@ -89,7 +89,7 @@ function GroupProfile() {
           
               return [...prev, {
                 ...newMessage,
-                sender: { username: "..." } // recuperato separatamente
+                sender: { username }, // recuperato separatamente
               }];
             });
           }          
