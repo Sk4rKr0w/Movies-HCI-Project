@@ -55,6 +55,30 @@ function GroupProfile() {
         }
       };      
 
+    useEffect(() => {
+    if (!group?.id) return;
+    
+    const channel = supabase
+        .channel("realtime-chat")
+        .on(
+        "postgres_changes",
+        {
+            event: "INSERT",
+            schema: "public",
+            table: "messages",
+            filter: `group_id=eq.${group.id}`,
+        },
+        (payload) => {
+            setMessages((prev) => [...prev, payload.new]);
+        }
+        )
+        .subscribe();
+    
+    return () => {
+        supabase.removeChannel(channel);
+    };
+    }, [group?.id]);
+      
     const sendMessage = async () => {
         if (!newMessage.trim()) return;
         await axios.post("http://localhost:3001/api/chatgroup/addMessage", {
