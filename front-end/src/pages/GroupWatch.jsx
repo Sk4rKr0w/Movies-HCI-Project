@@ -1,8 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import supabase from "../supabaseClient";
-import * as bcrypt from "bcryptjs";
 
 function GroupWatch() {
     const [groups, setGroups] = useState([]);
@@ -150,7 +148,7 @@ function GroupWatch() {
 
             <hr className="m-4 w-[60%] border"></hr>
 
-            <h3 className="text-lg m-2 mb-6">Your Current Groups</h3>
+            <h3 className="text-lg m-2 mb-0 md:mb-6">Your Current Groups</h3>
 
             {groups.length === 0 ? (
                 <p>
@@ -159,7 +157,7 @@ function GroupWatch() {
                         : "Please log in to see your groups."}
                 </p>
             ) : (
-                <table className="scale-80 md:scale-90 lg:scale-100 min-w-[90%] table-auto border-collapse border border-gray-700">
+                <table className="scale-80 md:scale-90 lg:scale-100 min-w-[80%] table-auto border-collapse border border-gray-700">
                     <thead className="bg-gray-800 text-white">
                         <tr>
                             <th className="text-md border border-gray-700 p-2 text-center text-yellow-400">
@@ -180,82 +178,102 @@ function GroupWatch() {
                         </tr>
                     </thead>
                     <tbody>
-                        {groups.map((group) => (
-                            <tr
-                                key={group.id}
-                                className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                            >
-                                <td className="max-w-[12ch] truncate overflow-hidden border border-gray-700 px-4 py-2 text-center">
-                                    <span className="font-semibold">
-                                        {group.name}
-                                    </span>
-                                </td>
-                                <td className="max-w-[12ch] truncate border border-gray-700 px-4 py-2 text-left">
-                                    {group.description}
-                                </td>
-                                <td className="border border-gray-700 px-4 py-2 text-center">
-                                    {group.users?.length || "???"}
-                                </td>
-                                <td className="border border-gray-700 px-4 py-2 text-center">
-                                    <span className="font-semibold">
-                                        {group.owner === user?.id
-                                            ? "Yes"
-                                            : "No"}
-                                    </span>
-                                </td>
-
-                                <td className="border border-gray-700 px-4 py-2 text-center">
-                                    <button
-                                        onClick={() =>
-                                            goToGroupProfile(group.id)
-                                        }
-                                        className="text-blue-300 hover:text-blue-400 cursor-pointer"
-                                    >
-                                        View Group
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                        {groups
+                            .slice()
+                            .sort((a, b) =>
+                                a.owner === user?.id
+                                    ? -1
+                                    : b.owner === user?.id
+                                    ? 1
+                                    : 0
+                            )
+                            .map((group) => (
+                                <tr
+                                    key={group.id}
+                                    className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                                >
+                                    <td className="max-w-[12ch] truncate overflow-hidden border border-gray-700 px-4 py-2 text-center">
+                                        <span className="font-semibold">
+                                            {group.name}
+                                        </span>
+                                    </td>
+                                    <td className="max-w-[12ch] truncate border border-gray-700 px-4 py-2 text-left">
+                                        {group.description}
+                                    </td>
+                                    <td className="border border-gray-700 px-4 py-2 text-center">
+                                        {group.users?.length || "???"}
+                                    </td>
+                                    <td className="border border-gray-700 px-4 py-2 text-center">
+                                        <span className="font-semibold">
+                                            {group.owner === user?.id
+                                                ? "Yes"
+                                                : "No"}
+                                        </span>
+                                    </td>
+                                    <td className="border border-gray-700 px-4 py-2 text-center">
+                                        <button
+                                            onClick={() =>
+                                                goToGroupProfile(group.id)
+                                            }
+                                            className="text-blue-300 hover:text-blue-400 cursor-pointer"
+                                        >
+                                            View Group
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
             )}
 
             {searchResults.length > 0 && (
-                <div ref={resultsRef} className="min-w-[90%] mt-6">
-                    <h3 className="text-xl mb-2 text-yellow-300">
-                        🔍 Risultati della ricerca
+                <div
+                    ref={resultsRef}
+                    className="mt-6 flex flex-col justify-center items-center"
+                >
+                    <h3 className="w-[90%] text-xl font-semibold mb-2 text-yellow-300">
+                        🔍 Search Results
                     </h3>
                     {joinMessage && (
                         <p className="text-green-300 my-4 text-sm">
                             {joinMessage}
                         </p>
                     )}
-                    <ul className="space-y-2">
+                    <ul className="space-y-2 flex flex-col justify-center items-center w-full">
                         {searchResults.map((group) => (
                             <li
                                 key={group.id}
-                                className="bg-gray-900 p-3 rounded-md"
+                                className="w-[90%] flex flex-col md:flex-row border border-gray-600 bg-gray-900 hover:bg-gray-800 transition my-2 p-3 rounded-md"
                             >
-                                <p>
-                                    <strong className="text-yellow-400">
+                                <div className="w-full md:w-3/4 flex flex-col gap-2 md:gap-3 justify-start items-start">
+                                    <strong className="text-yellow-400 font-semibold text-lg md:text-xl">
                                         {group.name}
                                     </strong>
-                                    : {group.description}
-                                </p>
-                                <div className="flex gap-4 mt-2">
-                                    <button
-                                        onClick={() =>
-                                            goToGroupProfile(group.id)
-                                        }
-                                        className="font-semibold cursor-pointer px-3 py-2 bg-blue-400 hover:bg-blue-300 text-black text-sm rounded-lg"
-                                    >
-                                        View Group
-                                    </button>
+                                    {group.genres && (
+                                        <div className="flex flex-wrap gap-2 mt-1">
+                                            {JSON.parse(group.genres).map(
+                                                (genre, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className="bg-gray-700 text-white px-2 py-1 text-sm md:text-md rounded"
+                                                    >
+                                                        {genre}
+                                                    </span>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+                                    <p className="text-md md:text-lg">
+                                        {group.description}
+                                    </p>
+                                </div>
+
+                                <div className="md:w-1/4 gap-4 mt-2 md:flex md:justify-center md:items-center md:mx-2">
                                     <button
                                         onClick={() =>
                                             handleJoinGroup(group.id)
                                         }
-                                        className="font-semibold cursor-pointer px-3 py-2 bg-green-400 hover:bg-green-300 text-black text-[12px] rounded-lg"
+                                        className="w-full font-semibold cursor-pointer px-3 py-2 bg-green-400 hover:bg-green-300 text-black text-sm md:text:md md:w-full md:h-12 rounded-lg"
                                     >
                                         Join Group
                                     </button>
