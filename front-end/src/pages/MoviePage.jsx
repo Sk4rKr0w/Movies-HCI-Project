@@ -1,6 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import MovieReviews from "../components/MovieReviews";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 function MoviePage() {
@@ -9,7 +14,64 @@ function MoviePage() {
     const [cast, setCast] = useState([]);
     const [trailerKey, setTrailerKey] = useState(null);
     const [provider, setProvider] = useState({});
+    const [isFavorite, setIsFavorite] = useState(false);
+    const token = localStorage.getItem("token");
     const COUNTRY_CODE = "IT";
+    const [isWatched, setIsWatched] = useState(false);
+
+    useEffect(() => {
+        if (!token || !movie) return;
+      
+        axios
+          .get("http://localhost:3001/api/history", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const alreadyWatched = res.data.some(
+              (item) => item.movie_id === parseInt(id)
+            );
+            setIsWatched(alreadyWatched);
+          })
+          .catch((err) => console.error("Errore nel fetch dello storico:", err));
+      }, [id, token, movie]);
+      
+      // Toggle storico (aggiungi o rimuovi)
+      const toggleWatched = async () => {
+        if (!token || !movie) return;
+      
+        try {
+          if (isWatched) {
+            await axios.delete(
+              `http://localhost:3001/api/history?movieId=${movie.id}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+            toast.info("❌ Film rimosso dallo storico");
+          } else {
+            await axios.post(
+              "http://localhost:3001/api/history",
+              {
+                movie_id: movie.id,
+                title: movie.title,
+                poster_path: movie.poster_path,
+                overview: movie.overview,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            toast.success("✅ Film segnato come visto!");
+          }
+      
+          setIsWatched(!isWatched);
+        } catch (error) {
+          console.error("Errore nella modifica dello storico:", error);
+          toast.error("⚠️ Errore durante la modifica");
+        }
+      };
 
     const fetchYouTubeTrailer = async (movieId) => {
         const res = await fetch(
@@ -23,6 +85,8 @@ function MoviePage() {
 
         return trailer ? trailer.key : null;
     };
+
+
 
     useEffect(() => {
         const fetchMovie = async () => {
@@ -90,6 +154,38 @@ function MoviePage() {
         fetchProvider();
     }, [id]);
 
+    // Al montaggio, controlla se questo film è già nei preferiti
+   useEffect(() => {
+     if (!token) return;
+     axios
+       .get(`http://localhost:3001/api/favorites?movieId=${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+       })
+       .then(res => setIsFavorite(res.data.isFavorite))
+       .catch(console.error);
+   }, [id, token]);
+
+   const toggleFavorite = async () => {
+     if (!token) return alert("Devi essere loggato per usare i preferiti");
+     try {
+       if (isFavorite) {
+         await axios.delete(
+           `http://localhost:3001/api/favorites?movieId=${id}`,
+           { headers: { Authorization: `Bearer ${token}` } }
+         );
+       } else {
+         await axios.post(
+           `http://localhost:3001/api/favorites`,
+           { movieId: id },
+           { headers: { Authorization: `Bearer ${token}` } }
+         );
+       }
+       setIsFavorite(!isFavorite);
+     } catch (err) {
+       console.error(err);
+     }
+   };
+
     return (
         <div className="min-h-screen bg-black">
             {movie ? (
@@ -133,6 +229,37 @@ function MoviePage() {
                                 <span>📅{movie.release_date}</span>
                                 <span>🕖{movie.runtime}min</span>
                             </div>
+
+                            
+                            {/* -- PULSANTE PREFERITI -- */}
+                           {token && (
+                             <button
+                               onClick={toggleFavorite}
+                               className={`mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition ${
+                                 isFavorite
+                                   ? "bg-yellow-400 hover:bg-yellow-500 text-black"
+                                   : "bg-gray-800 hover:bg-gray-700 text-yellow-400"
+                               }`}
+                             >
+                               {isFavorite ? "★ In preferiti" : "☆ Aggiungi ai preferiti"}
+                             </button>
+                           )}
+
+
+                            {token && (
+                            <button
+                                onClick={toggleWatched}
+                                className={`mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition ${
+                                isWatched
+                                    ? "bg-red-600 hover:bg-red-700 text-white"
+                                    : "bg-green-600 hover:bg-green-700 text-white"
+                                }`}
+                            >
+                                {isWatched ? "❌ Rimuovi dallo storico" : "✅ Segna come visto"}
+                            </button>
+                            )}
+
+
                             <div className="my-4">
                                 <span className="text-2xl font-semibold">
                                     Available on:{" "}
