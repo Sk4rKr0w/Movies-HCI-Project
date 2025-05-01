@@ -18,12 +18,16 @@ function GroupWatch() {
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            navigate("/signin");
+            return;
+        }
+
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
-
-        const token = localStorage.getItem("token");
-        if (!token) return;
 
         axios
             .get("http://localhost:3001/api/protected/profile", {
@@ -38,6 +42,7 @@ function GroupWatch() {
             })
             .catch((err) => {
                 console.error("Errore nel recupero utente:", err);
+                navigate("/login"); // 👈 redirect anche in caso di errore API
             });
     }, []);
 
