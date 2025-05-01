@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import Sidebar from "./Sidebar";
-import SearchBar from "./SearchBar";
+import SearchBar from "../components/Searchbar.jsx";
 import HamburgerIcon from "./HamburgerIcon";
 import logo from "../assets/images/logo.svg";
 
@@ -52,7 +52,8 @@ function NavBar() {
             </div>
 
             <div className="flex items-center gap-6">
-                <SearchBar />
+                <SearchBar className="hidden md:flex md:flex-col" />
+
                 <HamburgerIcon onClick={() => setSidebarOpen(true)} />
                 <Sidebar
                     isOpen={sidebarOpen}

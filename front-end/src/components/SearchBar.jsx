@@ -4,7 +4,7 @@ import search from "../assets/images/search.svg";
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
-function SearchBar() {
+function SearchBar({ className = "" }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [results, setResults] = useState([]);
     const navigate = useNavigate();
@@ -28,7 +28,7 @@ function SearchBar() {
             } else {
                 setResults([]);
             }
-        }, 500); // ⏱ debounce di 500ms
+        }, 500);
 
         return () => clearTimeout(delayDebounce);
     }, [searchTerm]);
@@ -44,7 +44,9 @@ function SearchBar() {
     };
 
     return (
-        <div className="relative hidden md:flex md:flex-col bg-white p-2 rounded-3xl gap-1 w-60">
+        <div
+            className={`relative bg-white p-2 rounded-3xl gap-1 w-60 ${className}`}
+        >
             <div className="flex flex-row items-center gap-2">
                 <button className="m-1 cursor-pointer">
                     <img src={search} alt="Search" className="w-6 h-6" />
@@ -62,13 +64,13 @@ function SearchBar() {
                     {results.map((movie) => (
                         <li
                             key={movie.id}
-                            className="bg-[#2c2c2c] text-white flex flex-row justify-start items-center gap-2 px-4 py-2 hover:bg-gray-100 hover:text-black transition cursor-pointer"
+                            className="bg-[#2c2c2c] py-5 text-white flex flex-row justify-start items-center gap-2 px-4 md:py-2 hover:bg-gray-100 hover:text-black transition cursor-pointer"
                             onClick={() => handleResultClick(movie.id)}
                         >
                             <img
-                                className="h-20 rounded-md"
+                                className="h-15 md:h-20 rounded-md"
                                 src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                            ></img>
+                            />
                             <span>{movie.title}</span>
                         </li>
                     ))}

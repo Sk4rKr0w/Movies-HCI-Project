@@ -144,15 +144,15 @@ function SignIn() {
                             type="submit"
                             className="cursor-pointer w-full py-2 mt-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-md transition-colors duration-200"
                         >
-                            Accedi
+                            Sign in
                         </button>
                         <NavLink
                             to="/signup"
                             className="block text-center text-sm text-gray-400 hover:text-yellow-400 transition-colors duration-200"
                         >
-                            Non hai un account?{" "}
+                            Don't have an account?{" "}
                             <strong className="text-yellow-400">
-                                Registrati!
+                                Sign Up!
                             </strong>
                         </NavLink>
                     </form>
