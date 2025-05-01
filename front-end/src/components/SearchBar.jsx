@@ -60,7 +60,7 @@ function SearchBar({ className = "" }) {
             </div>
 
             {results.length > 0 && (
-                <ul className="bg-white mt-2 rounded-xl shadow-md text-black text-sm absolute top-full left-0 w-full z-100">
+                <ul className="bg-white mt-2 rounded-xl shadow-md text-black text-sm absolute top-full left-0 w-full z-20">
                     {results.map((movie) => (
                         <li
                             key={movie.id}
