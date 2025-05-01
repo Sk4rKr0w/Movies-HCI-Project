@@ -2,6 +2,9 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import MovieReviews from "../components/MovieReviews";
 import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -14,6 +17,61 @@ function MoviePage() {
     const [isFavorite, setIsFavorite] = useState(false);
     const token = localStorage.getItem("token");
     const COUNTRY_CODE = "IT";
+    const [isWatched, setIsWatched] = useState(false);
+
+    useEffect(() => {
+        if (!token || !movie) return;
+      
+        axios
+          .get("http://localhost:3001/api/history", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            const alreadyWatched = res.data.some(
+              (item) => item.movie_id === parseInt(id)
+            );
+            setIsWatched(alreadyWatched);
+          })
+          .catch((err) => console.error("Errore nel fetch dello storico:", err));
+      }, [id, token, movie]);
+      
+      // Toggle storico (aggiungi o rimuovi)
+      const toggleWatched = async () => {
+        if (!token || !movie) return;
+      
+        try {
+          if (isWatched) {
+            await axios.delete(
+              `http://localhost:3001/api/history?movieId=${movie.id}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+            toast.info("❌ Film rimosso dallo storico");
+          } else {
+            await axios.post(
+              "http://localhost:3001/api/history",
+              {
+                movie_id: movie.id,
+                title: movie.title,
+                poster_path: movie.poster_path,
+                overview: movie.overview,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            toast.success("✅ Film segnato come visto!");
+          }
+      
+          setIsWatched(!isWatched);
+        } catch (error) {
+          console.error("Errore nella modifica dello storico:", error);
+          toast.error("⚠️ Errore durante la modifica");
+        }
+      };
 
     const fetchYouTubeTrailer = async (movieId) => {
         const res = await fetch(
@@ -186,6 +244,20 @@ function MoviePage() {
                                {isFavorite ? "★ In preferiti" : "☆ Aggiungi ai preferiti"}
                              </button>
                            )}
+
+
+                            {token && (
+                            <button
+                                onClick={toggleWatched}
+                                className={`mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition ${
+                                isWatched
+                                    ? "bg-red-600 hover:bg-red-700 text-white"
+                                    : "bg-green-600 hover:bg-green-700 text-white"
+                                }`}
+                            >
+                                {isWatched ? "❌ Rimuovi dallo storico" : "✅ Segna come visto"}
+                            </button>
+                            )}
 
 
                             <div className="my-4">
