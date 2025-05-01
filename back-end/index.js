@@ -16,6 +16,7 @@ const joinGroup = require("./routes/joinGroup");
 const leaveGroup = require("./routes/leaveGroup");
 const editGroup = require("./routes/editgroup");
 const favoritesRoutes = require("./routes/favorites");
+const historyRoutes = require("./routes/history");
 
 
 const app = express();
@@ -39,6 +40,8 @@ app.use("/api/joingroup", joinGroup);
 app.use("/api/leavegroup", leaveGroup);
 app.use("/api/editgroup", editGroup);
 app.use("/api/favorites", favoritesRoutes);
+app.use("/api/history", historyRoutes);
+
 
 
 app.listen(PORT, () => {

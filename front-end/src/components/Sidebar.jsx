@@ -142,6 +142,15 @@ function Sidebar({ isOpen, onClose }) {
                 >
                     Favorites
                 </NavLink>
+
+                <NavLink
+                    to="/watchhistory"
+                    className={
+                        "hover:text-yellow-400 transition hover:scale-105 w-full text-md"
+                     }
+                >
+                    Watch History
+                </NavLink>
                 
             </ul>
         </div>

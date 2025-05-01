@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Favorites() {
   const [movies, setMovies] = useState([]);
@@ -14,6 +16,7 @@ function Favorites() {
         setMovies(res.data);
       } catch (err) {
         console.error("Errore nel recupero dei preferiti:", err);
+        toast.error("❌ Impossibile caricare i preferiti");
       }
     };
 
@@ -26,8 +29,10 @@ function Favorites() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMovies(movies.filter(movie => movie.id !== movieId));
+      toast.success("🗑 Film rimosso dai preferiti");
     } catch (err) {
       console.error("Errore durante la rimozione:", err);
+      toast.error("⚠️ Errore durante la rimozione");
     }
   };
 
@@ -66,6 +71,8 @@ function Favorites() {
           ))}
         </ul>
       )}
+
+      <ToastContainer position="bottom-right" autoClose={2500} />
     </div>
   );
 }
