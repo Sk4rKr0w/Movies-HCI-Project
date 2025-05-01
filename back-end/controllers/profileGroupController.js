@@ -8,37 +8,32 @@ const profileGroup = async (req, res) => {
   }
 
   try {
-    // 1) Prendo tutti i dati del gruppo
     const { data: groupData, error: groupError } = await supabase
       .from("groups")
       .select("*")
       .eq("id", id)
       .single();
+
     if (groupError) throw groupError;
 
-    // 2) Prendo lo username dell'owner
+    // Prendi info sull'owner
     const { data: ownerData, error: ownerError } = await supabase
       .from("users")
       .select("username")
       .eq("id", groupData.owner)
       .single();
+
     if (ownerError) throw ownerError;
 
-    // 3) Recupero **id, username e avatar_url** di ciascun membro
+    // Recupera gli username dei membri
     const { data: membersData, error: membersError } = await supabase
       .from("users")
-      .select("id, username, avatar_url")
-      .in("id", groupData.users);  // groupData.users è l'array di user IDs
+      .select("id, username")
+      .in("id", groupData.users);  // Prende tutti gli utenti presenti nell'array
+
     if (membersError) throw membersError;
 
-    // Infine restituisco tutto assieme
-    res.status(200).json({
-      group: {
-        ...groupData,
-        owner_username: ownerData.username,
-        members: membersData,
-      }
-    });
+    res.status(200).json({ group: { ...groupData, owner_username: ownerData.username, members: membersData } });
   } catch (err) {
     console.error("Errore nel recupero del gruppo:", err);
     res.status(500).json({ error: "Errore nel recupero dei dettagli del gruppo" });
@@ -59,5 +54,6 @@ const deleteGroup = async (req, res) => {
     res.status(500).json({ error: "Errore durante l'eliminazione" });
   }
 };
+
 
 module.exports = { profileGroup, deleteGroup };

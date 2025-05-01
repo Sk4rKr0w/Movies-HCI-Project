@@ -180,23 +180,14 @@ function GroupProfile() {
     }
 
     const getAvatarUrl = (user) => {
-        // se l'utente ha effettivamente caricato un avatar, usalo
-        if (user?.avatar_url && user.avatar_url !== "default_avatar.png") {
-          return supabase
-            .storage
-            .from("avatars")
-            .getPublicUrl(user.avatar_url)
-            .data
+        const fileName =
+            user?.avatar_url && user.avatar_url !== "default_avatar.png"
+                ? user.avatar_url
+                : "default_avatar.png";
+        return supabase.storage.from("avatars").getPublicUrl(fileName).data
             .publicUrl;
-        }
-        // altrimenti, mostra l'avatar di default
-        return supabase
-          .storage
-          .from("avatars")
-          .getPublicUrl("default_avatar.png")
-          .data
-          .publicUrl;
-      };
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-gray-900 text-gray-100 p-6 flex flex-col items-center gap-10">
             <header className="text-center">
