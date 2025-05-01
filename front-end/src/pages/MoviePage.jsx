@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import MovieReviews from "../components/MovieReviews";
+import axios from "axios";
+
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 function MoviePage() {
@@ -9,6 +11,8 @@ function MoviePage() {
     const [cast, setCast] = useState([]);
     const [trailerKey, setTrailerKey] = useState(null);
     const [provider, setProvider] = useState({});
+    const [isFavorite, setIsFavorite] = useState(false);
+    const token = localStorage.getItem("token");
     const COUNTRY_CODE = "IT";
 
     const fetchYouTubeTrailer = async (movieId) => {
@@ -23,6 +27,8 @@ function MoviePage() {
 
         return trailer ? trailer.key : null;
     };
+
+
 
     useEffect(() => {
         const fetchMovie = async () => {
@@ -90,6 +96,38 @@ function MoviePage() {
         fetchProvider();
     }, [id]);
 
+    // Al montaggio, controlla se questo film è già nei preferiti
+   useEffect(() => {
+     if (!token) return;
+     axios
+       .get(`http://localhost:3001/api/favorites?movieId=${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+       })
+       .then(res => setIsFavorite(res.data.isFavorite))
+       .catch(console.error);
+   }, [id, token]);
+
+   const toggleFavorite = async () => {
+     if (!token) return alert("Devi essere loggato per usare i preferiti");
+     try {
+       if (isFavorite) {
+         await axios.delete(
+           `http://localhost:3001/api/favorites?movieId=${id}`,
+           { headers: { Authorization: `Bearer ${token}` } }
+         );
+       } else {
+         await axios.post(
+           `http://localhost:3001/api/favorites`,
+           { movieId: id },
+           { headers: { Authorization: `Bearer ${token}` } }
+         );
+       }
+       setIsFavorite(!isFavorite);
+     } catch (err) {
+       console.error(err);
+     }
+   };
+
     return (
         <div className="min-h-screen bg-black">
             {movie ? (
@@ -133,6 +171,23 @@ function MoviePage() {
                                 <span>📅{movie.release_date}</span>
                                 <span>🕖{movie.runtime}min</span>
                             </div>
+
+                            
+                            {/* -- PULSANTE PREFERITI -- */}
+                           {token && (
+                             <button
+                               onClick={toggleFavorite}
+                               className={`mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition ${
+                                 isFavorite
+                                   ? "bg-yellow-400 hover:bg-yellow-500 text-black"
+                                   : "bg-gray-800 hover:bg-gray-700 text-yellow-400"
+                               }`}
+                             >
+                               {isFavorite ? "★ In preferiti" : "☆ Aggiungi ai preferiti"}
+                             </button>
+                           )}
+
+
                             <div className="my-4">
                                 <span className="text-2xl font-semibold">
                                     Available on:{" "}
