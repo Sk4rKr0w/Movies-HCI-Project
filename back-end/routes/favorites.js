@@ -1,34 +1,19 @@
+
 const express = require("express");
 const router = express.Router();
-const { addFavorite, removeFavorite, checkFavorite, getAllFavorites } = require("../controllers/favoritesController");
+const { getFavorites, addFavorite, removeFavorite } = require("../controllers/favoritesController");
 const authenticateToken = require("../middleware/authMiddleware");
 
-// Tutte queste rotte richiedono l’utente autenticato
+// Richiede autenticazione per tutte le rotte
 router.use(authenticateToken);
 
+// GET /api/favorites → Ottiene tutti i preferiti
+router.get("/", getFavorites);
+
+// POST /api/favorites → Aggiunge un nuovo film ai preferiti (richiede req.body.movie)
 router.post("/", addFavorite);
+
+// DELETE /api/favorites?movieId=ID → Rimuove film dai preferiti
 router.delete("/", removeFavorite);
-router.get("/", checkFavorite);
-router.get("/all", getAllFavorites);
-
-// Aggiungi la nuova rotta con percorso diverso per non sovrapporsi
-router.get("/list", async (req, res) => {
-    const userId = req.user.id;
-    const supabase = require("../supabaseClient");
-
-    try {
-        const { data, error } = await supabase
-            .from('favorites')
-            .select('movie_id')
-            .eq('user_id', userId);
-
-        if (error) throw error;
-
-        res.status(200).json({ favorites: data });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Errore interno del server' });
-    }
-});
 
 module.exports = router;

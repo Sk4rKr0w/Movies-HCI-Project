@@ -97,36 +97,65 @@ function MoviePage() {
     }, [id]);
 
     // Al montaggio, controlla se questo film è già nei preferiti
-   useEffect(() => {
-     if (!token) return;
-     axios
-       .get(`http://localhost:3001/api/favorites?movieId=${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-       })
-       .then(res => setIsFavorite(res.data.isFavorite))
-       .catch(console.error);
-   }, [id, token]);
+    useEffect(() => {
+      const checkFavorite = async () => {
+        if (!token) return;
+    
+        try {
+          const res = await axios.get("http://localhost:3001/api/favorites", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+    
+          const favorites = res.data.movies || [];
+          const exists = favorites.some((m) => m.id.toString() === id);
+          setIsFavorite(exists);
+        } catch (err) {
+          console.error("Errore nel recupero dei preferiti:", err);
+        }
+      };
+    
+      checkFavorite();
+    }, [id]);
+      
 
-   const toggleFavorite = async () => {
-     if (!token) return alert("Devi essere loggato per usare i preferiti");
-     try {
-       if (isFavorite) {
-         await axios.delete(
-           `http://localhost:3001/api/favorites?movieId=${id}`,
-           { headers: { Authorization: `Bearer ${token}` } }
-         );
-       } else {
-         await axios.post(
-           `http://localhost:3001/api/favorites`,
-           { movieId: id },
-           { headers: { Authorization: `Bearer ${token}` } }
-         );
-       }
-       setIsFavorite(!isFavorite);
-     } catch (err) {
-       console.error(err);
-     }
-   };
+    const toggleFavorite = async () => {
+        if (!token) return alert("Devi essere loggato");
+      
+        try {
+          if (isFavorite) {
+            await axios.delete(`http://localhost:3001/api/favorites?movieId=${id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+            setIsFavorite(false);
+          } else {
+            const newMovie = {
+              id: parseInt(id),
+              title: movie.title,
+              poster_path: movie.poster_path,
+            };
+      
+            console.log("Sto inviando questo movie:", newMovie); // 👈 AGGIUNGILO QUI
+      
+            await axios.post(
+              "http://localhost:3001/api/favorites",
+              { movie: newMovie },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
+              }
+            );
+            setIsFavorite(true);
+          }
+        } catch (err) {
+          console.error("Errore nella gestione dei preferiti:", err);
+        }
+      };
+      
 
     return (
         <div className="min-h-screen bg-black">
@@ -172,7 +201,7 @@ function MoviePage() {
                                 <span>🕖{movie.runtime}min</span>
                             </div>
 
-                            
+
                             {/* -- PULSANTE PREFERITI -- */}
                            {token && (
                              <button

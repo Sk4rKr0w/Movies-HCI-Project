@@ -1,68 +1,118 @@
 const supabase = require("../supabaseClient");
 
-// Aggiunge un preferito per l'utente autenticato
-async function addFavorite(req, res) {
-  const userId  = req.user.id;          // preso dal middleware di auth
-  const { movieId } = req.body;
+// Recupera tutti i film preferiti
+async function getFavorites(req, res) {
+  const userId = req.user.id;
 
   const { data, error } = await supabase
     .from("favorites")
-    .insert([{ user_id: userId, movie_id: movieId }])
-    .single();
+    .select("movies")
+    .eq("user_id", userId)
+    .maybeSingle();
 
   if (error) return res.status(400).json({ error: error.message });
-  res.json({ favorite: data });
-}
 
-// Rimuove un preferito
-async function removeFavorite(req, res) {
-  const userId  = req.user.id;
-  const movieId = parseInt(req.query.movieId, 10);
-
-  const { error } = await supabase
-    .from("favorites")
-    .delete()
-    .match({ user_id: userId, movie_id: movieId });
-
-  if (error) return res.status(400).json({ error: error.message });
-  res.json({ success: true });
-}
-
-// Controlla se questo film è già nei preferiti
-async function checkFavorite(req, res) {
-  const userId  = req.user.id;
-  const movieId = parseInt(req.query.movieId, 10);
-
-  const { data, error } = await supabase
-    .from("favorites")
-    .select("id")
-    .match({ user_id: userId, movie_id: movieId });
-
-  if (error) return res.status(400).json({ error: error.message });
-  res.json({ isFavorite: data.length > 0 });
-}
-
-async function getAllFavorites(req, res) {
-    const userId = req.user.id;
-  
-    const { data, error } = await supabase
+  // Se la riga non esiste, la creiamo
+  if (!data) {
+    const { error: insertError } = await supabase
       .from("favorites")
-      .select("movie_id")
-      .eq("user_id", userId);
-  
-    if (error) return res.status(400).json({ error: error.message });
-  
-    // Prende dettagli da TMDB
-    const results = [];
-    for (const item of data) {
-      const tmdbRes = await fetch(`https://api.themoviedb.org/3/movie/${item.movie_id}?api_key=${process.env.TMDB_API_KEY}`);
-      if (tmdbRes.ok) {
-        const movieDetails = await tmdbRes.json();
-        results.push(movieDetails);
-      }
+      .insert([{ user_id: userId, movies: [] }]);
+
+    if (insertError) {
+      console.error("Errore inserimento iniziale (getFavorites):", insertError);
+      return res.status(500).json({ error: insertError.message });
     }
-  
-    res.json(results);
+
+    return res.json({ movies: [] });
   }
 
-module.exports = { addFavorite, removeFavorite, checkFavorite, getAllFavorites };
+  res.json({ movies: data.movies || [] });
+}
+
+// Aggiunge un film ai preferiti
+async function addFavorite(req, res) {
+  const userId = req.user.id;
+  const newMovie = req.body.movie;
+
+  console.log("POST userId:", userId);
+  console.log("newMovie:", newMovie);
+
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("movies")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) return res.status(400).json({ error: error.message });
+
+  // Se la riga non esiste, la creiamo
+  if (!data) {
+    const { error: insertError } = await supabase
+      .from("favorites")
+      .insert([{ user_id: userId, movies: [newMovie] }]);
+
+    if (insertError) {
+      console.error("Errore inserimento (addFavorite):", insertError);
+      return res.status(500).json({ error: insertError.message });
+    }
+
+    return res.status(201).json({ movies: [newMovie] });
+  }
+
+  const currentMovies = data.movies || [];
+  const exists = currentMovies.some(
+    (m) => m.id.toString() === newMovie.id.toString()
+  );
+  if (exists) return res.status(409).json({ error: "Film già nei preferiti" });
+
+  const updated = [...currentMovies, newMovie];
+
+  const { error: updateError } = await supabase
+    .from("favorites")
+    .update({ movies: updated })
+    .eq("user_id", userId);
+
+  if (updateError) {
+    console.error("Errore update Supabase:", updateError);
+    return res.status(500).json({ error: updateError.message });
+  }
+
+  res.json({ movies: updated });
+}
+
+// Rimuove un film dai preferiti
+async function removeFavorite(req, res) {
+  const userId = req.user.id;
+  const movieId = parseInt(req.query.movieId, 10);
+
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("movies")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) return res.status(400).json({ error: error.message });
+
+  if (!data)
+    return res.status(404).json({ error: "Nessun preferito da cui rimuovere" });
+
+  const updated = (data.movies || []).filter((m) => m.id !== movieId);
+
+  const { error: updateError } = await supabase
+    .from("favorites")
+    .update({ movies: updated })
+    .eq("user_id", userId);
+
+  if (updateError) {
+    console.error("Errore rimozione (removeFavorite):", updateError);
+    return res.status(500).json({ error: updateError.message });
+  }
+
+  res.json({ movies: updated });
+}
+
+module.exports = {
+  getFavorites,
+  addFavorite,
+  removeFavorite,
+};
