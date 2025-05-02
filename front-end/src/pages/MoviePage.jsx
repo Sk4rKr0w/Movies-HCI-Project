@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import MovieReviews from "../components/MovieReviews";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -32,11 +32,10 @@ function MoviePage() {
                 setIsWatched(alreadyWatched);
             })
             .catch((err) =>
-                console.error("Errore nel fetch dello storico:", err)
+                console.error("Error fetching watch history: ", err)
             );
     }, [id, token, movie]);
 
-    // Toggle storico (aggiungi o rimuovi)
     const toggleWatched = async () => {
         if (!token || !movie) return;
 
@@ -48,7 +47,7 @@ function MoviePage() {
                         headers: { Authorization: `Bearer ${token}` },
                     }
                 );
-                toast.info("❌ Film rimosso dallo storico");
+                toast.info("❌ Movie removed from watch history");
             } else {
                 await axios.post(
                     "http://localhost:3001/api/history",
@@ -64,13 +63,13 @@ function MoviePage() {
                         },
                     }
                 );
-                toast.success("✅ Film segnato come visto!");
+                toast.success("✅ Movie marked as watched!");
             }
 
             setIsWatched(!isWatched);
         } catch (error) {
-            console.error("Errore nella modifica dello storico:", error);
-            toast.error("⚠️ Errore durante la modifica");
+            console.error("Error modifying watch history: ", error);
+            toast.error("⚠️ Error during update");
         }
     };
 
@@ -96,7 +95,7 @@ function MoviePage() {
                 const data = await res.json();
                 setMovie(data);
             } catch (err) {
-                console.error("Errore nella fetch:", err);
+                console.error("Error fetching movie: ", err);
             }
         };
 
@@ -108,7 +107,7 @@ function MoviePage() {
                 const data = await res.json();
                 setCast(data.cast);
             } catch (err) {
-                console.error("Errore nella fetch del cast:", err);
+                console.error("Error fetching cast: ", err);
             }
         };
 
@@ -117,7 +116,7 @@ function MoviePage() {
                 const key = await fetchYouTubeTrailer(id);
                 setTrailerKey(key);
             } catch (err) {
-                console.error("Errore nella fetch del trailer:", err);
+                console.error("Error fetching trailer: ", err);
             }
         };
 
@@ -143,7 +142,7 @@ function MoviePage() {
                     setProvider({ flatrate: [], buy: [], rent: [] });
                 }
             } catch (error) {
-                console.error("Errore nel recupero dei provider:", error);
+                console.error("Error retrieving providers: ", error);
             }
         };
 
@@ -165,19 +164,21 @@ function MoviePage() {
     }, [id, token]);
 
     const toggleFavorite = async () => {
-        if (!token) return alert("Devi essere loggato per usare i preferiti");
+        if (!token) return alert("You must be logged in to use favorites");
         try {
             if (isFavorite) {
                 await axios.delete(
                     `http://localhost:3001/api/favorites?movieId=${id}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+                toast.success("🗑 Movie removed from favorites");
             } else {
                 await axios.post(
                     `http://localhost:3001/api/favorites`,
                     { movieId: id },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+                toast.success("Movie added to favorites");
             }
             setIsFavorite(!isFavorite);
         } catch (err) {
@@ -419,6 +420,7 @@ function MoviePage() {
                     </div>
                 </div>
             </div>
+            <ToastContainer position="bottom-right" autoClose={2500} />
         </div>
     );
 }
