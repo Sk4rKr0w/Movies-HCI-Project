@@ -14,9 +14,6 @@ import GroupCreation from "./pages/GroupCreation";
 import Sidebar from "./components/Sidebar";
 import MoviePage from "./pages/MoviePage";
 import EditPage from "./pages/GroupEdit";
-import Favorites from "./pages/Favorites";
-import WatchHistory from "./pages/WatchHistory";
-
 
 function App() {
     return (
@@ -33,9 +30,7 @@ function App() {
                 <Route path="/groupprofile/:id" element={<GroupProfile />} />
                 <Route path="/groupcreation" element={<GroupCreation />} />
                 <Route path="/movie/:id" element={<MoviePage />} />{" "}
-                <Route path="/groupedit/:id" element={<EditPage/>}/>
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/watchhistory" element={<WatchHistory />} />
+                <Route path="/groupedit/:id" element={<EditPage />} />
             </Routes>
             <Footer />
         </Router>
