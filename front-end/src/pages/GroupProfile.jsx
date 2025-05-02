@@ -362,7 +362,6 @@ function GroupProfile() {
                     </h3>
                     <ul className="space-y-4 mt-4">
                         {group.members.length > 0 ? (
-                            // Ordina prima l'owner e poi gli altri membri
                             group.members
                                 .sort((a, b) =>
                                     a.id === group.owner
@@ -435,7 +434,7 @@ function GroupProfile() {
                     <h3 className="text-xl font-semibold text-yellow-400 mb-4">
                         💬 Chat of the Group
                     </h3>
-                    <div className="min-h-90 max-h-90 overflow-y-auto space-y-3 p-2 bg-black/20 rounded-md border border-gray-700">
+                    <div className="custom-scrollbar min-h-90 max-h-90 overflow-y-auto space-y-3 p-2 bg-black/20 rounded-md border border-gray-700">
                         {messages.map((msg) => (
                             <div
                                 key={msg.id}
