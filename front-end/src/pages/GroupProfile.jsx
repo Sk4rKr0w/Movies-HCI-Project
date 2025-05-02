@@ -4,6 +4,7 @@ import axios from "axios";
 import supabase from "../supabaseClient";
 import leaveIcon from "../assets/images/leave.svg";
 import removeMember from "../assets/images/removeMember.svg";
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 function GroupProfile() {
     const { id } = useParams();
@@ -15,6 +16,11 @@ function GroupProfile() {
     const [message, setMessage] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
+    const [tmdbQuery, setTmdbQuery] = useState("");
+    const [tmdbResults, setTmdbResults] = useState([]);
+    const [myProposals, setMyProposals] = useState([]);
+    const [activeSession, setActiveSession] = useState(null);
+    const [allProposals, setAllProposals] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -34,8 +40,19 @@ function GroupProfile() {
                 console.error(err);
             }
         };
+        const fetchActiveProposalSession = async () => {
+            try {
+              const res = await axios.get("http://localhost:3001/api/proposalactiveGroup/getproposalactivegroup", {
+                params: { groupId: id },
+              });
+              setActiveSession(res.data.session || null);
+            } catch (err) {
+              console.error("Errore nel recupero della sessione attiva:", err);
+            }
+          };          
 
         fetchGroupDetails();
+        fetchActiveProposalSession();
     }, [id]);
 
     useEffect(() => {
@@ -43,6 +60,24 @@ function GroupProfile() {
             fetchMessages();
         }
     }, [group]);
+
+    useEffect(() => {
+        if (group && user) {
+          fetchMyProposals();
+        }
+      }, [group, user]);   
+      
+      useEffect(() => {
+        if (activeSession && user) {
+          fetchMyProposals();
+        }
+      }, [activeSession, user]);   
+      
+      useEffect(() => {
+        if (activeSession?.id) {
+          fetchAllProposals();
+        }
+      }, [activeSession]);      
 
     const fetchMessages = async () => {
         try {
@@ -286,6 +321,93 @@ function GroupProfile() {
         }
     };
 
+    const startProposingSession = async () => {
+        try {
+          const res = await axios.post("http://localhost:3001/api/proposalactiveGroup/startproposalactivegroup", {
+            groupId: group.id,
+          });
+      
+          alert("Sessione di proposta avviata!");
+          setActiveSession(res.data.session); // imposta la sessione corrente
+          // aggiorna il gruppo se necessario
+          const refreshedGroup = await axios.get(`http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`);
+          setGroup(refreshedGroup.data.group);
+        } catch (err) {
+          console.error("Errore nell'avvio della sessione:", err);
+          alert("Errore durante la creazione della sessione.");
+        }
+      };
+          
+
+    const handleTmdbSearch = async () => {
+        if (!tmdbQuery.trim()) return;
+        try {
+            const res = await axios.get(
+            `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(tmdbQuery)}`
+            );
+            setTmdbResults(res.data.results);
+        } catch (err) {
+            console.error("Errore nella ricerca TMDB:", err);
+        }
+      };
+        
+    const proposeMovieFromTmdb = async (movie) => {
+        if (!activeSession?.id) {
+          alert("Nessuna sessione di proposta attiva.");
+          return;
+        }
+      
+        try {
+          await axios.post("http://localhost:3001/api/proposingfilmGroup/proposingfilmgroup", {
+            sessionId: activeSession.id,
+            userId: user.id,
+            movie_id: movie.id.toString(),
+            groupId: group.id,
+          });
+      
+          alert(`Hai proposto "${movie.title}"`);
+          setTmdbQuery("");
+          setTmdbResults([]);
+          fetchMyProposals(); // aggiorna lista proposte personali
+        } catch (err) {
+          console.error("Errore nella proposta:", err);
+          alert("Errore durante la proposta del film.");
+        }
+      };
+      
+
+    const fetchMyProposals = async () => {
+        if (!activeSession?.id || !user?.id) return;
+      
+        try {
+          const res = await axios.get("http://localhost:3001/api/proposedmyfilmGroup/proposedmyfilmgroup", {
+            params: {
+              sessionId: activeSession.id,
+              userId: user.id,
+              groupId: group.id,
+            },
+          });
+          setMyProposals(res.data.proposals || []);
+        } catch (err) {
+          console.error("Errore nel recupero delle proposte:", err);
+        }
+      };
+      
+    const fetchAllProposals = async () => {
+        if (!activeSession?.id) return;
+      
+        try {
+          const res = await axios.get("http://localhost:3001/api/proposedothersfilmGroup/proposedothersfilmgroup", {
+            params: { sessionId: activeSession.id },
+            excludeUserId: user.id,
+          });
+          setAllProposals(res.data.proposals || []);
+        } catch (err) {
+          console.error("Errore nel recupero delle proposte:", err);
+        }
+      };
+      
+      
     if (error) {
         return <div>{error}</div>;
     }
@@ -422,7 +544,86 @@ function GroupProfile() {
                 </section>
 
                 <section className="w-full sm:w-[90%] md:w-[80%] lg:w-1/2 mx-auto lg:mx-0 flex-grow bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-md">
-                    {/* Contenuto aggiuntivo */}
+                    {group.members.some(member => member.id === user?.id) && group.voting_status === "open" && (
+                        <div className="flex justify-center items-center h-full">
+                            <button
+                            onClick={startProposingSession}
+                            className="px-6 py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-300 transition"
+                            >
+                            🎬 Start Film Proposals
+                            </button>
+                        </div>
+                        )}
+                    {group.voting_status === "proposing" && (
+                        <div className="mt-6">
+                            <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                            🎥 Cerca un film da proporre
+                            </h3>
+                            <div className="flex gap-2 mb-4">
+                            <input
+                                type="text"
+                                value={tmdbQuery}
+                                onChange={(e) => setTmdbQuery(e.target.value)}
+                                placeholder="Cerca su TMDB..."
+                                className="flex-grow p-2 bg-gray-800 text-white rounded"
+                            />
+                            <button
+                                onClick={handleTmdbSearch}
+                                className="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded"
+                            >
+                                Cerca
+                            </button>
+                            </div>
+                        
+                            {tmdbResults.length > 0 && (
+                            <ul className="space-y-4">
+                                {tmdbResults.slice(0, 5).map((movie) => (
+                                <li
+                                    key={movie.id}
+                                    className="flex items-center gap-4 bg-black/30 p-3 rounded hover:bg-black/40 transition cursor-pointer"
+                                    onClick={() => proposeMovieFromTmdb(movie)}
+                                >
+                                    <img
+                                    src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
+                                    alt={movie.title}
+                                    className="w-16 h-auto rounded"
+                                    />
+                                    <div>
+                                    <p className="font-semibold text-white">{movie.title}</p>
+                                    <p className="text-gray-400 text-sm">{movie.release_date}</p>
+                                    </div>
+                                </li>
+                                ))}
+                            </ul>
+                            )}
+                            {group.voting_status === "proposing" && myProposals.length > 0 && (
+                                <div className="mt-8">
+                                    <h4 className="text-lg font-semibold text-yellow-400 mb-2">
+                                    🎞️ Film che hai già proposto
+                                    </h4>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {myProposals.map((p) => (
+                                        <TmdbCard key={p.movie_id} movieId={p.movie_id} />
+                                    ))}
+                                    </div>
+                                </div>
+                                )}
+                            {group.voting_status === "proposing" && allProposals.length > 0 && (
+                                <div className="mt-10">
+                                    <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                                    🎦 Film proposti dal gruppo
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {allProposals
+                                    .filter((p) => p.user_id !== user.id)
+                                    .map((p) => (
+                                        <TmdbCard key={p.movie_id + p.user_id} movieId={p.movie_id} />
+                                    ))}
+                                    </div>
+                                </div>
+                                )}
+                        </div>
+                        )}
                 </section>
 
                 <section className="w-full sm:w-[90%] md:w-[80%] lg:w-1/4 mx-auto lg:mx-0 bg-white/5 backdrop-blur-md rounded-xl p-4 shadow-md">
@@ -598,3 +799,35 @@ function GroupProfile() {
 }
 
 export default GroupProfile;
+
+const TmdbCard = ({ movieId }) => {
+    const [movie, setMovie] = useState(null);
+  
+    useEffect(() => {
+      const fetchMovieDetails = async () => {
+        try {
+          const res = await axios.get(
+            `https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}`
+          );
+          setMovie(res.data);
+        } catch (err) {
+          console.error("Errore TMDB:", err);
+        }
+      };
+      fetchMovieDetails();
+    }, [movieId]);
+  
+    if (!movie) return null;
+  
+    return (
+      <div className="bg-gray-800 rounded shadow p-2 text-sm">
+        <img
+          src={`https://image.tmdb.org/t/p/w185${movie.poster_path}`}
+          alt={movie.title}
+          className="rounded w-full mb-2"
+        />
+        <p className="text-white font-semibold truncate">{movie.title}</p>
+      </div>
+    );
+  };
+  
