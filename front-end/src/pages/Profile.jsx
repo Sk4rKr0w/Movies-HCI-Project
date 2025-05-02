@@ -156,7 +156,7 @@ function Profile() {
 
     return (
         <div className="w-full min-h-screen bg-gradient-to-br from-black via-[#121212] to-[#1e1e1e] text-white px-4 py-8 flex flex-col items-center">
-            <div className="w-full max-w-4xl mx-auto bg-[#1e1e1e] text-white rounded-3xl shadow-2xl p-6 md:p-10 space-y-8">
+            <div className="w-full lg:w-[75%] mx-auto bg-[#1e1e1e] text-white rounded-lg shadow-2xl p-6 md:p-10 space-y-8">
                 <h2 className="text-3xl font-bold text-center text-yellow-400">
                     {user ? `👤 Your Profile 👤` : "Loading..."}
                 </h2>
