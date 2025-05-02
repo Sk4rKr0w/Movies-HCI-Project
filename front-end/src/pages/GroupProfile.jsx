@@ -15,7 +15,6 @@ function GroupProfile() {
     const [message, setMessage] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-    const messagesEndRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -84,10 +83,6 @@ function GroupProfile() {
         });
 
         return map;
-    }, [messages]);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView();
     }, [messages]);
 
     useEffect(() => {
@@ -476,7 +471,6 @@ function GroupProfile() {
                                 </p>
                             </div>
                         ))}
-                        <div ref={messagesEndRef}></div>
                     </div>
                     {user && (
                         <div className="lg:flex lg:flex-col mt-4 flex gap-2">
