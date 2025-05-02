@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import supabase from "../supabaseClient";
@@ -15,7 +15,6 @@ function GroupProfile() {
     const [message, setMessage] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-    const messagesEndRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -84,10 +83,6 @@ function GroupProfile() {
         });
 
         return map;
-    }, [messages]);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView();
     }, [messages]);
 
     useEffect(() => {
@@ -362,7 +357,6 @@ function GroupProfile() {
                     </h3>
                     <ul className="space-y-4 mt-4">
                         {group.members.length > 0 ? (
-                            // Ordina prima l'owner e poi gli altri membri
                             group.members
                                 .sort((a, b) =>
                                     a.id === group.owner
@@ -435,7 +429,7 @@ function GroupProfile() {
                     <h3 className="text-xl font-semibold text-yellow-400 mb-4">
                         💬 Chat of the Group
                     </h3>
-                    <div className="min-h-90 max-h-90 overflow-y-auto space-y-3 p-2 bg-black/20 rounded-md border border-gray-700">
+                    <div className="custom-scrollbar min-h-90 max-h-90 overflow-y-auto space-y-3 p-2 bg-black/20 rounded-md border border-gray-700">
                         {messages.map((msg) => (
                             <div
                                 key={msg.id}
@@ -477,7 +471,6 @@ function GroupProfile() {
                                 </p>
                             </div>
                         ))}
-                        <div ref={messagesEndRef}></div>
                     </div>
                     {user && (
                         <div className="lg:flex lg:flex-col mt-4 flex gap-2">
