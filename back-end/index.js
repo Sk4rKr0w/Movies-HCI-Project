@@ -17,16 +17,16 @@ const leaveGroup = require("./routes/leaveGroup");
 const editGroup = require("./routes/editgroup");
 const favoritesRoutes = require("./routes/favorites");
 const historyRoutes = require("./routes/history");
-
+const chatGroup = require("./routes/chatgroup");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-app.use(express.json()); 
+app.use(express.json());
 
 app.use("/api/movies", moviesRoute);
-app.use("/api/auth", authRoutes); 
+app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/protected", protectedRoutes);
 app.use("/api/createGroup", createGroupRoutes);
@@ -41,9 +41,8 @@ app.use("/api/leavegroup", leaveGroup);
 app.use("/api/editgroup", editGroup);
 app.use("/api/favorites", favoritesRoutes);
 app.use("/api/history", historyRoutes);
-
-
+app.use("/api/chatgroup", chatGroup);
 
 app.listen(PORT, () => {
-  console.log(`✅ Server avviato su http://localhost:${PORT}`);
+    console.log(`✅ Server avviato su http://localhost:${PORT}`);
 });
