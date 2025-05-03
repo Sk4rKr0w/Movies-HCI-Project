@@ -31,7 +31,7 @@ function GroupCreation() {
         const token = localStorage.getItem("token");
         if (!token) {
             setMessage("You are not logged in.");
-            navigate("/login"); // Redirect to login if not logged in
+            navigate("/signin"); // Redirect to login if not logged in
         } else if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
