@@ -42,7 +42,7 @@ function GroupWatch() {
             })
             .catch((err) => {
                 console.error("Errore nel recupero utente:", err);
-                navigate("/login"); // 👈 redirect anche in caso di errore API
+                navigate("/signin"); // 👈 redirect anche in caso di errore API
             });
     }, []);
 

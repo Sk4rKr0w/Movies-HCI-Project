@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import Favorites from "./Favorites";
+import WatchHistory from "./WatchHistory";
 import supabase from "../supabaseClient";
 import * as bcrypt from "bcryptjs";
 
@@ -17,10 +19,25 @@ function Profile() {
 
     const [genres, setGenres] = useState([]);
     const GENRES = [
-    "Action", "Adventure", "Animation", "Comedy", "Crime",
-    "Documentary", "Drama", "Family", "Fantasy", "History",
-    "Horror", "Music", "Mystery", "Romance", "Science Fiction",
-    "TV Movie", "Thriller", "War", "Western"
+        "Action",
+        "Adventure",
+        "Animation",
+        "Comedy",
+        "Crime",
+        "Documentary",
+        "Drama",
+        "Family",
+        "Fantasy",
+        "History",
+        "Horror",
+        "Music",
+        "Mystery",
+        "Romance",
+        "Science Fiction",
+        "TV Movie",
+        "Thriller",
+        "War",
+        "Western",
     ];
 
     useEffect(() => {
@@ -31,28 +48,27 @@ function Profile() {
 
     useEffect(() => {
         const fetchGenres = async () => {
-          const token = localStorage.getItem("token");
-          if (!token) return;
-      
-          try {
-            const res = await fetch("http://localhost:3001/api/users/me", {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            if (data.favorite_genres) {
-              setGenres(data.favorite_genres);
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            try {
+                const res = await fetch("http://localhost:3001/api/users/me", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                if (data.favorite_genres) {
+                    setGenres(data.favorite_genres);
+                }
+            } catch (err) {
+                console.error("Errore nel recupero dei generi:", err);
             }
-          } catch (err) {
-            console.error("Errore nel recupero dei generi:", err);
-          }
         };
-      
+
         fetchGenres();
-      }, []);
-      
+    }, []);
 
     const refreshUser = (data) => {
-        (data);
+        data;
         localStorage.setItem("user", JSON.stringify(data));
         setUpdateMessage("✅ Modifiche salvate con successo!");
 
@@ -62,8 +78,12 @@ function Profile() {
     };
 
     const getAvatarUrl = () => {
-        if (!user?.avatar_url) return supabase.storage.from("avatars").getPublicUrl("default_avatar.png").data.publicUrl;
-        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url).data.publicUrl;
+        if (!user?.avatar_url)
+            return supabase.storage
+                .from("avatars")
+                .getPublicUrl("default_avatar.png").data.publicUrl;
+        return supabase.storage.from("avatars").getPublicUrl(user.avatar_url)
+            .data.publicUrl;
     };
 
     const handleUsernameUpdate = async () => {
@@ -179,160 +199,187 @@ function Profile() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#121212] text-white px-4">
-            <div className="my-4 bg-[#1e1e1e] p-8 rounded-lg shadow-xl text-center max-w-md w-full">
-                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4">
-                    👤 {user ? `${user.username}'s Profile` : "Loading..."} 👤
+        <div className="w-full min-h-screen bg-gradient-to-br from-black via-[#121212] to-[#1e1e1e] text-white px-4 py-8 flex flex-col items-center">
+            <div className="w-full lg:w-[75%] mx-auto bg-[#1e1e1e] text-white rounded-lg shadow-2xl p-6 md:p-10 space-y-8">
+                <h2 className="text-3xl font-bold text-center text-yellow-400">
+                    {user ? `👤 Your Profile 👤` : "Loading..."}
                 </h2>
 
                 {user ? (
                     <>
-                        {getAvatarUrl() ? (
-                            <img
-                                src={getAvatarUrl()}
-                                alt="Avatar"
-                                className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-yellow-400"
-                            />
-                        ) : (
-                            <div className="w-24 h-24 bg-gray-600 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold">
-                                {user.username.charAt(0).toUpperCase()}
-                            </div>
-                        )}
+                        {/* Avatar + Info */}
+                        <div className="flex flex-col md:flex-row items-center gap-8">
+                            <div className="flex flex-col items-center">
+                                {getAvatarUrl() ? (
+                                    <img
+                                        src={getAvatarUrl()}
+                                        alt="Avatar"
+                                        className="w-32 h-32 rounded-full object-cover border-4 border-yellow-500"
+                                    />
+                                ) : (
+                                    <div className="w-32 h-32 rounded-full bg-gray-700 flex items-center justify-center text-4xl font-bold border-4 border-gray-500">
+                                        {user.username.charAt(0).toUpperCase()}
+                                    </div>
+                                )}
 
-                        <label className="block text-sm text-gray-400 mb-2 cursor-pointer hover:underline">
-                            {uploading ? "Uploading..." : "Upload new avatar"}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleAvatarUpload}
-                                className="hidden"
-                            />
-                        </label>
-
-                        {user.avatar_url && user.avatar_url !== "default_avatar.png" && (
-                            <button
-                                onClick={handleResetAvatar}
-                                className="cursor-pointer hover:text-red-700 text-sm text-red-400 underline mb-4"
-                            >
-                                Reset to default avatar
-                            </button>
-                        )}
-
-                        <p className="text-left mb-2">
-                            <strong>ID:</strong> {user.id}
-                        </p>
-                        <p className="text-left mb-2">
-                            <strong>Email:</strong> {user.email}
-                        </p>
-
-                        {editing ? (
-                            <div className="mb-4">
-                                <label className="text-left block mb-2">
-                                    <strong>New Username:</strong>
+                                <label className="mt-4 text-sm text-yellow-400 hover:underline cursor-pointer">
+                                    {uploading
+                                        ? "Uploading..."
+                                        : "Upload new avatar"}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleAvatarUpload}
+                                        className="hidden"
+                                    />
                                 </label>
-                                <input
-                                    type="text"
-                                    value={newUsername}
-                                    onChange={(e) =>
-                                        setNewUsername(e.target.value)
-                                    }
-                                    className="text-sm md:text-md bg-[#2c2c2c] w-full px-3 py-2 rounded text-white"
-                                />
-                                <div className="mt-3 flex gap-2 justify-center">
+
+                                {user.avatar_url !== "default_avatar.png" && (
                                     <button
-                                        onClick={handleUsernameUpdate}
-                                        className="text-sm md:text-md cursor-pointer hover:bg-yellow-700 transition w-[50%] bg-yellow-500 text-black px-4 py-2 rounded"
+                                        onClick={handleResetAvatar}
+                                        className="mt-1 text-xs text-red-400 hover:text-red-500 underline"
                                     >
-                                        Save Username
+                                        Reset to default avatar
                                     </button>
-                                    <button
-                                        onClick={() => {
-                                            setEditing(false);
-                                            setNewUsername("");
-                                        }}
-                                        className="text-sm md:text-md cursor-pointer hover:bg-gray-700 transition w-[50%] bg-gray-500 text-white px-4 py-2 rounded"
-                                    >
-                                        Cancel
-                                    </button>
+                                )}
+                            </div>
+
+                            {/* Info & Settings */}
+                            <div className="flex-1 w-full space-y-4">
+                                <div className="text-sm text-gray-400">
+                                    <p>ID: {user.id}</p>
+                                    <p>Email: {user.email}</p>
+                                </div>
+
+                                {/* Username Section */}
+                                <div>
+                                    <label className="block text-sm text-gray-400 mb-1">
+                                        Username
+                                    </label>
+                                    {editing ? (
+                                        <>
+                                            <input
+                                                type="text"
+                                                value={newUsername}
+                                                onChange={(e) =>
+                                                    setNewUsername(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="bg-[#2c2c2c] text-white px-3 py-2 rounded w-full mb-2"
+                                            />
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={
+                                                        handleUsernameUpdate
+                                                    }
+                                                    className="cursor-pointer flex-1 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded"
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setEditing(false);
+                                                        setNewUsername("");
+                                                    }}
+                                                    className="cursor-pointer flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="flex items-center justify-between bg-[#2c2c2c] px-3 py-2 rounded">
+                                            <span className="text-white">
+                                                {user.username}
+                                            </span>
+                                            <button
+                                                onClick={() => {
+                                                    setEditing(true);
+                                                    setNewUsername(
+                                                        user.username
+                                                    );
+                                                }}
+                                                className="cursor-pointer text-yellow-400 hover:text-yellow-500 underline text-sm"
+                                            >
+                                                Edit
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Password Section */}
+                                <div>
+                                    <label className="block text-sm text-gray-400 mb-1">
+                                        Password
+                                    </label>
+                                    {editingPassword ? (
+                                        <>
+                                            <input
+                                                type="password"
+                                                value={newPassword}
+                                                onChange={(e) =>
+                                                    setNewPassword(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="bg-[#2c2c2c] text-white px-3 py-2 rounded w-full mb-2"
+                                                placeholder="New password"
+                                            />
+                                            <input
+                                                type="password"
+                                                value={confirmPassword}
+                                                onChange={(e) =>
+                                                    setConfirmPassword(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="bg-[#2c2c2c] text-white px-3 py-2 rounded w-full mb-3"
+                                                placeholder="Confirm password"
+                                            />
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={
+                                                        handlePasswordUpdate
+                                                    }
+                                                    className="cursor-pointer flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingPassword(
+                                                            false
+                                                        );
+                                                        setNewPassword("");
+                                                        setConfirmPassword("");
+                                                    }}
+                                                    className="cursor-pointer flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="flex items-center justify-between bg-[#2c2c2c] px-3 py-2 rounded">
+                                            <span>••••••••</span>
+                                            <button
+                                                onClick={() =>
+                                                    setEditingPassword(true)
+                                                }
+                                                className="text-yellow-400 hover:text-yellow-500 underline text-sm"
+                                            >
+                                                Edit
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        ) : (
-                            <p className="text-left mb-4">
-                                <strong>Username:</strong> {user.username}
-                                <button
-                                    onClick={() => {
-                                        setEditing(true);
-                                        setNewUsername(user.username);
-                                    }}
-                                    className="cursor-pointer hover:text-yellow-700 ml-2 text-sm text-yellow-400 underline"
-                                >
-                                    Edit
-                                </button>
-                            </p>
-                        )}
-
-                        {editingPassword ? (
-                            <div className="mb-4 mt-6 text-left">
-                                <label className="block mb-2 font-semibold">
-                                    New Password
-                                </label>
-                                <input
-                                    type="password"
-                                    placeholder="New password"
-                                    value={newPassword}
-                                    onChange={(e) =>
-                                        setNewPassword(e.target.value)
-                                    }
-                                    className="text-sm md:text-md bg-[#2c2c2c] w-full px-3 py-2 rounded text-white"
-                                />
-                                <label className="block mb-2 font-semibold mt-2">
-                                    Confirm Password
-                                </label>
-                                <input
-                                    type="password"
-                                    placeholder="Confirm password"
-                                    value={confirmPassword}
-                                    onChange={(e) =>
-                                        setConfirmPassword(e.target.value)
-                                    }
-                                    className="text-sm md:text-md bg-[#2c2c2c] w-full px-3 py-2 rounded text-white"
-                                />
-                                <div className="mt-3 flex gap-2 justify-center">
-                                    <button
-                                        onClick={handlePasswordUpdate}
-                                        className="text-sm md:text-sm cursor-pointer hover:bg-blue-700 transition w-[50%] bg-blue-500 text-white px-4 py-2 rounded"
-                                    >
-                                        Save Password
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setEditingPassword(false);
-                                            setNewPassword("");
-                                            setConfirmPassword("");
-                                        }}
-                                        className="text-sm md:text-sm cursor-pointer hover:bg-gray-700 transition w-[50%] bg-gray-500 text-white px-4 py-2 rounded"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <p className="text-left mb-4">
-                                <strong>Password:</strong> ••••••••
-                                <button
-                                    onClick={() => setEditingPassword(true)}
-                                    className="cursor-pointer hover:text-yellow-700 ml-2 text-sm text-yellow-400 underline"
-                                >
-                                    Edit
-                                </button>
-                            </p>
-                            
-
-                        )}
+                        </div>
 
                         {updateMessage && (
                             <div
-                                className={`mt-4 text-sm px-4 py-2 rounded transition-all duration-300 ${
+                                className={`text-sm px-4 py-2 rounded text-center transition-all duration-300 ${
                                     updateMessage.startsWith("✅")
                                         ? "bg-green-600 text-white"
                                         : "bg-red-600 text-white"
@@ -342,59 +389,77 @@ function Profile() {
                             </div>
                         )}
 
-
                         <div className="text-left mt-6">
-                        <h3 className="text-lg font-semibold text-yellow-400 mb-2">🎬 Generi preferiti</h3>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                            {GENRES.map((genre) => (
-                            <label key={genre} className="flex items-center gap-2 text-white">
-                                <input
-                                type="checkbox"
-                                checked={genres.includes(genre)}
-                                onChange={() =>
-                                    setGenres((prev) =>
-                                    prev.includes(genre)
-                                        ? prev.filter((g) => g !== genre)
-                                        : [...prev, genre]
-                                    )
-                                }
-                                />
-                                {genre}
-                            </label>
-                            ))}
+                            <h3 className="text-lg font-semibold text-yellow-400 mb-2">
+                                🎬 Generi preferiti
+                            </h3>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                                {GENRES.map((genre) => (
+                                    <label
+                                        key={genre}
+                                        className="flex items-center gap-2 text-white"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={genres.includes(genre)}
+                                            onChange={() =>
+                                                setGenres((prev) =>
+                                                    prev.includes(genre)
+                                                        ? prev.filter(
+                                                              (g) => g !== genre
+                                                          )
+                                                        : [...prev, genre]
+                                                )
+                                            }
+                                        />
+                                        {genre}
+                                    </label>
+                                ))}
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    const token = localStorage.getItem("token");
+                                    try {
+                                        await fetch(
+                                            "http://localhost:3001/api/users/update-genres",
+                                            {
+                                                method: "PUT",
+                                                headers: {
+                                                    "Content-Type":
+                                                        "application/json",
+                                                    Authorization: `Bearer ${token}`,
+                                                },
+                                                body: JSON.stringify({
+                                                    favorite_genres: genres,
+                                                }),
+                                            }
+                                        );
+                                        setUpdateMessage(
+                                            "✅ Generi aggiornati con successo!"
+                                        );
+                                    } catch (err) {
+                                        console.error(err);
+                                        setUpdateMessage(
+                                            "❌ Errore durante l'aggiornamento dei generi."
+                                        );
+                                    }
+                                }}
+                                className="mt-3 bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-4 rounded"
+                            >
+                                Salva generi
+                            </button>
                         </div>
-                        <button
-                            onClick={async () => {
-                            const token = localStorage.getItem("token");
-                            try {
-                                await fetch("http://localhost:3001/api/users/update-genres", {
-                                method: "PUT",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    Authorization: `Bearer ${token}`,
-                                },
-                                body: JSON.stringify({ favorite_genres: genres }),
-                                });
-                                setUpdateMessage("✅ Generi aggiornati con successo!");
-                            } catch (err) {
-                                console.error(err);
-                                setUpdateMessage("❌ Errore durante l'aggiornamento dei generi.");
-                            }
-                            }}
-                            className="mt-3 bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-4 rounded"
-                        >
-                            Salva generi
-                        </button>
-                        </div>
-
                     </>
-                    
                 ) : (
-                    <p>Loading...</p>
+                    <p className="text-center">Loading...</p>
                 )}
             </div>
 
-         </div>
+            <div className="w-full lg:w-[90%] mt-10 space-y-6">
+                <Favorites />
+                <WatchHistory />
+            </div>
+        </div>
     );
 }
 
