@@ -130,6 +130,12 @@ function Sidebar({ isOpen, onClose }) {
                         >
                             Contact Us
                         </NavLink>
+                        <NavLink
+                            to="/slotmachine"
+                            className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
+                        >
+                            Give it a try
+                        </NavLink>
                     </ul>
                 </div>
             </div>
