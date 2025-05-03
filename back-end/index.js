@@ -17,6 +17,7 @@ const leaveGroup = require("./routes/leaveGroup");
 const editGroup = require("./routes/editgroup");
 const favoritesRoutes = require("./routes/favorites");
 const historyRoutes = require("./routes/history");
+const userRoutes = require("./routes/users");
 
 
 const app = express();
@@ -41,6 +42,7 @@ app.use("/api/leavegroup", leaveGroup);
 app.use("/api/editgroup", editGroup);
 app.use("/api/favorites", favoritesRoutes);
 app.use("/api/history", historyRoutes);
+app.use("/api/users", userRoutes);
 
 
 

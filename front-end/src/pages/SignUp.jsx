@@ -3,10 +3,31 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useMovieStore } from "../store/useMovieStore";
 import axios from "axios";
 
+const GENRES = [
+    "Action", "Adventure", "Animation", "Comedy", "Crime",
+    "Documentary", "Drama", "Family", "Fantasy", "History",
+    "Horror", "Music", "Mystery", "Romance", "Science Fiction",
+    "TV Movie", "Thriller", "War", "Western"
+  ];
+
+
+
+
+
+
 function SignUp() {
     const navigate = useNavigate(); // ✅ Hook di navigazione
     const movies = useMovieStore((state) => state.movies);
     const fetchMovies = useMovieStore((state) => state.fetchMovies);
+    const [favoriteGenres, setFavoriteGenres] = useState([]);
+
+    const handleGenreToggle = (genre) => {
+        setFavoriteGenres((prev) =>
+          prev.includes(genre)
+            ? prev.filter((g) => g !== genre)
+            : [...prev, genre]
+        );
+      };
 
     useEffect(() => {
         fetchMovies(30);
@@ -34,10 +55,20 @@ function SignUp() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // ✅ Validazione: almeno un genere selezionato
+        if (favoriteGenres.length === 0) {
+            alert("Please select at leat one genre.");
+            return;
+        }
+
         try {
             const res = await axios.post(
                 "http://localhost:3001/api/auth/register",
-                formData
+                {
+                ...formData,
+                favorite_genres: favoriteGenres,
+                }
             );
             alert("Registrazione avvenuta con successo!");
             navigate("/");
@@ -127,7 +158,24 @@ function SignUp() {
                                 className="w-full px-4 py-2 rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                             />
                         </div>
-
+                        <div className="mb-4">
+                            <label className="block text-white font-semibold mb-2">
+                                Generi preferiti:
+                            </label>
+                            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto text-sm">
+                                {GENRES.map((genre) => (
+                                <label key={genre} className="text-white flex items-center gap-2">
+                                    <input
+                                    type="checkbox"
+                                    checked={favoriteGenres.includes(genre)}
+                                    onChange={() => handleGenreToggle(genre)}
+                                    className="form-checkbox accent-yellow-500"
+                                    />
+                                    {genre}
+                                </label>
+                                ))}
+                            </div>
+                        </div>
                         <button
                             type="submit"
                             className="cursor-pointer w-full py-2 mt-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-md transition-colors duration-200"

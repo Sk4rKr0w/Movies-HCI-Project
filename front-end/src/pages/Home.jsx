@@ -4,11 +4,66 @@ import MovieQuiz from "../components/MovieQuiz";
 // import { Link } from "react-router-dom"; // Se usi React Router
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
+
+const genreIdToName = {
+    28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime",
+    99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History",
+    27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance",
+    878: "Science Fiction", 10770: "TV Movie", 53: "Thriller", 10752: "War", 37: "Western"
+  };
+  
+
 function Home() {
     const [startQuiz, setStartQuiz] = useState(false);
     const movies = useMovieStore((state) => state.movies);
     const fetchMovies = useMovieStore((state) => state.fetchMovies);
     const [trending, setTrending] = useState([]);
+    const [userGenres, setUserGenres] = useState([]);
+    const [recommended, setRecommended] = useState([]);
+    
+    useEffect(() => {
+        const fetchGenres = async () => {
+          const token = localStorage.getItem("token");
+          if (!token) return;
+      
+          try {
+            const res = await fetch("http://localhost:3001/api/users/me", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (data.favorite_genres) setUserGenres(data.favorite_genres);
+          } catch (err) {
+            console.error("Errore nel recupero generi:", err);
+          }
+        };
+      
+        fetchGenres();
+      }, []);
+
+      useEffect(() => {
+        if (!userGenres.length || !movies.length) return;
+      
+        const genreMatchedMovies = movies.filter(movie =>
+          movie.genre_ids?.some(id =>
+            genreIdToName[id] && userGenres.includes(genreIdToName[id])
+          )
+        );
+
+        console.log("🎯 Generi utente:", userGenres);
+        console.log("🎬 Film totali:", movies.length);
+        console.log("🎯 Film consigliati trovati:", genreMatchedMovies.length);
+        console.log("🎯 Esempio film:", genreMatchedMovies.slice(0, 3));
+      
+        // Cambia ogni 3 giorni
+        const randomSeed = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 3));
+        const shuffled = [...genreMatchedMovies].sort(
+          (a, b) => (a.id + randomSeed) % 100 - (b.id + randomSeed) % 100
+        );
+      
+        setRecommended(shuffled.slice(0, 5));
+      }, [userGenres, movies]);
+      
+      
 
     const fetchTrendingMovies = async () => {
         try {
@@ -108,6 +163,26 @@ function Home() {
                 </button>
                 {startQuiz && <MovieQuiz />}
 
+                {recommended.length > 0 && (
+                    <section className="mb-8">
+                        <h2 className="text-2xl font-bold text-yellow-400 mb-4">🎯 Consigliati per te</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        {recommended.map(movie => (
+                            <div key={movie.id} className="bg-zinc-800 rounded-lg shadow-md overflow-hidden">
+                            <img
+                                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                alt={movie.title}
+                                className="w-full h-72 object-cover"
+                            />
+                            <div className="p-2 text-white text-sm">{movie.title}</div>
+                            </div>
+                        ))}
+                        </div>
+                    </section>
+                    )}
+
+                
+
                 <div className="mt-12 md:px-24 w-full">
                     <h2 className="text-2xl font-extrabold mb-4 text-yellow-400">
                         Trending Now
@@ -146,6 +221,8 @@ function Home() {
                 </div>
             </div>
         </div>
+
+        
     );
 }
 
