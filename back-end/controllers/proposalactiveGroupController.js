@@ -50,8 +50,48 @@ const startproposalactiveGroup = async (req, res) => {
   
     res.status(201).json({ session: data });
   };
+
+  const startVotingPhase = async (req, res) => {
+    const { groupId } = req.body;
   
+    if (!groupId) return res.status(400).json({ error: "groupId mancante" });
+  
+    const { error } = await supabase
+      .from("groups")
+      .update({ voting_status: "voting" })
+      .eq("id", groupId);
+  
+    if (error) {
+      console.error("Errore durante il cambio di fase:", error);
+      return res.status(500).json({ error: "Errore interno" });
+    }
+  
+    res.status(200).json({ message: "Fase di voto avviata!" });
+  };  
+
+  const endVotingPhase = async (req, res) => {
+    const { groupId } = req.body;
+  
+    if (!groupId) {
+      return res.status(400).json({ error: "groupId mancante" });
+    }
+  
+    const { error } = await supabase
+      .from("groups")
+      .update({ voting_status: "closed" })
+      .eq("id", groupId);
+  
+    if (error) {
+      console.error("Errore durante la chiusura della votazione:", error);
+      return res.status(500).json({ error: "Errore durante la chiusura della votazione" });
+    }
+  
+    return res.status(200).json({ message: "Fase di voto chiusa con successo." });
+  };
+
   module.exports = {
     getproposalactiveGroup,
     startproposalactiveGroup,
+    startVotingPhase,
+    endVotingPhase,
   };

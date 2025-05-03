@@ -21,6 +21,8 @@ function GroupProfile() {
     const [myProposals, setMyProposals] = useState([]);
     const [activeSession, setActiveSession] = useState(null);
     const [allProposals, setAllProposals] = useState([]);
+    const [myVotes, setMyVotes] = useState([]);
+    const [winnerMovieId, setWinnerMovieId] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -67,17 +69,27 @@ function GroupProfile() {
         }
       }, [group, user]);   
       
-      useEffect(() => {
+    useEffect(() => {
         if (activeSession && user) {
           fetchMyProposals();
         }
       }, [activeSession, user]);   
       
-      useEffect(() => {
+    useEffect(() => {
         if (activeSession?.id) {
           fetchAllProposals();
         }
       }, [activeSession]);      
+
+    useEffect(() => {
+        fetchMyVotes();
+      }, [activeSession, user]);    
+      
+    useEffect(() => {
+        if (group?.voting_status === "closed" && activeSession?.id) {
+          fetchWinningMovie();
+        }
+      }, [group, activeSession]);
 
     const fetchMessages = async () => {
         try {
@@ -406,7 +418,78 @@ function GroupProfile() {
           console.error("Errore nel recupero delle proposte:", err);
         }
       };
+
+    const fetchMyVotes = async () => {
+        if (!activeSession?.id || !user?.id) return;
       
+        try {
+          const res = await axios.get("http://localhost:3001/api/votefilmGroup/myvotes", {
+            params: {
+              sessionId: activeSession.id,
+              userId: user.id,
+            },
+          });
+          setMyVotes(res.data.votes || []);
+        } catch (err) {
+          console.error("Errore nel recupero dei voti:", err);
+        }
+      };
+    
+    const voteForMovie = async (movieId) => {
+        try {
+          await axios.post("http://localhost:3001/api/votefilmGroup/add", {
+            sessionId: activeSession.id,
+            userId: user.id,
+            movie_id: movieId,
+          });
+      
+          alert("✅ Voto registrato!");
+          fetchMyVotes(); // aggiorna i voti dell’utente
+        } catch (err) {
+          console.error("Errore durante il voto:", err);
+          alert("❌ Hai già votato questo film.");
+        }
+      }; 
+    
+    const startVotingPhase = async () => {
+        try {
+          await axios.post("http://localhost:3001/api/proposalactivegroup/startvoting", {
+            groupId: group.id,
+          });
+          alert("Fase di voto avviata!");
+          const refreshedGroup = await axios.get(`http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`);
+          setGroup(refreshedGroup.data.group);
+        } catch (err) {
+          console.error("Errore nel passaggio a voting:", err);
+          alert("Errore durante il cambio di fase.");
+        }
+      };      
+      
+    const closeVotingPhase = async () => {
+        try {
+          await axios.post("http://localhost:3001/api/proposalactivegroup/closevoting", {
+            groupId: group.id,
+          });
+      
+          const updated = await axios.get(`http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`);
+          setGroup(updated.data.group);
+          alert("Votazione chiusa!");
+        } catch (err) {
+          console.error("Errore chiusura votazione:", err);
+          alert("Errore nella chiusura.");
+        }
+      };
+    
+    const fetchWinningMovie = async () => {
+        try {
+          const res = await axios.get("http://localhost:3001/api/winnerfilmGroup/getwinner", {
+            params: { sessionId: activeSession.id },
+          });
+          setWinnerMovieId(res.data.winnerMovieId);
+        } catch (err) {
+          console.error("Errore nel recupero del vincitore:", err);
+        }
+      };
       
     if (error) {
         return <div>{error}</div>;
@@ -608,20 +691,65 @@ function GroupProfile() {
                                     </div>
                                 </div>
                                 )}
-                            {group.voting_status === "proposing" && allProposals.length > 0 && (
-                                <div className="mt-10">
-                                    <h3 className="text-xl font-bold text-yellow-400 mb-4">
-                                    🎦 Film proposti dal gruppo
-                                    </h3>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {allProposals
-                                    .filter((p) => p.user_id !== user.id)
-                                    .map((p) => (
-                                        <TmdbCard key={p.movie_id + p.user_id} movieId={p.movie_id} />
-                                    ))}
-                                    </div>
-                                </div>
+                            {user?.id === group.owner && group.voting_status === "proposing" && allProposals.length > 1 && (
+                                <button
+                                    onClick={startVotingPhase}
+                                    className="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
+                                >
+                                    ✅ Go to Voting Phase!
+                                </button>
                                 )}
+                        </div>
+                        )}
+                    {group.voting_status === "voting" && allProposals.length > 0 && (
+                        <div className="mt-10">
+                            <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                            🎦 Film proposti dal gruppo
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {allProposals
+                                .filter((p) => p.user_id !== user.id)
+                                .map((p) => (
+                                <TmdbCard
+                                    key={p.movie_id + p.user_id}
+                                    movieId={p.movie_id}
+                                    onVote={voteForMovie}
+                                    isVoted={myVotes.some((v) => String(v.movie_id) === String(p.movie_id))}
+                                />
+                                ))}
+                            </div>
+                        </div>
+                        )}
+                    {group.voting_status === "voting" && myVotes.length > 0 && (
+                        <div className="mt-10">
+                            <h4 className="text-lg font-semibold text-yellow-400 mb-2">
+                            📋 Film che hai votato
+                            </h4>
+                            <ul className="list-disc list-inside text-white space-y-1">
+                            {myVotes.map((vote) => (
+                                <li key={vote.movie_id}>
+                                <MovieTitle movieId={vote.movie_id} />
+                                </li>
+                            ))}
+                            </ul>
+                        </div>
+                        )}
+                    {user?.id === group.owner && group.voting_status === "voting" && (
+                        <button
+                            onClick={closeVotingPhase}
+                            className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                        >
+                            🛑 Chiudi votazione
+                        </button>
+                        )}
+                    {group.voting_status === "closed" && winnerMovieId && (
+                        <div className="mt-10 text-center">
+                            <h3 className="text-2xl font-bold text-yellow-400 mb-4">
+                            🏆 Film vincitore scelto dal gruppo
+                            </h3>
+                            <div className="max-w-[200px] mx-auto">
+                            <TmdbCard movieId={winnerMovieId} />
+                            </div>
                         </div>
                         )}
                 </section>
@@ -800,7 +928,7 @@ function GroupProfile() {
 
 export default GroupProfile;
 
-const TmdbCard = ({ movieId }) => {
+const TmdbCard = ({ movieId, onVote, isVoted }) => {
     const [movie, setMovie] = useState(null);
   
     useEffect(() => {
@@ -820,14 +948,52 @@ const TmdbCard = ({ movieId }) => {
     if (!movie) return null;
   
     return (
-      <div className="bg-gray-800 rounded shadow p-2 text-sm">
+      <div
+        className={`relative bg-gray-800 rounded shadow p-2 text-sm transition ${
+          isVoted ? "opacity-50" : "hover:scale-[1.02]"
+        }`}
+      >
         <img
           src={`https://image.tmdb.org/t/p/w185${movie.poster_path}`}
           alt={movie.title}
           className="rounded w-full mb-2"
         />
         <p className="text-white font-semibold truncate">{movie.title}</p>
+  
+        <button
+          disabled={isVoted}
+          onClick={() => onVote(movie.id)}
+          className={`mt-2 w-full py-1 px-2 text-sm rounded font-semibold ${
+            isVoted
+              ? "bg-green-500 text-black cursor-default"
+              : "bg-yellow-400 hover:bg-yellow-300 text-black"
+          }`}
+        >
+          {isVoted ? "✅ Votato" : "Vota"}
+        </button>
       </div>
     );
+  };  
+
+const MovieTitle = ({ movieId }) => {
+    const [title, setTitle] = useState("");
+  
+    useEffect(() => {
+      const fetchTitle = async () => {
+        try {
+          const res = await axios.get(
+            `https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}`
+          );
+          setTitle(res.data.title);
+        } catch (err) {
+          console.error("Errore TMDB:", err);
+          setTitle("Film sconosciuto");
+        }
+      };
+      fetchTitle();
+    }, [movieId]);
+  
+    return <span>{title}</span>;
   };
+  
   
