@@ -118,7 +118,7 @@ function Home() {
 
     return (
         <div className="w-screen min-h-screen bg-gradient-to-r from-[#1b1b1b] via-[#2d2d2d] to-[#141414] text-white relative overflow-hidden">
-            <ul className="absolute inset-0 grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3 z-0 opacity-40 filter blur-[5px]">
+            <ul className="absolute inset-0 grid grid-cols-3 md:grid-cols-6 gap-3 z-0 opacity-40 filter blur-[5px]">
                 {backgroundMovies.length > 0 ? (
                     backgroundMovies.map((movie) =>
                         movie.poster_path ? (
