@@ -485,9 +485,25 @@ function GroupProfile() {
           const res = await axios.get("http://localhost:3001/api/winnerfilmGroup/getwinner", {
             params: { sessionId: activeSession.id },
           });
-          setWinnerMovieId(res.data.winnerMovieId);
+          console.log("🎉 Vincitore:", res.data.winnerMovieId);
+          setWinnerMovieId(res.data.winner.movie_id);
         } catch (err) {
           console.error("Errore nel recupero del vincitore:", err);
+        }
+      };
+
+    const resetGroupStatus = async () => {
+        try {
+          await axios.post("http://localhost:3001/api/proposalactivegroup/resetgroup", {
+            groupId: group.id,
+          });
+      
+          const refreshed = await axios.get(`http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`);
+          setGroup(refreshed.data.group);
+          alert("Gruppo riportato all'inizio!");
+        } catch (err) {
+          console.error("Errore nel reset:", err);
+          alert("Errore durante il reset.");
         }
       };
       
@@ -686,7 +702,7 @@ function GroupProfile() {
                                     </h4>
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     {myProposals.map((p) => (
-                                        <TmdbCard key={p.movie_id} movieId={p.movie_id} />
+                                        <TmdbCard key={p.movie_id} movieId={p.movie_id} showVoteButton={false}/>
                                     ))}
                                     </div>
                                 </div>
@@ -748,8 +764,16 @@ function GroupProfile() {
                             🏆 Film vincitore scelto dal gruppo
                             </h3>
                             <div className="max-w-[200px] mx-auto">
-                            <TmdbCard movieId={winnerMovieId} />
+                            <TmdbCard movieId={winnerMovieId} showVoteButton={group.voting_status === "voting"}/>
                             </div>
+                            {user?.id === group.owner && (
+                                <button
+                                    onClick={resetGroupStatus}
+                                    className="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded"
+                                >
+                                    Close
+                                </button>
+                                )}
                         </div>
                         )}
                 </section>
@@ -928,7 +952,7 @@ function GroupProfile() {
 
 export default GroupProfile;
 
-const TmdbCard = ({ movieId, onVote, isVoted }) => {
+const TmdbCard = ({ movieId, onVote, isVoted, showVoteButton = true }) => {
     const [movie, setMovie] = useState(null);
   
     useEffect(() => {
@@ -959,7 +983,7 @@ const TmdbCard = ({ movieId, onVote, isVoted }) => {
           className="rounded w-full mb-2"
         />
         <p className="text-white font-semibold truncate">{movie.title}</p>
-  
+        {showVoteButton && (
         <button
           disabled={isVoted}
           onClick={() => onVote(movie.id)}
@@ -971,6 +995,7 @@ const TmdbCard = ({ movieId, onVote, isVoted }) => {
         >
           {isVoted ? "✅ Votato" : "Vota"}
         </button>
+        )}
       </div>
     );
   };  

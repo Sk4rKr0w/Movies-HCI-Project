@@ -24,6 +24,7 @@ const proposedmyfilmGroup = require("./routes/proposedmyfilmGroup");
 const proposalactiveGroup = require("./routes/proposalactiveGroup");
 const proposedothersfilmGroup = require("./routes/proposedothersfilmGroup");
 const votefilmGroup = require("./routes/votefilmGroup");
+const winnerfilmGroup = require("./routes/winnerfilmGroup");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -54,6 +55,7 @@ app.use("/api/proposedmyfilmGroup", proposedmyfilmGroup);
 app.use("/api/proposalactiveGroup", proposalactiveGroup);
 app.use("/api/proposedothersfilmGroup", proposedothersfilmGroup);
 app.use("/api/votefilmGroup", votefilmGroup);
+app.use("/api/winnerfilmGroup", winnerfilmGroup);
 
 app.listen(PORT, () => {
     console.log(`✅ Server avviato su http://localhost:${PORT}`);

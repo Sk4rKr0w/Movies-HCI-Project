@@ -89,9 +89,26 @@ const startproposalactiveGroup = async (req, res) => {
     return res.status(200).json({ message: "Fase di voto chiusa con successo." });
   };
 
+  const resetGroupToOpen = async (req, res) => {
+    const { groupId } = req.body;
+  
+    const { error } = await supabase
+      .from("groups")
+      .update({ voting_status: "open" })
+      .eq("id", groupId);
+  
+    if (error) {
+      console.error("Errore nel reset:", error);
+      return res.status(500).json({ error: "Errore nel reset del gruppo." });
+    }
+  
+    res.json({ message: "Gruppo riportato a stato open." });
+  };
+
   module.exports = {
     getproposalactiveGroup,
     startproposalactiveGroup,
     startVotingPhase,
     endVotingPhase,
+    resetGroupToOpen
   };

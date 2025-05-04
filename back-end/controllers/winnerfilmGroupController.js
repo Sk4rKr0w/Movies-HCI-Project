@@ -8,23 +8,19 @@ const getWinner = async (req, res) => {
   }
 
   const { data, error } = await supabase
-    .from("film_votes")
-    .select("movie_id, count:movie_id", { count: "exact" })
-    .eq("session_id", sessionId)
-    .group("movie_id")
-    .order("count", { ascending: false })
-    .limit(1);
+  .rpc("get_winner", { session_uuid: sessionId });
 
-  if (error) {
-    console.error("Errore nel calcolo del vincitore:", error);
-    return res.status(500).json({ error: "Errore interno" });
-  }
+if (error) {
+  console.error("Errore RPC Supabase:", error);
+  return res.status(500).json({ error: "Errore nel recupero del vincitore." });
+}
 
-  if (!data || data.length === 0) {
-    return res.status(404).json({ error: "Nessun voto trovato" });
-  }
+if (!data || data.length === 0) {
+  return res.status(404).json({ error: "Nessun voto trovato." });
+}
 
-  return res.status(200).json({ winnerMovieId: data[0].movie_id });
+res.json({ winner: data[0] });
+
 };
 
-module.exports = getWinner;
+module.exports = { getWinner };
