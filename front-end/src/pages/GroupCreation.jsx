@@ -31,7 +31,7 @@ function GroupCreation() {
         const token = localStorage.getItem("token");
         if (!token) {
             setMessage("You are not logged in.");
-            navigate("/login"); // Redirect to login if not logged in
+            navigate("/signin"); // Redirect to login if not logged in
         } else if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
@@ -132,7 +132,7 @@ function GroupCreation() {
 
                 <div>
                     <label className="block font-medium mb-3">
-                        Favourite Genres
+                        Favorite Genres
                     </label>
                     <div className="grid grid-cols-3 space-y-2">
                         {genreOptions.map((genre) => (
