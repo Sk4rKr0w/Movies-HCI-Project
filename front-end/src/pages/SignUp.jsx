@@ -4,16 +4,26 @@ import { useMovieStore } from "../store/useMovieStore";
 import axios from "axios";
 
 const GENRES = [
-    "Action", "Adventure", "Animation", "Comedy", "Crime",
-    "Documentary", "Drama", "Family", "Fantasy", "History",
-    "Horror", "Music", "Mystery", "Romance", "Science Fiction",
-    "TV Movie", "Thriller", "War", "Western"
-  ];
-
-
-
-
-
+    "Action",
+    "Adventure",
+    "Animation",
+    "Comedy",
+    "Crime",
+    "Documentary",
+    "Drama",
+    "Family",
+    "Fantasy",
+    "History",
+    "Horror",
+    "Music",
+    "Mystery",
+    "Romance",
+    "Science Fiction",
+    "TV Movie",
+    "Thriller",
+    "War",
+    "Western",
+];
 
 function SignUp() {
     const navigate = useNavigate(); // ✅ Hook di navigazione
@@ -23,11 +33,11 @@ function SignUp() {
 
     const handleGenreToggle = (genre) => {
         setFavoriteGenres((prev) =>
-          prev.includes(genre)
-            ? prev.filter((g) => g !== genre)
-            : [...prev, genre]
+            prev.includes(genre)
+                ? prev.filter((g) => g !== genre)
+                : [...prev, genre]
         );
-      };
+    };
 
     useEffect(() => {
         fetchMovies(30);
@@ -66,8 +76,8 @@ function SignUp() {
             const res = await axios.post(
                 "http://localhost:3001/api/auth/register",
                 {
-                ...formData,
-                favorite_genres: favoriteGenres,
+                    ...formData,
+                    favorite_genres: favoriteGenres,
                 }
             );
             alert("Registrazione avvenuta con successo!");
@@ -163,19 +173,26 @@ function SignUp() {
                         </div>
                         <div className="mb-4">
                             <label className="block text-white font-semibold mb-2">
-                                Generi preferiti:
+                                Favorite Genres:
                             </label>
-                            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto text-sm">
+                            <div className="custom-scrollbar grid grid-cols-2 gap-2 max-h-40 overflow-y-auto text-sm">
                                 {GENRES.map((genre) => (
-                                <label key={genre} className="text-white flex items-center gap-2">
-                                    <input
-                                    type="checkbox"
-                                    checked={favoriteGenres.includes(genre)}
-                                    onChange={() => handleGenreToggle(genre)}
-                                    className="form-checkbox accent-yellow-500"
-                                    />
-                                    {genre}
-                                </label>
+                                    <label
+                                        key={genre}
+                                        className="text-white flex items-center gap-2"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={favoriteGenres.includes(
+                                                genre
+                                            )}
+                                            onChange={() =>
+                                                handleGenreToggle(genre)
+                                            }
+                                            className="form-checkbox accent-yellow-500"
+                                        />
+                                        {genre}
+                                    </label>
                                 ))}
                             </div>
                         </div>
