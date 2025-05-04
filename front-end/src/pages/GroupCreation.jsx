@@ -132,7 +132,7 @@ function GroupCreation() {
 
                 <div>
                     <label className="block font-medium mb-3">
-                        Favourite Genres
+                        Favorite Genres
                     </label>
                     <div className="grid grid-cols-3 space-y-2">
                         {genreOptions.map((genre) => (
