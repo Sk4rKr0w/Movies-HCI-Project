@@ -208,7 +208,7 @@ flex flex-col items-center justify-center py-8 px-4"
             <button
                 onClick={spin}
                 disabled={spinningGenre || spinningActor || spinningMovie}
-                className="cursor-pointer bg-yellow-400 text-black text-xl md:text-2xl font-bold px-12 py-2 md:px-16 md:py-4 rounded-full hover:scale-110 transition-all duration-300 border-2 border-yellow-500"
+                className="cursor-pointer bg-yellow-400 text-black text-xl md:text-2xl font-bold px-12 py-2 md:px-16 md:py-4 rounded-full hover:scale-110 transition-all duration-300 border-3 border-black"
             >
                 {spinningGenre || spinningActor || spinningMovie
                     ? "Spinning..."
