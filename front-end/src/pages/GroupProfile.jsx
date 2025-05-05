@@ -24,6 +24,7 @@ function GroupProfile() {
     const [allProposals, setAllProposals] = useState([]);
     const [myVotes, setMyVotes] = useState([]);
     const [winnerMovieId, setWinnerMovieId] = useState(null);
+    const [sectionTab, setSectionTab] = useState("proposal");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -696,36 +697,48 @@ function GroupProfile() {
                                     No members yet.
                                 </p>
                             )}
-                            {user?.id === group.owner && group.pending_users?.length > 0 && (
-                                <section className="mt-6 bg-white/5 p-4 rounded-lg">
-                                    <h3 className="text-xl font-bold text-yellow-400 mb-3">
-                                    ✉️ Pending Requests
-                                    </h3>
-                                    <ul className="space-y-2">
-                                    {group.pending_users.map((pendingUserId) => (
-                                        <PendingUserItem
-                                        key={pendingUserId}
-                                        userId={pendingUserId}
-                                        groupId={group.id}
-                                        onApproved={async () => {
-                                            // 🔁 ricarica completamente il gruppo dal backend
-                                            try {
-                                              const res = await axios.get(`http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`);
-                                              setGroup(res.data.group);
-                                            } catch (err) {
-                                              console.error("Errore aggiornamento gruppo dopo approvazione:", err);
-                                            }
-                                          }}                                          
-                                        />
-                                    ))}
-                                    </ul>
-                                </section>
+                            {user?.id === group.owner &&
+                                group.pending_users?.length > 0 && (
+                                    <section className="mt-6 bg-white/5 p-4 rounded-lg">
+                                        <h3 className="text-xl font-bold text-yellow-400 mb-3">
+                                            ✉️ Pending Requests
+                                        </h3>
+                                        <ul className="space-y-2">
+                                            {group.pending_users.map(
+                                                (pendingUserId) => (
+                                                    <PendingUserItem
+                                                        key={pendingUserId}
+                                                        userId={pendingUserId}
+                                                        groupId={group.id}
+                                                        onApproved={async () => {
+                                                            // 🔁 ricarica completamente il gruppo dal backend
+                                                            try {
+                                                                const res =
+                                                                    await axios.get(
+                                                                        `http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`
+                                                                    );
+                                                                setGroup(
+                                                                    res.data
+                                                                        .group
+                                                                );
+                                                            } catch (err) {
+                                                                console.error(
+                                                                    "Errore aggiornamento gruppo dopo approvazione:",
+                                                                    err
+                                                                );
+                                                            }
+                                                        }}
+                                                    />
+                                                )
+                                            )}
+                                        </ul>
+                                    </section>
                                 )}
                         </ul>
                         <div className="my-8 flex justify-center items-center">
                             {user?.id === group.owner && (
                                 <section className="w-full max-w-xl space-y-4">
-                                    <div className="flex flex-row justify-center items-center scale-90 md:scale-100">
+                                    <div className="flex flex-col sm:flex-row w-full">
                                         <input
                                             type="text"
                                             placeholder="Add Users..."
@@ -733,11 +746,11 @@ function GroupProfile() {
                                             onChange={(e) =>
                                                 setSearchInput(e.target.value)
                                             }
-                                            className="flex-grow px-4 py-2 rounded-l-lg bg-gray-800 text-white outline-2 focus:outline-yellow-400"
+                                            className="w-full sm:w-[75%] px-4 py-2 mt-2 rounded-full sm:rounded-r-lg bg-gray-800 text-white outline-2 focus:outline-yellow-400"
                                         />
                                         <button
                                             onClick={handleSearchUsers}
-                                            className="cursor-pointer px-4 py-2 bg-yellow-400 text-black font-semibold rounded-r-lg hover:bg-yellow-500 "
+                                            className="w-full sm:w-[25%] cursor-pointer px-4 py-2 bg-yellow-400 text-black font-semibold mt-2 rounded-full sm:rounded-l-lg hover:bg-yellow-500"
                                         >
                                             Search
                                         </button>
@@ -796,200 +809,288 @@ function GroupProfile() {
                         </div>
                     </section>
 
-                    <section className="w-full sm:w-[90%] md:w-[80%] lg:w-1/2 mx-auto lg:mx-0 flex-grow bg-black/80 backdrop-blur-sm rounded-xl p-6 shadow-md">
-                        {group.members.some(
-                            (member) => member.id === user?.id
-                        ) &&
-                            group.voting_status === "open" && (
-                                <div className="flex justify-center items-center h-full">
-                                    <button
-                                        onClick={startProposingSession}
-                                        className="px-6 py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-300 transition"
-                                    >
-                                        🎬 Start Film Proposals
-                                    </button>
-                                </div>
-                            )}
-                        {group.voting_status === "proposing" && (
-                            <div className="mt-6">
-                                <h3 className="text-xl font-bold text-yellow-400 mb-4">
-                                    🎥 Search a movie to propose
-                                </h3>
-                                <div className="flex gap-2 mb-4">
-                                    <input
-                                        type="text"
-                                        value={tmdbQuery}
-                                        onChange={(e) =>
-                                            setTmdbQuery(e.target.value)
-                                        }
-                                        placeholder="Search on TMDB..."
-                                        className="flex-grow p-2 bg-gray-800 text-white rounded"
-                                    />
-                                    <button
-                                        onClick={handleTmdbSearch}
-                                        className="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded"
-                                    >
-                                        Search
-                                    </button>
-                                </div>
+                    <section className="w-full sm:w-[90%] md:w-[80%] lg:w-1/2 mx-auto lg:mx-0 flex-grow bg-black/80 backdrop-blur-sm rounded-xl p-4 shadow-md">
+                        <header className="flex flex-wrap justify-start gap-2">
+                            <button
+                                className={`${
+                                    sectionTab === "proposal"
+                                        ? "bg-yellow-500 text-black"
+                                        : "bg-black text-white"
+                                } cursor-pointer px-6 py-2 rounded-t-xl border border-white/30`}
+                                onClick={() => setSectionTab("proposal")}
+                            >
+                                Let's Vote!
+                            </button>
+                            <button
+                                className={`${
+                                    sectionTab === "roulette"
+                                        ? "bg-yellow-500 text-black"
+                                        : "bg-black text-white"
+                                } cursor-pointer px-6 py-2 rounded-t-xl border border-white/30`}
+                                onClick={() => setSectionTab("roulette")}
+                            >
+                                Let the Luck decide!
+                            </button>
+                        </header>
+                        {sectionTab === "proposal" ? (
+                            <div className="w-full h-[95%] flex flex-col justify-center items-center bg-black/60">
+                                {group.members.some(
+                                    (member) => member.id === user?.id
+                                ) &&
+                                    group.voting_status === "open" && (
+                                        <div className="flex flex-col justify-center items-center text-center mt-2">
+                                            <h1 className="text-lg md:text-xl lg:text-2xl text-white">
+                                                Having a{" "}
+                                                <strong className="text-yellow-400 italic">
+                                                    hard time deciding
+                                                </strong>{" "}
+                                                what to watch tonight? <br />
+                                                Let's put it to a{" "}
+                                                <strong className="text-yellow-400 italic">
+                                                    vote!
+                                                </strong>
+                                            </h1>
+                                            <button
+                                                onClick={startProposingSession}
+                                                className="cursor-pointer my-4 px-6 py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-300 transition"
+                                            >
+                                                🎬 Start Film Proposals
+                                            </button>
+                                        </div>
+                                    )}
 
-                                {tmdbResults.length > 0 && (
-                                    <ul className="space-y-4">
-                                        {tmdbResults
-                                            .slice(0, 5)
-                                            .map((movie) => (
-                                                <li
-                                                    key={movie.id}
-                                                    className="flex items-center gap-4 bg-black/30 p-3 rounded hover:bg-black/40 transition cursor-pointer"
-                                                    onClick={() =>
-                                                        proposeMovieFromTmdb(
-                                                            movie
-                                                        )
-                                                    }
+                                {group.voting_status === "proposing" && (
+                                    <div className="w-full mt-4 flex flex-col items-center">
+                                        <h3 className="text-xl font-bold text-yellow-400 my-4">
+                                            🎥 Search a movie to propose
+                                        </h3>
+                                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2 w-[90%]">
+                                            <input
+                                                type="text"
+                                                value={tmdbQuery}
+                                                onChange={(e) =>
+                                                    setTmdbQuery(e.target.value)
+                                                }
+                                                placeholder="Search on TMDB..."
+                                                className="w-full sm:w-auto p-2 bg-gray-800 text-white rounded"
+                                            />
+                                            <button
+                                                onClick={handleTmdbSearch}
+                                                className="cursor-pointer bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded mt-2 sm:mt-0"
+                                            >
+                                                Search
+                                            </button>
+                                        </div>
+
+                                        {tmdbResults.length > 0 && (
+                                            <ul className="flex flex-col w-full sm:w-[90%] mx-2 mt-4">
+                                                {tmdbResults
+                                                    .slice(0, 5)
+                                                    .map((movie) => (
+                                                        <li
+                                                            key={movie.id}
+                                                            className="flex items-center gap-4 border border-white/30 bg-black/30 p-3 rounded hover:bg-white/20 transition cursor-pointer"
+                                                            onClick={() =>
+                                                                proposeMovieFromTmdb(
+                                                                    movie
+                                                                )
+                                                            }
+                                                        >
+                                                            <img
+                                                                src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+                                                                alt={
+                                                                    movie.title
+                                                                }
+                                                                className="w-16 h-auto rounded"
+                                                            />
+                                                            <div>
+                                                                <p className="font-semibold text-white">
+                                                                    {
+                                                                        movie.title
+                                                                    }
+                                                                </p>
+                                                                <p className="text-gray-400 text-sm">
+                                                                    {
+                                                                        movie.release_date
+                                                                    }
+                                                                </p>
+                                                            </div>
+                                                        </li>
+                                                    ))}
+                                            </ul>
+                                        )}
+
+                                        {myProposals.length > 0 && (
+                                            <div className="mt-8">
+                                                <h4 className="text-lg font-semibold text-yellow-400 mb-2">
+                                                    🎞️ Movies you have already
+                                                    proposed
+                                                </h4>
+                                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                                    {myProposals.map((p) => (
+                                                        <TmdbCard
+                                                            key={p.movie_id}
+                                                            movieId={p.movie_id}
+                                                            showVoteButton={
+                                                                false
+                                                            }
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {user?.id === group.owner &&
+                                            group.voting_status ===
+                                                "proposing" &&
+                                            myProposals.length +
+                                                allProposals.length >
+                                                1 && (
+                                                <button
+                                                    onClick={startVotingPhase}
+                                                    className="cursor-pointer mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
                                                 >
-                                                    <img
-                                                        src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
-                                                        alt={movie.title}
-                                                        className="w-16 h-auto rounded"
-                                                    />
-                                                    <div>
-                                                        <p className="font-semibold text-white">
-                                                            {movie.title}
-                                                        </p>
-                                                        <p className="text-gray-400 text-sm">
-                                                            {movie.release_date}
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                            ))}
-                                    </ul>
+                                                    ✅ Let's Vote!
+                                                </button>
+                                            )}
+                                    </div>
                                 )}
-                                {group.voting_status === "proposing" &&
+
+                                {group.voting_status === "voting" &&
                                     myProposals.length > 0 && (
-                                        <div className="mt-8">
-                                            <h4 className="text-lg font-semibold text-yellow-400 mb-2">
-                                                🎞️ Movies you have already proposed
-                                            </h4>
+                                        <div className="mt-10">
+                                            <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                                                🎬 Your movies proposed
+                                            </h3>
                                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                                {myProposals.map((p) => (
+                                                {[
+                                                    ...new Set(
+                                                        myProposals.map(
+                                                            (p) => p.movie_id
+                                                        )
+                                                    ),
+                                                ].map((movieId) => (
                                                     <TmdbCard
-                                                        key={p.movie_id}
-                                                        movieId={p.movie_id}
-                                                        showVoteButton={false}
+                                                        key={`mine-${movieId}`}
+                                                        movieId={movieId}
+                                                        isVoted={true}
                                                     />
                                                 ))}
                                             </div>
                                         </div>
                                     )}
+
+                                {group.voting_status === "voting" &&
+                                    allProposals.length > 0 && (
+                                        <div className="mt-10">
+                                            <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                                                🎦 Movies proposed by the group
+                                            </h3>
+                                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                                {[
+                                                    ...new Set(
+                                                        allProposals
+                                                            .filter(
+                                                                (p) =>
+                                                                    p.user_id !==
+                                                                    user.id
+                                                            )
+                                                            .map(
+                                                                (p) =>
+                                                                    p.movie_id
+                                                            )
+                                                    ),
+                                                ].map((movieId) => (
+                                                    <TmdbCard
+                                                        key={movieId}
+                                                        movieId={movieId}
+                                                        onVote={voteForMovie}
+                                                        isVoted={myVotes.some(
+                                                            (v) =>
+                                                                String(
+                                                                    v.movie_id
+                                                                ) ===
+                                                                String(movieId)
+                                                        )}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                {group.voting_status === "voting" &&
+                                    allProposals.length === 0 && (
+                                        <div className="mt-10">
+                                            <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                                                🎦 No Movies proposed by others
+                                            </h3>
+                                        </div>
+                                    )}
+
+                                {group.voting_status === "voting" &&
+                                    myVotes.length > 0 && (
+                                        <div className="mt-10 flex flex-col justify-center items-center">
+                                            <h4 className="text-lg font-semibold text-yellow-400 mb-2">
+                                                📋 Movies you voted
+                                            </h4>
+                                            <ul className="text-white space-y-1 text-center">
+                                                {myVotes.map((vote) => (
+                                                    <li key={vote.movie_id}>
+                                                        <MovieTitle
+                                                            movieId={
+                                                                vote.movie_id
+                                                            }
+                                                        />
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
                                 {user?.id === group.owner &&
-                                    group.voting_status === "proposing" &&
-                                    myProposals.length + allProposals.length > 1 && (
+                                    group.voting_status === "voting" && (
                                         <button
-                                            onClick={startVotingPhase}
-                                            className="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
+                                            onClick={closeVotingPhase}
+                                            className="cursor-pointer mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
                                         >
-                                            ✅ Go to Voting Phase!
+                                            🛑 End voting 🛑
+                                        </button>
+                                    )}
+
+                                {group.voting_status === "closed" &&
+                                    winnerMovieId && (
+                                        <div className="mt-10 text-center">
+                                            <h3 className="text-2xl font-bold text-yellow-400 mb-4">
+                                                🏆 Winner Movie chosen by the
+                                                group
+                                            </h3>
+                                            <div className="max-w-[200px] mx-auto">
+                                                <TmdbCard
+                                                    movieId={winnerMovieId}
+                                                    showVoteButton={
+                                                        group.voting_status ===
+                                                        "voting"
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                {user?.id === group.owner &&
+                                    group.voting_status !== "open" && (
+                                        <button
+                                            onClick={resetGroupStatus}
+                                            className="cursor-pointer mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                                        >
+                                            Cancel Proposals
                                         </button>
                                     )}
                             </div>
-                        )}
-                        {group.voting_status === "voting" && myProposals.length > 0 && (
-                            <div className="mt-10">
-                                <h3 className="text-xl font-bold text-yellow-400 mb-4">
-                                🎬 Your movies proposed
-                                </h3>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                {[...new Set(myProposals.map((p) => p.movie_id))].map((movieId) => (
-                                    <TmdbCard
-                                    key={`mine-${movieId}`}
-                                    movieId={movieId}
-                                    isVoted={true}
-                                    />
-                                ))}
-                                </div>
-                            </div>
-                            )}
-                        {group.voting_status === "voting" &&
-                            allProposals.length > 0 && (
-                                <div className="mt-10">
-                                    <h3 className="text-xl font-bold text-yellow-400 mb-4">
-                                        🎦 Movies proposed by the group
-                                    </h3>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {[
-                                        ...new Set(
-                                            allProposals
-                                            .filter((p) => p.user_id !== user.id)
-                                            .map((p) => p.movie_id)
-                                        )
-                                        ].map((movieId) => (
-                                        <TmdbCard
-                                            key={movieId}
-                                            movieId={movieId}
-                                            onVote={voteForMovie}
-                                            isVoted={myVotes.some((v) => String(v.movie_id) === String(movieId))}
-                                        />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        {group.voting_status === "voting" &&
-                            allProposals.length == 0 && (
-                                <div className="mt-10">
-                                    <h3 className="text-xl font-bold text-yellow-400 mb-4">
-                                        🎦 No Movies proposed by others
-                                    </h3>
-                                </div>
-                            )}
-                        {group.voting_status === "voting" &&
-                            myVotes.length > 0 && (
-                                <div className="mt-10">
-                                    <h4 className="text-lg font-semibold text-yellow-400 mb-2">
-                                        📋 Movies you voted
-                                    </h4>
-                                    <ul className="list-disc list-inside text-white space-y-1">
-                                        {myVotes.map((vote) => (
-                                            <li key={vote.movie_id}>
-                                                <MovieTitle
-                                                    movieId={vote.movie_id}
-                                                />
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                        {user?.id === group.owner &&
-                            group.voting_status === "voting" && (
-                                <button
-                                    onClick={closeVotingPhase}
-                                    className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
-                                >
-                                    🛑 End voting
-                                </button>
-                            )}
-                        {group.voting_status === "closed" && winnerMovieId && (
-                            <div className="mt-10 text-center">
-                                <h3 className="text-2xl font-bold text-yellow-400 mb-4">
-                                    🏆 Winner Movie chosen by the group
-                                </h3>
-                                <div className="max-w-[200px] mx-auto">
-                                    <TmdbCard
-                                        movieId={winnerMovieId}
-                                        showVoteButton={
-                                            group.voting_status === "voting"
-                                        }
-                                    />
-                                </div>
+                        ) : (
+                            <div>
+                                <h1 className="text-white">Second Section</h1>
                             </div>
                         )}
-                        {user?.id === group.owner && group.voting_status != "open" && (
-                                    <button
-                                        onClick={resetGroupStatus}
-                                        className="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded"
-                                    >
-                                        Close All
-                                    </button>
-                                )}
                     </section>
 
                     <section className="w-full sm:w-[90%] md:w-[80%] lg:w-1/4 mx-auto lg:mx-0 bg-black/80 backdrop-blur-md rounded-xl p-4 shadow-md">
@@ -1135,7 +1236,7 @@ const TmdbCard = ({ movieId, onVote, isVoted, showVoteButton = true }) => {
             }`}
         >
             <img
-                src={`https://image.tmdb.org/t/p/w185${movie.poster_path}`}
+                src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
                 alt={movie.title}
                 className="rounded w-full mb-2"
             />
@@ -1180,44 +1281,46 @@ const MovieTitle = ({ movieId }) => {
 
 const PendingUserItem = ({ userId, groupId, onApproved }) => {
     const [username, setUsername] = useState("");
-  
+
     useEffect(() => {
-      const fetchUsername = async () => {
-        const { data } = await supabase
-          .from("users")
-          .select("username")
-          .eq("id", userId)
-          .single();
-  
-        setUsername(data?.username || "Unknown");
-      };
-  
-      fetchUsername();
+        const fetchUsername = async () => {
+            const { data } = await supabase
+                .from("users")
+                .select("username")
+                .eq("id", userId)
+                .single();
+
+            setUsername(data?.username || "Unknown");
+        };
+
+        fetchUsername();
     }, [userId]);
-  
+
     const handleApprove = async () => {
-      try {
-        await axios.post("http://localhost:3001/api/approveRequestGroup/approve", {
-          groupId,
-          userId,
-        });
-        onApproved();
-      } catch (err) {
-        console.error("Errore approvazione:", err);
-        alert("Errore durante l'approvazione.");
-      }
+        try {
+            await axios.post(
+                "http://localhost:3001/api/approveRequestGroup/approve",
+                {
+                    groupId,
+                    userId,
+                }
+            );
+            onApproved();
+        } catch (err) {
+            console.error("Errore approvazione:", err);
+            alert("Errore durante l'approvazione.");
+        }
     };
-  
+
     return (
-      <li className="flex justify-between items-center bg-gray-800 px-4 py-2 rounded">
-        <span>{username}</span>
-        <button
-          onClick={handleApprove}
-          className="bg-green-500 hover:bg-green-400 text-white px-3 py-1 rounded"
-        >
-          ✅ Approve
-        </button>
-      </li>
+        <li className="flex justify-between items-center bg-gray-800 px-4 py-2 rounded">
+            <span>{username}</span>
+            <button
+                onClick={handleApprove}
+                className="bg-green-500 hover:bg-green-400 text-white px-3 py-1 rounded"
+            >
+                ✅ Approve
+            </button>
+        </li>
     );
-  };
-  
+};
