@@ -17,10 +17,54 @@ function Profile() {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
+    const [genres, setGenres] = useState([]);
+    const GENRES = [
+        "Action",
+        "Adventure",
+        "Animation",
+        "Comedy",
+        "Crime",
+        "Documentary",
+        "Drama",
+        "Family",
+        "Fantasy",
+        "History",
+        "Horror",
+        "Music",
+        "Mystery",
+        "Romance",
+        "Science Fiction",
+        "TV Movie",
+        "Thriller",
+        "War",
+        "Western",
+    ];
+
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) setUser(JSON.parse(storedUser));
         if (!localStorage.getItem("token")) setError("You are not logged in.");
+    }, []);
+
+    useEffect(() => {
+        const fetchGenres = async () => {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            try {
+                const res = await fetch("http://localhost:3001/api/users/me", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                if (data.favorite_genres) {
+                    setGenres(data.favorite_genres);
+                }
+            } catch (err) {
+                console.error("Errore nel recupero dei generi:", err);
+            }
+        };
+
+        fetchGenres();
     }, []);
 
     const refreshUser = (data) => {
@@ -344,6 +388,67 @@ function Profile() {
                                 {updateMessage}
                             </div>
                         )}
+
+                        <div className="text-left mt-6">
+                            <h3 className="text-lg font-semibold text-yellow-400 mb-2">
+                                Favorite Genres
+                            </h3>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                                {GENRES.map((genre) => (
+                                    <label
+                                        key={genre}
+                                        className="flex items-center gap-2 text-white"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={genres.includes(genre)}
+                                            onChange={() =>
+                                                setGenres((prev) =>
+                                                    prev.includes(genre)
+                                                        ? prev.filter(
+                                                              (g) => g !== genre
+                                                          )
+                                                        : [...prev, genre]
+                                                )
+                                            }
+                                        />
+                                        {genre}
+                                    </label>
+                                ))}
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    const token = localStorage.getItem("token");
+                                    try {
+                                        await fetch(
+                                            "http://localhost:3001/api/users/update-genres",
+                                            {
+                                                method: "PUT",
+                                                headers: {
+                                                    "Content-Type":
+                                                        "application/json",
+                                                    Authorization: `Bearer ${token}`,
+                                                },
+                                                body: JSON.stringify({
+                                                    favorite_genres: genres,
+                                                }),
+                                            }
+                                        );
+                                        setUpdateMessage(
+                                            "✅ Generi aggiornati con successo!"
+                                        );
+                                    } catch (err) {
+                                        console.error(err);
+                                        setUpdateMessage(
+                                            "❌ Errore durante l'aggiornamento dei generi."
+                                        );
+                                    }
+                                }}
+                                className="font-medium mt-6 bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-4 rounded"
+                            >
+                                Salva generi
+                            </button>
+                        </div>
                     </>
                 ) : (
                     <p className="text-center">Loading...</p>

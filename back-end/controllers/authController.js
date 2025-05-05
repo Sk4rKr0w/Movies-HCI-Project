@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, favorite_genres } = req.body;
 
   if (!username || !email || !password) {
     return res.status(400).json({ error: "All fields are required" });
@@ -15,7 +15,7 @@ const registerUser = async (req, res) => {
 
     const { data, error } = await supabase
       .from("users")
-      .insert([{ username, email, password: hashedPassword, avatar_url: 'default_avatar.png' }])
+      .insert([{ username, email, password: hashedPassword, avatar_url: 'default_avatar.png', favorite_genres }])
       .select();
 
     if (error) {

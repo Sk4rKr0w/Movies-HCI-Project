@@ -14,6 +14,7 @@ import GroupCreation from "./pages/GroupCreation";
 import Sidebar from "./components/Sidebar";
 import MoviePage from "./pages/MoviePage";
 import EditPage from "./pages/GroupEdit";
+import SlotMachine from "./pages/SlotMachine";
 
 function App() {
     return (
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/groupcreation" element={<GroupCreation />} />
                 <Route path="/movie/:id" element={<MoviePage />} />{" "}
                 <Route path="/groupedit/:id" element={<EditPage />} />
+                <Route path="/slotmachine" element={<SlotMachine />} />
             </Routes>
             <Footer />
         </Router>
