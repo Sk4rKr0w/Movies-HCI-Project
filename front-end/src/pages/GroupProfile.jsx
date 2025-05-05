@@ -788,7 +788,7 @@ function GroupProfile() {
                         {group.voting_status === "proposing" && (
                             <div className="mt-6">
                                 <h3 className="text-xl font-bold text-yellow-400 mb-4">
-                                    🎥 Cerca un film da proporre
+                                    🎥 Search a movie to propose
                                 </h3>
                                 <div className="flex gap-2 mb-4">
                                     <input
@@ -797,14 +797,14 @@ function GroupProfile() {
                                         onChange={(e) =>
                                             setTmdbQuery(e.target.value)
                                         }
-                                        placeholder="Cerca su TMDB..."
+                                        placeholder="Search on TMDB..."
                                         className="flex-grow p-2 bg-gray-800 text-white rounded"
                                     />
                                     <button
                                         onClick={handleTmdbSearch}
                                         className="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded"
                                     >
-                                        Cerca
+                                        Search
                                     </button>
                                 </div>
 
@@ -843,7 +843,7 @@ function GroupProfile() {
                                     myProposals.length > 0 && (
                                         <div className="mt-8">
                                             <h4 className="text-lg font-semibold text-yellow-400 mb-2">
-                                                🎞️ Film che hai già proposto
+                                                🎞️ Movies you have already proposed
                                             </h4>
                                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                                 {myProposals.map((p) => (
@@ -858,7 +858,7 @@ function GroupProfile() {
                                     )}
                                 {user?.id === group.owner &&
                                     group.voting_status === "proposing" &&
-                                    allProposals.length > 1 && (
+                                    myProposals.length + allProposals.length > 1 && (
                                         <button
                                             onClick={startVotingPhase}
                                             className="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
@@ -868,39 +868,59 @@ function GroupProfile() {
                                     )}
                             </div>
                         )}
+                        {group.voting_status === "voting" && myProposals.length > 0 && (
+                            <div className="mt-10">
+                                <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                                🎬 Your movies proposed
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {[...new Set(myProposals.map((p) => p.movie_id))].map((movieId) => (
+                                    <TmdbCard
+                                    key={`mine-${movieId}`}
+                                    movieId={movieId}
+                                    isVoted={true}
+                                    />
+                                ))}
+                                </div>
+                            </div>
+                            )}
                         {group.voting_status === "voting" &&
                             allProposals.length > 0 && (
                                 <div className="mt-10">
                                     <h3 className="text-xl font-bold text-yellow-400 mb-4">
-                                        🎦 Film proposti dal gruppo
+                                        🎦 Movies proposed by the group
                                     </h3>
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                        {allProposals
-                                            .filter(
-                                                (p) => p.user_id !== user.id
-                                            )
-                                            .map((p) => (
-                                                <TmdbCard
-                                                    key={p.movie_id + p.user_id}
-                                                    movieId={p.movie_id}
-                                                    onVote={voteForMovie}
-                                                    isVoted={myVotes.some(
-                                                        (v) =>
-                                                            String(
-                                                                v.movie_id
-                                                            ) ===
-                                                            String(p.movie_id)
-                                                    )}
-                                                />
-                                            ))}
+                                    {[
+                                        ...new Set(
+                                            allProposals
+                                            .filter((p) => p.user_id !== user.id)
+                                            .map((p) => p.movie_id)
+                                        )
+                                        ].map((movieId) => (
+                                        <TmdbCard
+                                            key={movieId}
+                                            movieId={movieId}
+                                            onVote={voteForMovie}
+                                            isVoted={myVotes.some((v) => String(v.movie_id) === String(movieId))}
+                                        />
+                                        ))}
                                     </div>
+                                </div>
+                            )}
+                        {group.voting_status === "voting" &&
+                            allProposals.length == 0 && (
+                                <div className="mt-10">
+                                    <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                                        🎦 No Movies proposed by others
+                                    </h3>
                                 </div>
                             )}
                         {group.voting_status === "voting" &&
                             myVotes.length > 0 && (
                                 <div className="mt-10">
                                     <h4 className="text-lg font-semibold text-yellow-400 mb-2">
-                                        📋 Film che hai votato
+                                        📋 Movies you voted
                                     </h4>
                                     <ul className="list-disc list-inside text-white space-y-1">
                                         {myVotes.map((vote) => (
@@ -919,13 +939,13 @@ function GroupProfile() {
                                     onClick={closeVotingPhase}
                                     className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
                                 >
-                                    🛑 Chiudi votazione
+                                    🛑 End voting
                                 </button>
                             )}
                         {group.voting_status === "closed" && winnerMovieId && (
                             <div className="mt-10 text-center">
                                 <h3 className="text-2xl font-bold text-yellow-400 mb-4">
-                                    🏆 Film vincitore scelto dal gruppo
+                                    🏆 Winner Movie chosen by the group
                                 </h3>
                                 <div className="max-w-[200px] mx-auto">
                                     <TmdbCard
@@ -935,16 +955,16 @@ function GroupProfile() {
                                         }
                                     />
                                 </div>
-                                {user?.id === group.owner && (
+                            </div>
+                        )}
+                        {user?.id === group.owner && group.voting_status != "open" && (
                                     <button
                                         onClick={resetGroupStatus}
                                         className="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded"
                                     >
-                                        Close
+                                        Close All
                                     </button>
                                 )}
-                            </div>
-                        )}
                     </section>
 
                     <section className="w-full sm:w-[90%] md:w-[80%] lg:w-1/4 mx-auto lg:mx-0 bg-black/80 backdrop-blur-md rounded-xl p-4 shadow-md">
