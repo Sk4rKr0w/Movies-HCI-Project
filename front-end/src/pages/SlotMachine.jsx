@@ -8,10 +8,10 @@ import jackpotSound from "../assets/sound/jackpot.wav";
 import Reel from "../components/Reel";
 
 const spinAudio = new Audio(spinSound);
-spinAudio.volume = 0.1;
+spinAudio.volume = 0.05;
 spinAudio.loop = true;
 const jackpotAudio = new Audio(jackpotSound);
-jackpotAudio.volume = 0.1;
+jackpotAudio.volume = 0.05;
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 function SlotMachine() {
