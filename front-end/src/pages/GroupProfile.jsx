@@ -696,6 +696,31 @@ function GroupProfile() {
                                     No members yet.
                                 </p>
                             )}
+                            {user?.id === group.owner && group.pending_users?.length > 0 && (
+                                <section className="mt-6 bg-white/5 p-4 rounded-lg">
+                                    <h3 className="text-xl font-bold text-yellow-400 mb-3">
+                                    ✉️ Pending Requests
+                                    </h3>
+                                    <ul className="space-y-2">
+                                    {group.pending_users.map((pendingUserId) => (
+                                        <PendingUserItem
+                                        key={pendingUserId}
+                                        userId={pendingUserId}
+                                        groupId={group.id}
+                                        onApproved={async () => {
+                                            // 🔁 ricarica completamente il gruppo dal backend
+                                            try {
+                                              const res = await axios.get(`http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`);
+                                              setGroup(res.data.group);
+                                            } catch (err) {
+                                              console.error("Errore aggiornamento gruppo dopo approvazione:", err);
+                                            }
+                                          }}                                          
+                                        />
+                                    ))}
+                                    </ul>
+                                </section>
+                                )}
                         </ul>
                         <div className="my-8 flex justify-center items-center">
                             {user?.id === group.owner && (
@@ -1152,3 +1177,47 @@ const MovieTitle = ({ movieId }) => {
 
     return <span>{title}</span>;
 };
+
+const PendingUserItem = ({ userId, groupId, onApproved }) => {
+    const [username, setUsername] = useState("");
+  
+    useEffect(() => {
+      const fetchUsername = async () => {
+        const { data } = await supabase
+          .from("users")
+          .select("username")
+          .eq("id", userId)
+          .single();
+  
+        setUsername(data?.username || "Unknown");
+      };
+  
+      fetchUsername();
+    }, [userId]);
+  
+    const handleApprove = async () => {
+      try {
+        await axios.post("http://localhost:3001/api/approveRequestGroup/approve", {
+          groupId,
+          userId,
+        });
+        onApproved();
+      } catch (err) {
+        console.error("Errore approvazione:", err);
+        alert("Errore durante l'approvazione.");
+      }
+    };
+  
+    return (
+      <li className="flex justify-between items-center bg-gray-800 px-4 py-2 rounded">
+        <span>{username}</span>
+        <button
+          onClick={handleApprove}
+          className="bg-green-500 hover:bg-green-400 text-white px-3 py-1 rounded"
+        >
+          ✅ Approve
+        </button>
+      </li>
+    );
+  };
+  
