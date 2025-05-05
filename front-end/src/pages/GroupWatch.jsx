@@ -9,6 +9,7 @@ function GroupWatch() {
     const [searchMessage, setSearchMessage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [joinMessage, setJoinMessage] = useState(""); // 👈 nuovo stato per messaggio join
+    const [isPendingRequest, setIsPendingRequest] = useState(false);
     const navigate = useNavigate();
     const resultsRef = useRef(null);
 
@@ -50,7 +51,7 @@ function GroupWatch() {
         if (user?.id) {
             handleYourGroups();
         }
-    }, [user]);
+    }, [user]);     
 
     const handleSearchGroup = async () => {
         if (!searchTerm.trim()) return;
@@ -98,6 +99,33 @@ function GroupWatch() {
             setJoinMessage("Errore nell'unione al gruppo.");
         }
     };
+
+    const handleSendRequestGroup = async (groupId) => {
+        try {
+          await axios.post("http://localhost:3001/api/requestGroup/send", {
+            groupId,
+            userId: user.id,
+          });
+      
+          // Aggiorna localmente il gruppo nei searchResults
+          setSearchResults((prev) =>
+            prev.map((g) =>
+              g.id === groupId
+                ? {
+                    ...g,
+                    pending_users: [...(g.pending_users || []), user.id],
+                  }
+                : g
+            )
+          );
+      
+          alert("Richiesta inviata! In attesa di approvazione.");
+        } catch (err) {
+          console.error("Errore durante l'invio della richiesta:", err);
+          alert("Errore durante la richiesta di accesso.");
+        }
+      };      
+      
 
     const handleYourGroups = async () => {
         if (!user?.id) return;
@@ -272,17 +300,35 @@ function GroupWatch() {
                                         {group.description}
                                     </p>
                                 </div>
-
-                                <div className="md:w-1/4 gap-4 mt-2 md:flex md:justify-center md:items-center md:mx-2">
-                                    <button
-                                        onClick={() =>
-                                            handleJoinGroup(group.id)
-                                        }
+                                {group?.private === false && (
+                                    <div className="md:w-1/4 gap-4 mt-2 md:flex md:justify-center md:items-center md:mx-2">
+                                        <button
+                                        onClick={() => handleJoinGroup(group.id)}
                                         className="w-full font-semibold cursor-pointer px-3 py-2 bg-green-400 hover:bg-green-300 text-black text-sm md:text:md md:w-full md:h-12 rounded-lg"
-                                    >
+                                        >
                                         Join Group
-                                    </button>
-                                </div>
+                                        </button>
+                                    </div>
+                                    )}
+                                {group?.private === true && (
+                                    <div className="md:w-1/4 gap-4 mt-2 md:flex md:justify-center md:items-center md:mx-2">
+                                        {group.pending_users?.includes(user?.id) ? (
+                                        <button
+                                            disabled
+                                            className="w-full px-3 py-2 bg-gray-400 text-white rounded-lg cursor-default"
+                                        >
+                                            ✅ Request Sent
+                                        </button>
+                                        ) : (
+                                        <button
+                                            onClick={() => handleSendRequestGroup(group.id)}
+                                            className="w-full px-3 py-2 bg-blue-500 hover:bg-blue-400 text-white rounded-lg"
+                                        >
+                                            Send Request
+                                        </button>
+                                        )}
+                                    </div>
+                                    )}
                             </li>
                         ))}
                     </ul>
