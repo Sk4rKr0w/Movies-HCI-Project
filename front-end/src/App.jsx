@@ -15,6 +15,7 @@ import Sidebar from "./components/Sidebar";
 import MoviePage from "./pages/MoviePage";
 import EditPage from "./pages/GroupEdit";
 import SlotMachine from "./pages/SlotMachine";
+import GroupRoulette from "./pages/GroupRoulette";
 
 function App() {
     return (
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/movie/:id" element={<MoviePage />} />{" "}
                 <Route path="/groupedit/:id" element={<EditPage />} />
                 <Route path="/slotmachine" element={<SlotMachine />} />
+                <Route path="/roulette" element={<GroupRoulette />} />
             </Routes>
             <Footer />
         </Router>

@@ -19,6 +19,8 @@ const chatGroup = require("./routes/chatgroup");
 const favoritesRoutes = require("./routes/favorites");
 const historyRoutes = require("./routes/history");
 const userRoutes = require("./routes/users");
+const rouletteRoutes = require('./routes/roulette');
+const groupOwnerRoutes = require('./routes/groupOwner');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -44,6 +46,8 @@ app.use("/api/chatgroup", chatGroup);
 app.use("/api/favorites", favoritesRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/users", userRoutes);
+app.use('/api/group/roulette', rouletteRoutes);
+app.use('/api/group', groupOwnerRoutes);
 
 app.listen(PORT, () => {
     console.log(`✅ Server avviato su http://localhost:${PORT}`);
