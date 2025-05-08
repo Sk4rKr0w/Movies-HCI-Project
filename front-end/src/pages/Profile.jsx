@@ -391,7 +391,7 @@ function Profile() {
 
                         <div className="text-left mt-6">
                             <h3 className="text-lg font-semibold text-yellow-400 mb-2">
-                                Favorite Genres
+                                🎬 Generi preferiti
                             </h3>
                             <div className="grid grid-cols-2 gap-2 text-sm">
                                 {GENRES.map((genre) => (
@@ -444,7 +444,7 @@ function Profile() {
                                         );
                                     }
                                 }}
-                                className="font-medium mt-6 bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-4 rounded"
+                                className="mt-3 bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-4 rounded"
                             >
                                 Salva generi
                             </button>

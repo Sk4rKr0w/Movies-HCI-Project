@@ -170,7 +170,7 @@ function GroupEdit() {
 
                 <div>
                     <label className="block font-medium mb-3">
-                        Favorite Genres
+                        Favourite Genres
                     </label>
 
                     <div className="grid grid-cols-3 space-y-2">
