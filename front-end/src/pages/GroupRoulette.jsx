@@ -1,17 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import RoulettePro from 'react-roulette-pro';
+import 'react-roulette-pro/dist/index.css';
 import axios from 'axios';
 
+const generateId = () =>
+  `${Date.now().toString(36)}-${Math.random().toString(36).substring(2)}`;
+
+const reproductionArray = (array = [], length = 0) => [
+  ...Array(length)
+    .fill('_')
+    .map(() => array[Math.floor(Math.random() * array.length)]),
+];
+
 export default function GroupRoulette() {
-  // 👇 Hardcoded IDs per test
-  const groupId = '33';
+  const groupId = 33;
   const userId = 'a8edcb1c-602d-4096-b803-558bad3e82a7';
 
   const [movies, setMovies] = useState([]);
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [selected, setSelected] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [start, setStart] = useState(false);
+  const [prizeIndex, setPrizeIndex] = useState(0);
   const [newList, setNewList] = useState('');
-  const wheelRef = useRef(null);
 
   useEffect(() => {
     fetchMovies();
@@ -20,116 +29,96 @@ export default function GroupRoulette() {
 
   const fetchMovies = async () => {
     try {
-      const res = await axios.get(`/api/group/roulette/${groupId}`);
-      console.log("✅ MOVIES FROM API:", res.data.movies);
-      setMovies(res.data.movies || []);
+      const res = await axios.get(`http://localhost:3001/api/group/roulette/${groupId}`);
+      console.log('🎬 Movies:', res.data.movies);
+      const raw = res.data.movies || [];
+      const full = [
+        ...raw,
+        ...reproductionArray(raw, raw.length * 2),
+        ...raw,
+        ...reproductionArray(raw, raw.length),
+      ].map((title) => ({
+        image: `https://via.placeholder.com/150?text=${encodeURIComponent(title)}`,
+        id: generateId(),
+      }));
+      setMovies(full);
     } catch (err) {
-      console.error("❌ Errore fetch movies:", err);
+      console.error("❌ Errore fetchMovies:", err);
     }
   };
 
   const checkOwnership = async () => {
     try {
-      const res = await axios.get(`/api/group/${groupId}/owner`);
+      const res = await axios.get(`http://localhost:3001/api/group/${groupId}/owner`);
       console.log("✅ OWNER FROM API:", res.data.ownerId);
-      console.log("🆔 HARDCODED USER ID:", userId);
+      console.log("🧑‍💻 HARDCODED USER:", userId);
       const isOwnerCheck = res.data.ownerId === userId;
       console.log("🧠 IS OWNER?", isOwnerCheck);
       setIsOwner(isOwnerCheck);
     } catch (err) {
-      console.error("❌ Errore check owner:", err);
+      console.error("❌ Errore checkOwnership:", err);
     }
   };
 
-  const spin = () => {
-    if (isSpinning || movies.length < 2) {
-      console.warn("❗ Not enough movies to spin or already spinning");
-      return;
-    }
-
-    const segmentAngle = 360 / movies.length;
-    const randomIndex = Math.floor(Math.random() * movies.length);
-    const rotation = 3600 + (randomIndex * segmentAngle) + segmentAngle / 2;
-
-    setIsSpinning(true);
-    setSelected(null);
-
-    wheelRef.current.style.transition = 'transform 5s ease-out';
-    wheelRef.current.style.transform = `rotate(${rotation}deg)`;
-
-    setTimeout(() => {
-      setIsSpinning(false);
-      setSelected(movies[randomIndex]);
-    }, 5000);
+  const handleSpin = () => {
+    const index = Math.floor(Math.random() * movies.length);
+    setPrizeIndex(index);
+    setStart(true);
   };
 
-  const getSegmentStyle = (i) => {
-    const angle = 360 / movies.length;
-    return {
-      transform: `rotate(${i * angle}deg) skewY(-${90 - angle}deg)`,
-      background: i % 2 === 0 ? '#4f46e5' : '#3b82f6',
-    };
+  const handlePrizeDefined = () => {
+    setStart(false);
+  };
+
+  const handleSaveMovies = async () => {
+    const moviesArray = newList
+      .split('\n')
+      .map((m) => m.trim())
+      .filter(Boolean);
+    await axios.post(`http://localhost:3001/api/group/roulette/${groupId}`, {
+      userId,
+      movies: moviesArray,
+    });
+    setNewList('');
+    fetchMovies();
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-8">
-      <h2 className="text-xl font-bold mb-6">🎯 Group Movie Roulette</h2>
+    <div className="p-6 flex flex-col items-center">
+      <h1 className="text-2xl font-bold mb-4">🎯 Group Roulette</h1>
 
-      <div className="relative w-[300px] h-[300px] rounded-full overflow-hidden border-4 border-gray-800 shadow-xl">
-        <div
-          ref={wheelRef}
-          className="absolute w-full h-full origin-center"
-          style={{ borderRadius: '50%' }}
-        >
-          {movies.map((movie, i) => (
-            <div
-              key={i}
-              className="absolute w-1/2 h-1/2 origin-bottom-left text-white text-xs text-center flex items-center justify-center"
-              style={getSegmentStyle(i)}
-            >
-              <span style={{ transform: 'skewY(90deg) rotate(90deg)' }}>{movie}</span>
-            </div>
-          ))}
-        </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[145%] text-2xl">🔻</div>
-      </div>
-
-      <button
-        onClick={spin}
-        className="mt-6 bg-green-600 text-white px-4 py-2 rounded shadow"
-        disabled={isSpinning}
-      >
-        {isSpinning ? 'Spinning...' : 'Spin'}
-      </button>
-
-      {selected && (
-        <div className="mt-4 text-lg font-medium text-center">
-          🎉 Selected Movie: <span className="text-blue-600 font-bold">{selected}</span>
-        </div>
-      )}
-
-      {/* 👇 FORM visibile solo se isOwner === true */}
-      {isOwner && (
-        <div className="mt-6 w-full max-w-md">
-          <h3 className="text-lg font-semibold mb-2">🎬 Set Roulette Movies</h3>
-          <textarea
-            className="w-full p-2 border rounded"
-            rows="4"
-            placeholder="One movie per line..."
-            value={newList}
-            onChange={(e) => setNewList(e.target.value)}
+      {movies.length > 0 && (
+        <>
+          <RoulettePro
+            prizes={movies}
+            prizeIndex={prizeIndex}
+            start={start}
+            onPrizeDefined={handlePrizeDefined}
           />
           <button
-            className="mt-2 bg-blue-600 text-white px-3 py-1 rounded"
-            onClick={async () => {
-              const newMovies = newList.split('\n').map((m) => m.trim()).filter(Boolean);
-              console.log("🎬 Saving movies:", newMovies);
-              await axios.post(`/api/group/roulette/${groupId}`, { movies: newMovies });
-              setNewList('');
-              fetchMovies();
-            }}
+            onClick={handleSpin}
+            className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
           >
-            Save Movies
+            Avvia la roulette
+          </button>
+        </>
+      )}
+
+      {isOwner && (
+        <div className="mt-6 w-full max-w-md">
+          <h3 className="text-lg font-semibold mb-2">🎬 Inserisci Film</h3>
+          <textarea
+            className="w-full p-2 border rounded"
+            rows={4}
+            value={newList}
+            onChange={(e) => setNewList(e.target.value)}
+            placeholder="Un film per riga"
+          />
+          <button
+            className="mt-2 bg-blue-600 text-white px-4 py-2 rounded"
+            onClick={handleSaveMovies}
+          >
+            Salva
           </button>
         </div>
       )}
