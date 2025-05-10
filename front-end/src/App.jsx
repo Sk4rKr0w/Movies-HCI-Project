@@ -17,7 +17,6 @@ import EditPage from "./pages/GroupEdit";
 import SlotMachine from "./pages/SlotMachine";
 import GroupRoulette from "./pages/GroupRoulette";
 
-
 function App() {
     return (
         <Router>
@@ -36,7 +35,6 @@ function App() {
                 <Route path="/groupedit/:id" element={<EditPage />} />
                 <Route path="/slotmachine" element={<SlotMachine />} />
                 <Route path="/group/:id/roulette" element={<GroupRoulette />} />
-
             </Routes>
             <Footer />
         </Router>
