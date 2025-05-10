@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+
 const moviesRoute = require("./routes/movies");
 const authRoutes = require("./routes/auth");
 const contactRoutes = require("./routes/contact");
@@ -28,6 +29,8 @@ const votefilmGroup = require("./routes/votefilmGroup");
 const winnerfilmGroup = require("./routes/winnerfilmGroup");
 const requestGroup = require("./routes/requestGroup");
 const approveRequestGroup = require("./routes/approveRequestGroup");
+const rouletteRoutes = require("./routes/roulette");
+const groupOwnerRoutes = require("./routes/groupOwner");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -62,6 +65,8 @@ app.use("/api/votefilmGroup", votefilmGroup);
 app.use("/api/winnerfilmGroup", winnerfilmGroup);
 app.use("/api/requestGroup", requestGroup);
 app.use("/api/approveRequestGroup", approveRequestGroup);
+app.use("/api/group/roulette", rouletteRoutes);
+app.use("/api/group", groupOwnerRoutes);
 
 app.listen(PORT, () => {
     console.log(`✅ Server avviato su http://localhost:${PORT}`);
