@@ -95,7 +95,7 @@ export default function RouletteFilmSearch({ groupId, userId, onSuccess }) {
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="border border-white/50 p-2 rounded sm:rounded-l sm:rounded-r-none flex-grow"
+                    className="border border-white/50 p-2 rounded flex-grow"
                     placeholder="Search movies on TMDB..."
                 />
             </div>
