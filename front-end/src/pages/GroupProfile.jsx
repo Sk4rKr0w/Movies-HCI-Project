@@ -1182,6 +1182,12 @@ function GroupProfile() {
                             >
                                 🗑 Delete Group
                             </button>
+                            <button
+                                onClick={() => navigate(`/group/${group.id}/roulette`)}
+                                className="cursor-pointer w-[90%] md:w-auto px-4 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition"
+                             >
+                                🎰 Go to Roulette
+                            </button>
                         </>
                     )}
                     {user &&
