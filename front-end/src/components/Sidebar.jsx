@@ -144,13 +144,6 @@ function Sidebar({ isOpen, onClose }) {
                         >
                             Give it a try
                         </NavLink>
-
-                        <NavLink
-                            to="/roulette"
-                            className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
-                        >
-                            Roulette
-                        </NavLink>
                     </ul>
                 </div>
             </div>
