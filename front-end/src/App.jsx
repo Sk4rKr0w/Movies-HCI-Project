@@ -15,7 +15,7 @@ import Sidebar from "./components/Sidebar";
 import MoviePage from "./pages/MoviePage";
 import EditPage from "./pages/GroupEdit";
 import SlotMachine from "./pages/SlotMachine";
-import GroupRoulette from "./pages/GroupRoulette";
+import GroupRoulette from "./components/GroupRoulette";
 
 function App() {
     return (
