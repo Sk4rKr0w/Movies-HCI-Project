@@ -90,13 +90,13 @@ function Sidebar({ isOpen, onClose }) {
                                 <div className="flex flex-col w-full justify-center items-center gap-2">
                                     <NavLink
                                         to="/signin"
-                                        className="border-2 border-black w-[75%] lg:w-[50%] text-center cursor-pointer text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-yellow-400 transition"
+                                        className="w-[75%] lg:w-[50%] text-center cursor-pointer text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-yellow-400 transition"
                                     >
                                         Sign In
                                     </NavLink>
                                     <NavLink
                                         to="/signup"
-                                        className="border-2 border-white w-[75%] lg:w-[50%] text-center cursor-pointer text-sm font-medium bg-black text-yellow-400 px-4 py-2 rounded-full hover:bg-yellow-400 hover:text-black transition"
+                                        className="w-[75%] lg:w-[50%] text-center cursor-pointer text-sm font-medium bg-black text-yellow-400 px-4 py-2 rounded-full hover:bg-yellow-400 hover:text-black transition"
                                     >
                                         Sign Up
                                     </NavLink>
@@ -143,6 +143,13 @@ function Sidebar({ isOpen, onClose }) {
                             className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
                         >
                             Give it a try
+                        </NavLink>
+
+                        <NavLink
+                            to="/roulette"
+                            className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
+                        >
+                            Roulette
                         </NavLink>
                     </ul>
                 </div>
