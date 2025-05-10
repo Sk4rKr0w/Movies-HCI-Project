@@ -171,7 +171,7 @@ export default function GroupRoulette() {
                     <button
                         onClick={handleSpin}
                         disabled={isSpinning}
-                        className="cursor-pointer mt-4 bg-gray-700 text-yellow-400 px-4 py-2 rounded disabled:opacity-50"
+                        className="cursor-pointer mt-4 bg-gray-700 hover:bg-gray-800 text-yellow-400 hover:text-yellow-500 transition px-4 py-2 rounded disabled:opacity-50"
                     >
                         Start the Roulette
                     </button>
