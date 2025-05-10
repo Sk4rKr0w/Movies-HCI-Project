@@ -35,7 +35,8 @@ function App() {
                 <Route path="/movie/:id" element={<MoviePage />} />{" "}
                 <Route path="/groupedit/:id" element={<EditPage />} />
                 <Route path="/slotmachine" element={<SlotMachine />} />
-                <Route path="/roulette" element={<GroupRoulette />} />
+                <Route path="/group/:id/roulette" element={<GroupRoulette />} />
+
             </Routes>
             <Footer />
         </Router>

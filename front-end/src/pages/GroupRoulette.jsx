@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import RoulettePro from 'react-roulette-pro';
 import 'react-roulette-pro/dist/index.css';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 import RouletteFilmSearch from '../components/RouletteFilmSearch';
 
 const generateId = () =>
@@ -13,8 +14,8 @@ const reproductionArray = (array = [], length = 0) =>
     .map(() => array[Math.floor(Math.random() * array.length)]);
 
 export default function GroupRoulette() {
-  const groupId = 33;
-  const userId = 'a8edcb1c-602d-4096-b803-558bad3e82a7';
+  const { id: groupId } = useParams();
+  const userId = JSON.parse(localStorage.getItem('user'))?.id;
 
   const [movies, setMovies] = useState([]);
   const [rawMovies, setRawMovies] = useState([]);

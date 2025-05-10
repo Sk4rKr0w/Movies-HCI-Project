@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import TmdbCardLite from '../components/TmdbCardLite.jsx';
 
-export default function RouletteFilmSearch({ groupId, userId, onSuccess }) {
+export default function RouletteFilmSearch({ groupId, onSuccess }) {
+    const userId = JSON.parse(localStorage.getItem('user'))?.id;
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [selectedMovies, setSelectedMovies] = useState([]);
