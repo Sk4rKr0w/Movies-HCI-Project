@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../supabaseClient');
+
 // GET: lista film della roulette
 router.get('/:groupId', async (req, res) => {
   const groupId = parseInt(req.params.groupId);
@@ -21,7 +22,10 @@ router.post('/:groupId', async (req, res) => {
   const groupId = parseInt(req.params.groupId);
   const { movies, userId } = req.body;
 
-  // Verifica se è owner
+  if (!Array.isArray(movies)) {
+    return res.status(400).json({ error: 'Formato film non valido. Deve essere un array.' });
+  }
+
   const { data: group, error: groupError } = await supabase
     .from('groups')
     .select('owner')
