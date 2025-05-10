@@ -63,11 +63,6 @@ function Home() {
             )
         );
 
-        console.log("🎯 Generi utente:", userGenres);
-        console.log("🎬 Film totali:", movies.length);
-        console.log("🎯 Film consigliati trovati:", genreMatchedMovies.length);
-        console.log("🎯 Esempio film:", genreMatchedMovies.slice(0, 3));
-
         // Cambia ogni 3 giorni
         const randomSeed = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 3));
         const shuffled = [...genreMatchedMovies].sort(
