@@ -10,6 +10,12 @@ function GroupWatch() {
     const [searchTerm, setSearchTerm] = useState("");
     const [joinMessage, setJoinMessage] = useState(""); // 👈 nuovo stato per messaggio join
     const [isPendingRequest, setIsPendingRequest] = useState(false);
+    const [showGenreFilter, setShowGenreFilter] = useState(false);
+    const [selectedGenres, setSelectedGenres] = useState([]);
+    const genreOptions = [
+    "Action", "Comedy", "Drama", "Horror", "Sci-Fi",
+    "Romance", "Thriller"
+    ];
     const navigate = useNavigate();
     const resultsRef = useRef(null);
 
@@ -54,7 +60,24 @@ function GroupWatch() {
     }, [user]);     
 
     const handleSearchGroup = async () => {
-        if (!searchTerm.trim()) return;
+        if (!searchTerm.trim() && selectedGenres.length === 0) {
+            // se non c'è testo né filtri, mostra tutto
+            try {
+                const res = await axios.get("http://localhost:3001/api/searchgroup/searchgroup", {
+                params: {
+                    userId: user?.id ?? Math.floor(Math.random() * 1000000),
+                },
+                });
+                setSearchResults(res.data.groups || []);
+                setSearchMessage(res.data.message || "");
+                setJoinMessage("");
+                return;
+            } catch (err) {
+                console.error("Errore nel recupero dei gruppi:", err);
+                setSearchMessage("Errore nel recupero dei gruppi.");
+                return;
+            }
+            }
 
         try {
             const res = await axios.get(
@@ -63,6 +86,7 @@ function GroupWatch() {
                     params: {
                         name: searchTerm.trim(),
                         userId: user?.id ?? Math.floor(Math.random() * 1000000),
+                        genres: selectedGenres.length > 0 ? JSON.stringify(selectedGenres) : undefined,
                     },
                 }
             );
@@ -78,6 +102,26 @@ function GroupWatch() {
             setSearchMessage("Errore nella ricerca del gruppo.");
         }
     };
+
+    const handleResetFilters = async () => {
+        setSearchTerm("");
+        setSelectedGenres([]);
+        setShowGenreFilter(false);
+
+        try {
+            const res = await axios.get("http://localhost:3001/api/searchgroup/searchgroup", {
+            params: {
+                userId: user?.id ?? Math.floor(Math.random() * 1000000),
+            },
+            });
+            setSearchResults(res.data.groups || []);
+            setSearchMessage(res.data.message || "");
+            setJoinMessage("");
+        } catch (err) {
+            console.error("Errore nel reset:", err);
+            setSearchMessage("Errore nel recupero dei gruppi.");
+        }
+        };
 
     const handleJoinGroup = async (groupId) => {
         if (!groupId || !user) {
@@ -170,6 +214,43 @@ function GroupWatch() {
                 >
                     Search
                 </button>
+                <button
+                    onClick={() => setShowGenreFilter(!showGenreFilter)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 ml-2 rounded transition"
+                    >
+                    Filter by Genre
+                </button>
+                {showGenreFilter && (
+                <div className="w-[90%] md:w-[75%] lg:w-[65%] bg-gray-800 p-4 mt-2 rounded">
+                    <div className="flex flex-wrap gap-3">
+                    {genreOptions.map((genre) => (
+                        <label key={genre} className="flex items-center space-x-2 text-white">
+                        <input
+                            type="checkbox"
+                            value={genre}
+                            checked={selectedGenres.includes(genre)}
+                            onChange={(e) => {
+                            const checked = e.target.checked;
+                            setSelectedGenres((prev) =>
+                                checked
+                                ? [...prev, genre]
+                                : prev.filter((g) => g !== genre)
+                            );
+                            }}
+                            className="h-5 w-5"
+                        />
+                        <span className="text-yellow-400">{genre}</span>
+                        </label>
+                    ))}
+                    <button
+                        onClick={handleResetFilters}
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 ml-2 rounded transition"
+                        >
+                        Reset Filters
+                        </button>
+                    </div>
+                </div>
+                )}
             </div>
 
             <button

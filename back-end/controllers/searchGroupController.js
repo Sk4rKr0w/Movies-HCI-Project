@@ -1,28 +1,45 @@
 const supabase = require("../supabaseClient");
 
 const searchGroup = async (req, res) => {
-  const { name, userId } = req.query;
+  const { name, userId, genres } = req.query;
 
-  if (!name || !userId) return res.status(400).json({ error: "name e userId richiesti." });
+  if (!userId) {
+    return res.status(400).json({ error: "userId richiesto." });
+  }
 
   try {
+    const nameFilter = name ? `%${name}%` : "%";
     const { data, error } = await supabase
       .from("groups")
       .select("*")
-      .ilike("name", `%${name}%`);
+      .ilike("name", nameFilter);
 
     if (error) throw error;
 
-    // Filtra i gruppi escludendo quelli che già contengono userId
-    const filteredGroups = data.filter(group => {
+    let genreArray = [];
+    if (genres) {
+      try {
+        genreArray = typeof genres === "string" ? JSON.parse(genres) : genres;
+      } catch {
+        genreArray = [];
+      }
+    }
+    const filteredGroups = data.filter((group) => {
       const users = group.users || [];
-      return !users.includes(userId);
+      const parsedGenres = JSON.parse(group.genres || "[]");
+
+      const notAlreadyJoined = !users.includes(userId);
+      const genreMatch = genreArray.length === 0
+        ? true
+        : genreArray.some((g) => parsedGenres.includes(g));
+
+      return notAlreadyJoined && genreMatch;
     });
 
     if (filteredGroups.length === 0) {
       return res.status(200).json({
         groups: [],
-        message: "Nessun gruppo trovato. Riprova."
+        message: "Nessun gruppo trovato. Riprova.",
       });
     }
 
