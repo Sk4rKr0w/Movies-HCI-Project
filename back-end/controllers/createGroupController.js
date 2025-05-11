@@ -1,7 +1,7 @@
 const supabase = require('../supabaseClient');
 
 const createGroup = async (req, res) => {
-  const { name, description, users, owner, genres } = req.body;
+  const { name, description, users, owner, genres, private, } = req.body;
 
   if (!name || !description) {
     return res.status(400).json({ error: "Name e description sono obbligatori" });
@@ -10,7 +10,7 @@ const createGroup = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('groups')
-      .insert([{name, description, owner, users: [owner], genres}])
+      .insert([{name, description, owner, users: [owner], genres, private}])
       .select()
       .single();
 
