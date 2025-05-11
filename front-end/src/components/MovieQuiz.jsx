@@ -4,55 +4,59 @@ import axios from "axios";
 
 const questions = [
     {
-        question: "What's your favorite genre?",
+        question: "When was the last time a movie moved you deeply?",
         options: [
-            "Action",
-            "Adventure",
-            "Animation",
-            "Comedy",
-            "Crime",
-            "Documentary",
-            "Drama",
-            "Family",
-            "Fantasy",
-            "History",
-            "Horror",
-            "Music",
-            "Mystery",
-            "Romance",
-            "Science Fiction",
-            "Thriller",
-            "War",
-            "Western",
+            "Recently – I still think about it",
+            "It’s been a while – I miss that feeling",
+            "I can’t remember – maybe never",
         ],
     },
     {
-        question: "Do you want a recent movie?",
-        options: ["Yes", "No"],
-    },
-    {
-        question: "Preferred length?",
+        question: "Which emotion are you craving right now?",
         options: [
-            "Short (up to 1h 30min)",
-            "Medium (between 1h 30min and 2h 30min)",
-            "Long (over 2h 30min)",
+            "Joy and lightness",
+            "Tears and catharsis",
+            "Adrenaline and excitement",
+            "Wonder and imagination",
+            "Love and connection",
+            "Mystery and curiosity",
         ],
     },
     {
-        question: "What's the age rating you prefer?",
+        question: "Do you want to feel understood or escape reality?",
         options: [
-            "All Ages",
-            "Teens and Up (PG-13)",
-            "Adults Only (18+ / R-rated)",
+            "I want to feel understood",
+            "I want to escape",
+            "Maybe both",
         ],
     },
     {
-        question: "Do you want a popular or hidden gem?",
-        options: ["Popular", "Hidden gem"],
+        question:
+            "Would you rather watch something that challenges you or comforts you?",
+        options: ["Challenge me", "Comfort me", "Surprise me"],
     },
     {
-        question: "Should it have a high rating?",
-        options: ["Yes", "No"],
+        question:
+            "Do you feel like discovering something unknown or revisiting a familiar vibe?",
+        options: ["Discover the unknown", "Revisit something familiar"],
+    },
+    {
+        question:
+            "Do you want something others love or something just for you?",
+        options: ["Loved by many", "Hidden just for me"],
+    },
+    {
+        question:
+            "Are you watching the movie alone or with children? (Film 18+)",
+        options: ["I'm with children", "I'm alone or with adults"],
+    },
+    {
+        question:
+            "Do you feel like watching a short, snappy movie or a long, epic journey?",
+        options: [
+            "Short and sweet – I don't want to invest too much time",
+            "Long and epic – I'm ready for a full experience",
+        ],
     },
 ];
 
@@ -108,67 +112,97 @@ const MovieQuiz = () => {
         setLoading(true);
         setCurrentPage(0);
 
-        const genre = genreMap[answers[0]];
-        const recent = answers[1] === "Yes";
-        const length = answers[2];
-        const ageGroup = answers[3];
-        const popularity = answers[4];
-        const minRating = answers[5] === "Yes" ? 7 : null;
-
-        const today = new Date();
-        const fiveYearsAgo = new Date();
-        fiveYearsAgo.setFullYear(today.getFullYear() - 5);
+        const [
+            lastMoved,
+            emotion,
+            reality,
+            challenge,
+            discovery,
+            audience,
+            withChildren,
+            movieLength,
+        ] = answers;
 
         const params = {
             api_key: import.meta.env.VITE_TMDB_API_KEY,
-            with_genres: genre,
             sort_by:
-                popularity === "Popular" ? "popularity.desc" : "popularity.asc",
-            certification_country: "US",
+                audience === "Loved by many"
+                    ? "popularity.desc"
+                    : "popularity.asc",
             include_adult: false,
             language: "en-US",
             page: 1,
         };
 
-        if (recent) {
+        // EMOTION -> genre
+        const emotionGenreMap = {
+            "Joy and lightness": 35, // Comedy
+            "Tears and catharsis": 18, // Drama
+            "Adrenaline and excitement": 28, // Action
+            "Wonder and imagination": 14, // Fantasy
+            "Love and connection": 10749, // Romance
+            "Mystery and curiosity": 9648, // Mystery
+        };
+        params["with_genres"] = emotionGenreMap[emotion];
+
+        // LAST MOVED -> rating filter
+        if (lastMoved === "Recently – I still think about it") {
+            params["vote_average.gte"] = 7.5;
+        } else if (lastMoved === "It’s been a while – I miss that feeling") {
+            params["vote_average.gte"] = 6.5;
+        }
+
+        // REALITY -> escape or realism -> genres
+        if (reality === "I want to escape") {
+            params["with_genres"] += ",878"; // Add Sci-Fi
+        } else if (reality === "I want to feel understood") {
+            params["with_genres"] += ",18"; // Add Drama
+        }
+
+        // CHALLENGE -> maybe sort by vote count
+        if (challenge === "Challenge me") {
+            params["sort_by"] = "vote_average.desc";
+            params["vote_count.gte"] = 100;
+        } else if (challenge === "Comfort me") {
+            params["vote_average.lte"] = 7.0;
+        }
+
+        // DISCOVERY -> release date
+        const today = new Date();
+        const fiveYearsAgo = new Date(
+            today.setFullYear(today.getFullYear() - 5)
+        );
+        if (discovery === "Discover the unknown") {
             params["primary_release_date.gte"] = fiveYearsAgo
                 .toISOString()
                 .split("T")[0];
-        } else {
-            params["primary_release_date.lte"] = fiveYearsAgo
-                .toISOString()
-                .split("T")[0];
         }
 
-        if (length === "Short") {
-            params["with_runtime.lte"] = 90;
-        } else if (length === "Medium") {
-            params["with_runtime.gte"] = 91;
-            params["with_runtime.lte"] = 150;
-        } else if (length === "Long") {
-            params["with_runtime.gte"] = 151;
+        // Watching with children filter
+        if (withChildren === "I'm with children") {
+            params["with_genres"] += ",10751"; // Family genre
+            params["include_adult"] = false; // Exclude adult movies
+        } else if (withChildren === "I'm alone or with adults") {
+            params["include_adult"] = true; // Include adult movies
         }
 
-        if (ageGroup === "All Ages") {
-            params["certification"] = "G|PG";
-        } else if (ageGroup === "Teens and up") {
-            params["certification"] = "PG-13";
-        } else {
-            params["certification"] = "R|NC-17";
-        }
-
-        if (minRating) {
-            params["vote_average.gte"] = minRating;
+        // MOVIE LENGTH filter
+        if (
+            movieLength ===
+            "Short and sweet – I don't want to invest too much time"
+        ) {
+            params["with_runtime.gte"] = 60; // Short movies (60 minutes or more)
+        } else if (
+            movieLength === "Long and epic – I'm ready for a full experience"
+        ) {
+            params["with_runtime.lte"] = 180; // Long movies (up to 3 hours)
         }
 
         try {
             const res = await axios.get(
                 "https://api.themoviedb.org/3/discover/movie",
-                {
-                    params,
-                }
+                { params }
             );
-
             let results = res.data.results;
 
             const seen = new Set();
@@ -214,9 +248,9 @@ const MovieQuiz = () => {
                                     >
                                         {movie.poster_path && (
                                             <img
-                                                src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+                                                src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
                                                 alt={movie.title}
-                                                className="lg:w-86 mx-auto mb-3 rounded shadow"
+                                                className="h-72 mx-auto mb-3 rounded shadow"
                                             />
                                         )}
                                         <h3 className="text-xl font-semibold mb-1">
