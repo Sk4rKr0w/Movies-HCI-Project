@@ -198,18 +198,16 @@ export default function GroupRoulette() {
                 </div>
             )}
 
-            {isOwner && (
-                <div className="mt-8 w-full max-w-xl flex flex-col">
-                    <h3 className="text-lg font-semibold mb-2 text-yellow-400">
-                        🎬 Add Movies
-                    </h3>
-                    <RouletteFilmSearch
-                        groupId={groupId}
-                        userId={userId}
-                        onSuccess={fetchMovies}
-                    />
-                </div>
-            )}
+            <div className="mt-8 w-full max-w-xl flex flex-col">
+                <h3 className="text-lg font-semibold mb-2 text-yellow-400">
+                    🎬 Add Movies
+                </h3>
+                <RouletteFilmSearch
+                    groupId={groupId}
+                    userId={userId}
+                    onSuccess={fetchMovies}
+                />
+            </div>
         </div>
     );
 }

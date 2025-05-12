@@ -77,7 +77,7 @@ export default function RouletteFilmSearch({ groupId, userId, onSuccess }) {
             setSuccessMsg("✅ Movies saved successfully!");
             setErrorMsg("");
             setTimeout(() => setSuccessMsg(""), 3000);
-
+            window.location.reload();
             if (onSuccess) onSuccess();
         } catch (err) {
             console.error("❌ Error saving movies:", err);
