@@ -1,7 +1,7 @@
 const supabase = require("../supabaseClient");
 
 const editGroup = async (req, res) => {
-  const { groupId, name, description, genres } = req.body;
+  const { groupId, name, description, genres, private: isPrivate } = req.body;
 
   if (!groupId || !name || !description || !genres) {
     return res.status(400).json({ error: "Tutti i campi sono obbligatori." });
@@ -10,7 +10,7 @@ const editGroup = async (req, res) => {
   try {
     const { error } = await supabase
       .from("groups")
-      .update({ name, description, genres })
+      .update({ name, description, genres, private: isPrivate })
       .eq("id", groupId);
 
     if (error) throw error;
