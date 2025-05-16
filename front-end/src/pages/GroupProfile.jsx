@@ -27,6 +27,7 @@ function GroupProfile() {
     const [myVotes, setMyVotes] = useState([]);
     const [winnerMovieId, setWinnerMovieId] = useState(null);
     const [sectionTab, setSectionTab] = useState("proposal");
+    const isProposalStarter = user && activeSession?.proposal_starteruser === user.id;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -349,6 +350,7 @@ function GroupProfile() {
                 "http://localhost:3001/api/proposalactiveGroup/startproposalactivegroup",
                 {
                     groupId: group.id,
+                    userId: user.id,
                 }
             );
 
@@ -941,7 +943,7 @@ function GroupProfile() {
                                             </div>
                                         )}
 
-                                        {user?.id === group.owner &&
+                                        {isProposalStarter &&
                                             group.voting_status ===
                                                 "proposing" &&
                                             myProposals.length +
@@ -1048,7 +1050,7 @@ function GroupProfile() {
                                         </div>
                                     )}
 
-                                {user?.id === group.owner &&
+                                {isProposalStarter &&
                                     group.voting_status === "voting" && (
                                         <button
                                             onClick={closeVotingPhase}
@@ -1077,7 +1079,7 @@ function GroupProfile() {
                                         </div>
                                     )}
 
-                                {user?.id === group.owner &&
+                                {isProposalStarter &&
                                     group.voting_status !== "open" && (
                                         <button
                                             onClick={resetGroupStatus}
