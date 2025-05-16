@@ -24,16 +24,16 @@ const getproposalactiveGroup = async (req, res) => {
   res.status(200).json({ session: data || null });
 };
 const startproposalactiveGroup = async (req, res) => {
-    const { groupId } = req.body;
+    const { groupId, userId } = req.body;
   
-    if (!groupId) {
+    if (!groupId || !userId) {
       return res.status(400).json({ error: "groupId richiesto" });
     }
   
     // Crea una nuova sessione di proposta
     const { data, error } = await supabase
       .from("proposal_sessions")
-      .insert([{ group_id: groupId, status: "proposing" }])
+      .insert([{ group_id: groupId, status: "proposing", proposal_starteruser: userId }])
       .select()
       .maybeSingle();
   
