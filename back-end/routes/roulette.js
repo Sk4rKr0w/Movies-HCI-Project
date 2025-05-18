@@ -29,9 +29,12 @@ router.post("/:groupId", async (req, res) => {
     }
 
     const { error } = await supabase
-        .from("groups")
-        .update({ roulette_movies: movies })
-        .eq("id", groupId);
+  .from('groups')
+  .update({
+    roulette_movies: movies,
+    roulette_winner: null  // resetta il vincitore
+  })
+  .eq('id', groupId);
 
     if (error) return res.status(500).json({ error: error.message });
 

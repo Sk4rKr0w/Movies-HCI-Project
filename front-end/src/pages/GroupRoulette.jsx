@@ -69,22 +69,33 @@ export default function GroupRoulette() {
   };
 
   const handlePrizeDefined = async () => {
-    setStart(false);
-    const winnerMovie = movies[prizeIndex];
-    setWinner(winnerMovie);
+  setStart(false);
+  const winnerMovie = movies[prizeIndex];
+  setWinner(winnerMovie);
 
-    try {
-      // Svuota la lista nel DB dopo lo spin
-      await axios.post(`http://localhost:3001/api/group/roulette/${groupId}`, {
-        userId,
-        movies: [],
-      });
-      setRawMovies([]);
-      setMovies([]);
-    } catch (err) {
-      console.error('❌ Errore svuotamento roulette:', err);
-    }
-  };
+  try {
+    
+    await axios.post(`http://localhost:3001/api/group/winner/${groupId}`, {
+      winner: {
+        id: winnerMovie.id,
+        title: winnerMovie.title,
+        poster_path: winnerMovie.poster_path,
+      },
+    });
+
+    
+    await axios.post(`http://localhost:3001/api/group/roulette/${groupId}`, {
+      userId,
+      movies: [],
+    });
+
+    
+    setRawMovies([]);
+    setMovies([]);
+  } catch (err) {
+    console.error('❌ Errore salvataggio/reset:', err);
+  }
+};
 
   return (
     <div className="p-6 flex flex-col items-center">
