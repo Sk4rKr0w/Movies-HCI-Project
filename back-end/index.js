@@ -31,6 +31,7 @@ const requestGroup = require("./routes/requestGroup");
 const approveRequestGroup = require("./routes/approveRequestGroup");
 const rouletteRoutes = require("./routes/roulette");
 const groupOwnerRoutes = require("./routes/groupOwner");
+const groupWinnerRoutes = require('./routes/groupWinner');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -67,6 +68,7 @@ app.use("/api/requestGroup", requestGroup);
 app.use("/api/approveRequestGroup", approveRequestGroup);
 app.use("/api/group/roulette", rouletteRoutes);
 app.use("/api/group", groupOwnerRoutes);
+app.use('/api/group/winner', groupWinnerRoutes);
 
 app.listen(PORT, () => {
     console.log(`✅ Server avviato su http://localhost:${PORT}`);

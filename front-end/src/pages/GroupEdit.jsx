@@ -14,6 +14,7 @@ function GroupEdit() {
     const [user, setUser] = useState(null);
     const [error, setError] = useState("");
     const [message, setMessage] = useState({ text: "", type: "" });
+    const [isPrivate, setIsPrivate] = useState(false);
     const navigate = useNavigate();
     const movies = useMovieStore((state) => state.movies);
     const fetchMovies = useMovieStore((state) => state.fetchMovies);
@@ -53,6 +54,7 @@ function GroupEdit() {
 
                 setName(group.name);
                 setDescription(group.description);
+                setIsPrivate(group.private);
 
                 if (typeof group.genres === "string") {
                     try {
@@ -85,6 +87,7 @@ function GroupEdit() {
                     name,
                     description,
                     genres,
+                    private: isPrivate,
                 }
             );
 
@@ -134,6 +137,20 @@ function GroupEdit() {
                 onSubmit={handleEditGroup}
                 className="space-y-4 w-full md:w-[75%] lg:w-[50%]"
             >
+                <div className="mt-4">
+                    <label className="flex items-center space-x-3">
+                        <input
+                        type="checkbox"
+                        checked={isPrivate}
+                        onChange={(e) => setIsPrivate(e.target.checked)}
+                        className="h-5 w-5"
+                        />
+                        <span className="text-yellow-400 font-medium">
+                        Make this group private
+                        </span>
+                    </label>
+                    </div>
+
                 <div>
                     <label className="block font-medium">
                         Group Name{" "}
@@ -167,6 +184,22 @@ function GroupEdit() {
                         required
                     ></textarea>
                 </div>
+
+                <div className="mt-4">
+                    <label className="flex items-center space-x-3">
+                        <span className="text-yellow-400 font-medium">
+                            Make this group private?
+                        </span>
+                        <input
+                            type="checkbox"
+                            checked={isPrivate}
+                            onChange={(e) => setIsPrivate(e.target.checked)}
+                            className="cursor-pointer h-5 w-5"
+                        />
+                    </label>
+                </div>
+
+                <hr />
 
                 <div>
                     <label className="block font-medium mb-3">

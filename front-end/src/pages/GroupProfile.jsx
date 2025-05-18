@@ -6,6 +6,7 @@ import supabase from "../supabaseClient";
 import leaveIcon from "../assets/images/leave.svg";
 import removeMember from "../assets/images/removeMember.svg";
 import TmdbCard from "../components/TmdbCard";
+import GroupRoulette from "../components/GroupRoulette";
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 function GroupProfile() {
@@ -26,6 +27,7 @@ function GroupProfile() {
     const [myVotes, setMyVotes] = useState([]);
     const [winnerMovieId, setWinnerMovieId] = useState(null);
     const [sectionTab, setSectionTab] = useState("proposal");
+    const isProposalStarter = user && activeSession?.proposal_starteruser === user.id;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -348,6 +350,7 @@ function GroupProfile() {
                 "http://localhost:3001/api/proposalactiveGroup/startproposalactivegroup",
                 {
                     groupId: group.id,
+                    userId: user.id,
                 }
             );
 
@@ -524,7 +527,6 @@ function GroupProfile() {
                     params: { sessionId: activeSession.id },
                 }
             );
-            console.log("🎉 Vincitore:", res.data.winnerMovieId);
             setWinnerMovieId(res.data.winner.movie_id);
         } catch (err) {
             console.error("Errore nel recupero del vincitore:", err);
@@ -941,7 +943,7 @@ function GroupProfile() {
                                             </div>
                                         )}
 
-                                        {user?.id === group.owner &&
+                                        {isProposalStarter &&
                                             group.voting_status ===
                                                 "proposing" &&
                                             myProposals.length +
@@ -1048,7 +1050,7 @@ function GroupProfile() {
                                         </div>
                                     )}
 
-                                {user?.id === group.owner &&
+                                {isProposalStarter &&
                                     group.voting_status === "voting" && (
                                         <button
                                             onClick={closeVotingPhase}
@@ -1077,7 +1079,7 @@ function GroupProfile() {
                                         </div>
                                     )}
 
-                                {user?.id === group.owner &&
+                                {isProposalStarter &&
                                     group.voting_status !== "open" && (
                                         <button
                                             onClick={resetGroupStatus}
@@ -1088,9 +1090,7 @@ function GroupProfile() {
                                     )}
                             </div>
                         ) : (
-                            <div>
-                                <h1 className="text-white">Second Section</h1>
-                            </div>
+                            <GroupRoulette />
                         )}
                     </section>
 
@@ -1181,12 +1181,6 @@ function GroupProfile() {
                                 className="cursor-pointer w-[90%] md:w-auto px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition"
                             >
                                 🗑 Delete Group
-                            </button>
-                            <button
-                                onClick={() => navigate(`/group/${group.id}/roulette`)}
-                                className="cursor-pointer w-[90%] md:w-auto px-4 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition"
-                             >
-                                🎰 Go to Roulette
                             </button>
                         </>
                     )}

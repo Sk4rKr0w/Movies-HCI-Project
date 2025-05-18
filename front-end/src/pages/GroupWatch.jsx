@@ -10,6 +10,17 @@ function GroupWatch() {
     const [searchTerm, setSearchTerm] = useState("");
     const [joinMessage, setJoinMessage] = useState(""); // 👈 nuovo stato per messaggio join
     const [isPendingRequest, setIsPendingRequest] = useState(false);
+    const [showGenreFilter, setShowGenreFilter] = useState(false);
+    const [selectedGenres, setSelectedGenres] = useState([]);
+    const genreOptions = [
+        "Action",
+        "Comedy",
+        "Drama",
+        "Horror",
+        "Sci-Fi",
+        "Romance",
+        "Thriller",
+    ];
     const navigate = useNavigate();
     const resultsRef = useRef(null);
 
@@ -51,10 +62,31 @@ function GroupWatch() {
         if (user?.id) {
             handleYourGroups();
         }
-    }, [user]);     
+    }, [user]);
 
     const handleSearchGroup = async () => {
-        if (!searchTerm.trim()) return;
+        if (!searchTerm.trim() && selectedGenres.length === 0) {
+            // se non c'è testo né filtri, mostra tutto
+            try {
+                const res = await axios.get(
+                    "http://localhost:3001/api/searchgroup/searchgroup",
+                    {
+                        params: {
+                            userId:
+                                user?.id ?? Math.floor(Math.random() * 1000000),
+                        },
+                    }
+                );
+                setSearchResults(res.data.groups || []);
+                setSearchMessage(res.data.message || "");
+                setJoinMessage("");
+                return;
+            } catch (err) {
+                console.error("Errore nel recupero dei gruppi:", err);
+                setSearchMessage("Errore nel recupero dei gruppi.");
+                return;
+            }
+        }
 
         try {
             const res = await axios.get(
@@ -63,6 +95,10 @@ function GroupWatch() {
                     params: {
                         name: searchTerm.trim(),
                         userId: user?.id ?? Math.floor(Math.random() * 1000000),
+                        genres:
+                            selectedGenres.length > 0
+                                ? JSON.stringify(selectedGenres)
+                                : undefined,
                     },
                 }
             );
@@ -76,6 +112,29 @@ function GroupWatch() {
         } catch (err) {
             console.error("Errore durante la ricerca del gruppo:", err);
             setSearchMessage("Errore nella ricerca del gruppo.");
+        }
+    };
+
+    const handleResetFilters = async () => {
+        setSearchTerm("");
+        setSelectedGenres([]);
+        setShowGenreFilter(true);
+
+        try {
+            const res = await axios.get(
+                "http://localhost:3001/api/searchgroup/searchgroup",
+                {
+                    params: {
+                        userId: user?.id ?? Math.floor(Math.random() * 1000000),
+                    },
+                }
+            );
+            setSearchResults(res.data.groups || []);
+            setSearchMessage(res.data.message || "");
+            setJoinMessage("");
+        } catch (err) {
+            console.error("Errore nel reset:", err);
+            setSearchMessage("Errore nel recupero dei gruppi.");
         }
     };
 
@@ -102,30 +161,32 @@ function GroupWatch() {
 
     const handleSendRequestGroup = async (groupId) => {
         try {
-          await axios.post("http://localhost:3001/api/requestGroup/send", {
-            groupId,
-            userId: user.id,
-          });
-      
-          // Aggiorna localmente il gruppo nei searchResults
-          setSearchResults((prev) =>
-            prev.map((g) =>
-              g.id === groupId
-                ? {
-                    ...g,
-                    pending_users: [...(g.pending_users || []), user.id],
-                  }
-                : g
-            )
-          );
-      
-          alert("Richiesta inviata! In attesa di approvazione.");
+            await axios.post("http://localhost:3001/api/requestGroup/send", {
+                groupId,
+                userId: user.id,
+            });
+
+            // Aggiorna localmente il gruppo nei searchResults
+            setSearchResults((prev) =>
+                prev.map((g) =>
+                    g.id === groupId
+                        ? {
+                              ...g,
+                              pending_users: [
+                                  ...(g.pending_users || []),
+                                  user.id,
+                              ],
+                          }
+                        : g
+                )
+            );
+
+            alert("Richiesta inviata! In attesa di approvazione.");
         } catch (err) {
-          console.error("Errore durante l'invio della richiesta:", err);
-          alert("Errore durante la richiesta di accesso.");
+            console.error("Errore durante l'invio della richiesta:", err);
+            alert("Errore durante la richiesta di accesso.");
         }
-      };      
-      
+    };
 
     const handleYourGroups = async () => {
         if (!user?.id) return;
@@ -156,20 +217,71 @@ function GroupWatch() {
                 </p>
             )}
 
-            <div className="w-[90%] md:w-[75%] lg:w-[65%] flex flex-row my-2">
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search for a group..."
-                    className="bg-gray-600 focus:bg-gray-800 flex-grow px-4 py-2 text-white rounded-l-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                />
-                <button
-                    onClick={handleSearchGroup}
-                    className="bg-yellow-500 hover:bg-yellow-600 cursor-pointer text-black px-4 py-2 rounded-r-md transition"
-                >
-                    Search
-                </button>
+            <div className="w-[90%] md:w-[75%] lg:w-[65%] my-2">
+                {/* Top bar: search input + button + filter */}
+                <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0">
+                    <div className="flex flex-grow">
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search for a group..."
+                            className="bg-gray-600 focus:bg-gray-800 px-4 py-2 text-white rounded-l-md w-full focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                        />
+                        <button
+                            onClick={handleSearchGroup}
+                            className="cursor-pointer bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-r-md transition"
+                        >
+                            Search
+                        </button>
+                    </div>
+
+                    <button
+                        onClick={() => setShowGenreFilter(!showGenreFilter)}
+                        className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition"
+                    >
+                        Filter by Genre
+                    </button>
+                </div>
+
+                {showGenreFilter && (
+                    <div className="bg-gray-800 p-4 mt-4 rounded flex flex-col md:flex md:flex-row justify-between items-center">
+                        <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2">
+                            {genreOptions.map((genre) => (
+                                <label
+                                    key={genre}
+                                    className="flex items-center space-x-2 text-white"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        value={genre}
+                                        checked={selectedGenres.includes(genre)}
+                                        onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setSelectedGenres((prev) =>
+                                                checked
+                                                    ? [...prev, genre]
+                                                    : prev.filter(
+                                                          (g) => g !== genre
+                                                      )
+                                            );
+                                        }}
+                                        className="cursor-pointer h-5 w-5"
+                                    />
+                                    <span className="text-yellow-400 font-medium">
+                                        {genre}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                        <button
+                            onClick={handleResetFilters}
+                            className="cursor-pointer bg-red-500 hover:bg-red-600 text-white px-4 py-2 mt-4 md:mt-0 rounded transition"
+                        >
+                            Reset Filters
+                        </button>
+                    </div>
+                )}
             </div>
 
             <button
@@ -262,7 +374,7 @@ function GroupWatch() {
             {searchResults.length > 0 && (
                 <div
                     ref={resultsRef}
-                    className="mt-6 flex flex-col justify-center items-center"
+                    className="w-full mt-6 flex flex-col justify-center items-center"
                 >
                     <h3 className="w-[90%] text-xl font-semibold mb-2 text-yellow-300">
                         🔍 Search Results
@@ -303,32 +415,40 @@ function GroupWatch() {
                                 {group?.private === false && (
                                     <div className="md:w-1/4 gap-4 mt-2 md:flex md:justify-center md:items-center md:mx-2">
                                         <button
-                                        onClick={() => handleJoinGroup(group.id)}
-                                        className="w-full font-semibold cursor-pointer px-3 py-2 bg-green-400 hover:bg-green-300 text-black text-sm md:text:md md:w-full md:h-12 rounded-lg"
+                                            onClick={() =>
+                                                handleJoinGroup(group.id)
+                                            }
+                                            className="w-full font-semibold cursor-pointer px-3 py-2 bg-green-400 hover:bg-green-300 text-black text-sm md:text:md md:w-full md:h-12 rounded-lg"
                                         >
-                                        Join Group
+                                            Join Group
                                         </button>
                                     </div>
-                                    )}
+                                )}
                                 {group?.private === true && (
                                     <div className="md:w-1/4 gap-4 mt-2 md:flex md:justify-center md:items-center md:mx-2">
-                                        {group.pending_users?.includes(user?.id) ? (
-                                        <button
-                                            disabled
-                                            className="w-full px-3 py-2 bg-gray-400 text-white rounded-lg cursor-default"
-                                        >
-                                            ✅ Request Sent
-                                        </button>
+                                        {group.pending_users?.includes(
+                                            user?.id
+                                        ) ? (
+                                            <button
+                                                disabled
+                                                className="w-full px-3 py-2 bg-gray-400 text-white rounded-lg cursor-default"
+                                            >
+                                                ✅ Request Sent
+                                            </button>
                                         ) : (
-                                        <button
-                                            onClick={() => handleSendRequestGroup(group.id)}
-                                            className="w-full px-3 py-2 bg-blue-500 hover:bg-blue-400 text-white rounded-lg"
-                                        >
-                                            Send Request
-                                        </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleSendRequestGroup(
+                                                        group.id
+                                                    )
+                                                }
+                                                className="w-full px-3 py-2 bg-blue-500 hover:bg-blue-400 text-white rounded-lg"
+                                            >
+                                                Send Request
+                                            </button>
                                         )}
                                     </div>
-                                    )}
+                                )}
                             </li>
                         ))}
                     </ul>
