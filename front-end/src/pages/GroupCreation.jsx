@@ -145,6 +145,22 @@ function GroupCreation() {
                     ></textarea>
                 </div>
 
+                <div className="mt-4">
+                    <label className="flex items-center space-x-3">
+                        <span className="text-yellow-400 font-medium">
+                            Make this group private?
+                        </span>
+                        <input
+                            type="checkbox"
+                            checked={isPrivate}
+                            onChange={(e) => setIsPrivate(e.target.checked)}
+                            className="cursor-pointer h-5 w-5"
+                        />
+                    </label>
+                </div>
+
+                <hr />
+
                 <div>
                     <label className="block font-medium mb-3">
                         Favorite Genres
