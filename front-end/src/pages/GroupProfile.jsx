@@ -27,8 +27,34 @@ function GroupProfile() {
     const [myVotes, setMyVotes] = useState([]);
     const [winnerMovieId, setWinnerMovieId] = useState(null);
     const [sectionTab, setSectionTab] = useState("proposal");
-    const isProposalStarter = user && activeSession?.proposal_starteruser === user.id;
+    const isProposalStarter =
+        user && activeSession?.proposal_starteruser === user.id;
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            if (tmdbQuery.trim()) {
+                searchTmdbQuery(tmdbQuery);
+            } else {
+                setTmdbResults([]); // svuota risultati se input vuoto
+            }
+        }, 500); // 500ms debounce
+
+        return () => clearTimeout(delayDebounce); // pulizia al cambio di input
+    }, [tmdbQuery]);
+
+    const searchTmdbQuery = async (query) => {
+        try {
+            const res = await axios.get(
+                `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(
+                    query
+                )}`
+            );
+            setTmdbResults(res.data.results || []);
+        } catch (err) {
+            console.error("Errore nella ricerca TMDB:", err);
+        }
+    };
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -836,26 +862,27 @@ function GroupProfile() {
                             </button>
                         </header>
                         {sectionTab === "proposal" ? (
-                            <div className="w-full h-[95%] flex flex-col justify-center items-center bg-black/60">
+                            <div className="w-full h-[95%] flex flex-col justify-start items-center p-4 rounded-2xl shadow-inner">
                                 {group.members.some(
                                     (member) => member.id === user?.id
                                 ) &&
                                     group.voting_status === "open" && (
-                                        <div className="flex flex-col justify-center items-center text-center mt-2">
-                                            <h1 className="text-lg md:text-xl lg:text-2xl text-white">
+                                        <div className="flex flex-col justify-center items-center text-center mt-6 px-4">
+                                            <h1 className="text-xl md:text-2xl font-semibold text-white mb-4 leading-relaxed">
                                                 Having a{" "}
-                                                <strong className="text-yellow-400 italic">
+                                                <strong className="text-yellow-300 italic">
                                                     hard time deciding
                                                 </strong>{" "}
-                                                what to watch tonight? <br />
+                                                what to watch tonight?
+                                                <br />
                                                 Let's put it to a{" "}
-                                                <strong className="text-yellow-400 italic">
+                                                <strong className="text-yellow-300 italic">
                                                     vote!
                                                 </strong>
                                             </h1>
                                             <button
                                                 onClick={startProposingSession}
-                                                className="cursor-pointer my-4 px-6 py-3 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-300 transition"
+                                                className="cursor-pointer px-6 py-3 bg-yellow-400 text-black font-semibold rounded-2xl shadow hover:bg-yellow-300 transition duration-200"
                                             >
                                                 🎬 Start Film Proposals
                                             </button>
@@ -863,11 +890,11 @@ function GroupProfile() {
                                     )}
 
                                 {group.voting_status === "proposing" && (
-                                    <div className="w-full mt-4 flex flex-col items-center">
-                                        <h3 className="text-xl font-bold text-yellow-400 my-4">
+                                    <div className="w-full mt-6 flex flex-col justify-start items-center gap-6">
+                                        <h3 className="text-2xl font-bold text-yellow-300">
                                             🎥 Search a movie to propose
                                         </h3>
-                                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2 w-[90%]">
+                                        <div className="flex flex-row sm:flex-row justify-center items-center w-full">
                                             <input
                                                 type="text"
                                                 value={tmdbQuery}
@@ -875,24 +902,25 @@ function GroupProfile() {
                                                     setTmdbQuery(e.target.value)
                                                 }
                                                 placeholder="Search on TMDB..."
-                                                className="w-full sm:w-auto p-2 bg-gray-800 text-white rounded"
+                                                className="w-full sm:w-auto px-4 py-2 border border-white/30 bg-gray-900 text-white rounded-l-xl focus:outline-none focus:ring-2 focus:ring-yellow-400"
                                             />
+
                                             <button
                                                 onClick={handleTmdbSearch}
-                                                className="cursor-pointer bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded mt-2 sm:mt-0"
+                                                className="cursor-pointer bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-r-xl transition duration-200"
                                             >
                                                 Search
                                             </button>
                                         </div>
 
                                         {tmdbResults.length > 0 && (
-                                            <ul className="flex flex-col w-full sm:w-[90%] mx-2 mt-4">
+                                            <ul className="flex flex-col w-full sm:w-[90%] mt-4 space-y-3">
                                                 {tmdbResults
                                                     .slice(0, 5)
                                                     .map((movie) => (
                                                         <li
                                                             key={movie.id}
-                                                            className="flex items-center gap-4 border border-white/30 bg-black/30 p-3 rounded hover:bg-white/20 transition cursor-pointer"
+                                                            className="flex items-center gap-4 border border-white/20 bg-white/5 p-3 rounded-xl hover:bg-white/10 transition cursor-pointer"
                                                             onClick={() =>
                                                                 proposeMovieFromTmdb(
                                                                     movie
@@ -904,10 +932,10 @@ function GroupProfile() {
                                                                 alt={
                                                                     movie.title
                                                                 }
-                                                                className="w-16 h-auto rounded"
+                                                                className="w-16 h-auto rounded-lg shadow"
                                                             />
                                                             <div>
-                                                                <p className="font-semibold text-white">
+                                                                <p className="text-white font-medium">
                                                                     {
                                                                         movie.title
                                                                     }
@@ -924,10 +952,9 @@ function GroupProfile() {
                                         )}
 
                                         {myProposals.length > 0 && (
-                                            <div className="mt-8">
-                                                <h4 className="text-lg font-semibold text-yellow-400 mb-2">
-                                                    🎞️ Movies you have already
-                                                    proposed
+                                            <div className="w-full px-2">
+                                                <h4 className="text-xl font-semibold text-yellow-300 mb-4">
+                                                    🎞️ Movies you have proposed
                                                 </h4>
                                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                                     {myProposals.map((p) => (
@@ -951,7 +978,7 @@ function GroupProfile() {
                                                 1 && (
                                                 <button
                                                     onClick={startVotingPhase}
-                                                    className="cursor-pointer mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
+                                                    className="cursor-pointer mt-6 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition duration-200"
                                                 >
                                                     ✅ Let's Vote!
                                                 </button>
@@ -961,8 +988,8 @@ function GroupProfile() {
 
                                 {group.voting_status === "voting" &&
                                     myProposals.length > 0 && (
-                                        <div className="mt-10">
-                                            <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                                        <div className="mt-10 w-full px-2">
+                                            <h3 className="text-xl font-bold text-yellow-300 mb-4">
                                                 🎬 Your movies proposed
                                             </h3>
                                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -985,8 +1012,8 @@ function GroupProfile() {
 
                                 {group.voting_status === "voting" &&
                                     allProposals.length > 0 && (
-                                        <div className="mt-10">
-                                            <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                                        <div className="mt-10 w-full px-2">
+                                            <h3 className="text-xl font-bold text-yellow-300 mb-4">
                                                 🎦 Movies proposed by the group
                                             </h3>
                                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -1023,8 +1050,8 @@ function GroupProfile() {
 
                                 {group.voting_status === "voting" &&
                                     allProposals.length === 0 && (
-                                        <div className="mt-10">
-                                            <h3 className="text-xl font-bold text-yellow-400 mb-4">
+                                        <div className="mt-10 text-center">
+                                            <h3 className="text-xl font-bold text-yellow-300">
                                                 🎦 No Movies proposed by others
                                             </h3>
                                         </div>
@@ -1032,11 +1059,11 @@ function GroupProfile() {
 
                                 {group.voting_status === "voting" &&
                                     myVotes.length > 0 && (
-                                        <div className="mt-10 flex flex-col justify-center items-center">
-                                            <h4 className="text-lg font-semibold text-yellow-400 mb-2">
+                                        <div className="mt-10 flex flex-col justify-center items-center text-white">
+                                            <h4 className="text-lg font-semibold text-yellow-300 mb-2">
                                                 📋 Movies you voted
                                             </h4>
-                                            <ul className="text-white space-y-1 text-center">
+                                            <ul className="space-y-1 text-center">
                                                 {myVotes.map((vote) => (
                                                     <li key={vote.movie_id}>
                                                         <MovieTitle
@@ -1054,7 +1081,7 @@ function GroupProfile() {
                                     group.voting_status === "voting" && (
                                         <button
                                             onClick={closeVotingPhase}
-                                            className="cursor-pointer mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                                            className="cursor-pointer mt-6 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition duration-200"
                                         >
                                             🛑 End voting 🛑
                                         </button>
@@ -1062,18 +1089,15 @@ function GroupProfile() {
 
                                 {group.voting_status === "closed" &&
                                     winnerMovieId && (
-                                        <div className="mt-10 text-center">
-                                            <h3 className="text-2xl font-bold text-yellow-400 mb-4">
+                                        <div className="my-2 text-center">
+                                            <h3 className="text-2xl font-bold text-yellow-300 mb-4">
                                                 🏆 Winner Movie chosen by the
                                                 group
                                             </h3>
                                             <div className="max-w-[200px] mx-auto">
                                                 <TmdbCard
                                                     movieId={winnerMovieId}
-                                                    showVoteButton={
-                                                        group.voting_status ===
-                                                        "voting"
-                                                    }
+                                                    showVoteButton={false}
                                                 />
                                             </div>
                                         </div>
@@ -1083,7 +1107,7 @@ function GroupProfile() {
                                     group.voting_status !== "open" && (
                                         <button
                                             onClick={resetGroupStatus}
-                                            className="cursor-pointer mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                                            className="cursor-pointer mt-6 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition duration-200"
                                         >
                                             Restart Activity
                                         </button>
@@ -1158,7 +1182,7 @@ function GroupProfile() {
                                 />
                                 <button
                                     onClick={sendMessage}
-                                    className="py-2 px-4 bg-yellow-400 rounded-lg text-black font-semibold"
+                                    className="cursor-pointer py-2 px-4 bg-yellow-400 rounded-lg text-black font-semibold"
                                 >
                                     Send
                                 </button>
@@ -1270,7 +1294,7 @@ const PendingUserItem = ({ userId, groupId, onApproved }) => {
             <span>{username}</span>
             <button
                 onClick={handleApprove}
-                className="bg-green-500 hover:bg-green-400 text-white px-3 py-1 rounded"
+                className="cursor-pointer bg-green-500 hover:bg-green-400 text-white px-3 py-1 rounded"
             >
                 ✅ Approve
             </button>
