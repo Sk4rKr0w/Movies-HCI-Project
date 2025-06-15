@@ -49,6 +49,16 @@ function NavBar() {
                 >
                     Contact
                 </NavLink>
+                <NavLink
+                    to="/groupwatch"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "text-yellow-400"
+                            : "hover:text-gray-500 transition"
+                    }
+                >
+                    GroupWatch
+                </NavLink>
             </div>
 
             <div className="flex items-center gap-6">
