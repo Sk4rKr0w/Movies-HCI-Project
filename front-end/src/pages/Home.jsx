@@ -33,6 +33,7 @@ function Home() {
     const [trending, setTrending] = useState([]);
     const [userGenres, setUserGenres] = useState([]);
     const [recommended, setRecommended] = useState([]);
+    const [crossClicked, setCrossClicked] = useState(false);
 
     useEffect(() => {
         const fetchGenres = async () => {
@@ -164,12 +165,20 @@ function Home() {
                 </p>
                 <button
                     className="text-white px-8 py-3 cursor-pointer bg-blue-500 text-lg font-semibold hover:text-gray-900 rounded-full shadow-lg hover:bg-yellow-400 hover:scale-105 transform transition-all duration-300"
-                    onClick={() => setStartQuiz(true)}
+                    onClick={() => {
+                        setStartQuiz(true);
+                        setCrossClicked(false); // o true / !prev, in base al tuo obiettivo
+                    }}
                 >
                     Start ▶
                 </button>
-                {startQuiz && <MovieQuiz />}
 
+                {startQuiz && (
+                    <MovieQuiz
+                        crossClicked={crossClicked}
+                        setCrossClicked={setCrossClicked}
+                    />
+                )}
                 {recommended.length > 0 && (
                     <section className="my-4">
                         <h2 className="text-2xl font-bold text-yellow-400 mb-4">

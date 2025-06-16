@@ -81,7 +81,7 @@ const genreMap = {
     Western: 37,
 };
 
-const MovieQuiz = () => {
+const MovieQuiz = ({ crossClicked, setCrossClicked }) => {
     const [step, setStep] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [movies, setMovies] = useState([]);
@@ -227,7 +227,18 @@ const MovieQuiz = () => {
     );
 
     return (
-        <div className="fixed top-0 left-0 w-screen h-screen bg-black text-white z-50 overflow-y-auto">
+        <div
+            className={`${
+                crossClicked ? "hidden" : "block"
+            } fixed top-0 left-0 w-screen h-screen bg-black text-white z-50 overflow-y-auto`}
+        >
+            <div
+                className="cursor-pointer absolute top-12 md:top-10 right-10 md:right-25 scale-150 md:scale-200"
+                onClick={() => setCrossClicked((prev) => !prev)}
+            >
+                ❌
+            </div>
+
             <div className="min-h-screen flex items-center justify-center px-4 py-10">
                 <div className="text-center w-full">
                     {loading ? (
