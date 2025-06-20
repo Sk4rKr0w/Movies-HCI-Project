@@ -146,6 +146,18 @@ function SignIn() {
                         >
                             Sign in
                         </button>
+
+                        {/* Forgot password: */}
+                        <div className="text-right">
+                            <NavLink
+                            to="/forgot-password"
+                            className="text-sm text-gray-400 hover:text-yellow-400 transition-colors duration-200"
+                            >
+                            Forgot password?
+                            </NavLink>
+                        </div>
+
+                        
                         <NavLink
                             to="/signup"
                             className="block text-center text-sm text-gray-400 hover:text-yellow-400 transition-colors duration-200"
