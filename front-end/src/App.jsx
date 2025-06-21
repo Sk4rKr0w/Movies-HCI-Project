@@ -16,6 +16,8 @@ import MoviePage from "./pages/MoviePage";
 import EditPage from "./pages/GroupEdit";
 import SlotMachine from "./pages/SlotMachine";
 import GroupRoulette from "./components/GroupRoulette";
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword  from './pages/ResetPassword';
 
 function App() {
     return (
@@ -35,6 +37,9 @@ function App() {
                 <Route path="/groupedit/:id" element={<EditPage />} />
                 <Route path="/slotmachine" element={<SlotMachine />} />
                 <Route path="/group/:id/roulette" element={<GroupRoulette />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password"  element={<ResetPassword />} />
+
             </Routes>
             <Footer />
         </Router>
