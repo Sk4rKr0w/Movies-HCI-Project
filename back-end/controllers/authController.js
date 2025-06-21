@@ -92,7 +92,9 @@ const forgotPassword = async (req, res) => {
 
   // Genera token + scadenza (1h)
   const token     = crypto.randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 3600_000);
+  // salviamo l'ISO string con timezone
+  const expiresAt = new Date(Date.now() + 3600_000).toISOString();
+
   await db.from("password_reset_tokens").insert({
     user_id:    user.id,
     token,
@@ -126,13 +128,21 @@ const resetPassword = async (req, res) => {
     return res.status(400).json({ error: "Token e nuova password richiesti" });
   }
 
-  // Verifica token
+  // Verifica token e lettura record
   const { data: row, error: tokenErr } = await db
     .from("password_reset_tokens")
     .select("user_id, expires_at")
     .eq("token", token)
     .single();
-  if (tokenErr || !row || new Date() > new Date(row.expires_at)) {
+  if (tokenErr || !row) {
+    return res.status(400).json({ error: "Token non valido o scaduto" });
+  }
+
+  // Confronto a numeri (ms) per evitare problemi di fuso orario
+  const nowMs = Date.now();
+  const expMs = new Date(row.expires_at).getTime();
+  console.log("⏱ now:", nowMs, "expires at:", expMs);
+  if (nowMs > expMs) {
     return res.status(400).json({ error: "Token non valido o scaduto" });
   }
 
@@ -143,7 +153,7 @@ const resetPassword = async (req, res) => {
     .update({ password: hashed })
     .eq("id", row.user_id);
 
-  // Rimuovi token
+  // Elimina token usato
   await db
     .from("password_reset_tokens")
     .delete()
