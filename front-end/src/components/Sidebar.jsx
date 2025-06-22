@@ -110,39 +110,63 @@ function Sidebar({ isOpen, onClose }) {
 
                         <NavLink
                             to="/"
-                            className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
+                            className={({ isActive }) =>
+                                `transition hover:text-yellow-400 hover:scale-105 w-full text-md my-2 ${
+                                    isActive ? "text-yellow-400" : "text-white"
+                                }`
+                            }
                         >
                             Home
                         </NavLink>
                         <NavLink
                             to="/profile"
-                            className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
+                            className={({ isActive }) =>
+                                `transition hover:text-yellow-400 hover:scale-105 w-full text-md my-2 ${
+                                    isActive ? "text-yellow-400" : "text-white"
+                                }`
+                            }
                         >
                             Profile
                         </NavLink>
                         <NavLink
                             to="/groupwatch"
-                            className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
+                            className={({ isActive }) =>
+                                `transition hover:text-yellow-400 hover:scale-105 w-full text-md my-2 ${
+                                    isActive ? "text-yellow-400" : "text-white"
+                                }`
+                            }
                         >
                             GroupWatch
                         </NavLink>
                         <NavLink
                             to="/about"
-                            className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
+                            className={({ isActive }) =>
+                                `transition hover:text-yellow-400 hover:scale-105 w-full text-md my-2 ${
+                                    isActive ? "text-yellow-400" : "text-white"
+                                }`
+                            }
                         >
                             About
                         </NavLink>
                         <NavLink
                             to="/contact"
-                            className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
+                            className={({ isActive }) =>
+                                `transition hover:text-yellow-400 hover:scale-105 w-full text-md my-2 ${
+                                    isActive ? "text-yellow-400" : "text-white"
+                                }`
+                            }
                         >
                             Contact Us
                         </NavLink>
                         <NavLink
                             to="/slotmachine"
-                            className="hover:text-yellow-400 transition hover:scale-105 w-full text-md my-2"
+                            className={({ isActive }) =>
+                                `transition hover:text-yellow-400 hover:scale-105 w-full text-md my-2 ${
+                                    isActive ? "text-yellow-400" : "text-white"
+                                }`
+                            }
                         >
-                            Give it a try
+                            Give it a try!
                         </NavLink>
                     </ul>
                 </div>

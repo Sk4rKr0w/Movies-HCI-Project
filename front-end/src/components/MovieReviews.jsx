@@ -105,8 +105,12 @@ const MovieReviews = ({ movieId }) => {
                                     )}
                                     <div>
                                         <p className="font-semibold text-white">
-                                            {review.author}
+                                            {review.author} - ⭐
+                                            {review.author_details.rating ??
+                                                "??"}
+                                            /10⭐
                                         </p>
+
                                         <p className="text-xs text-gray-400">
                                             {new Date(
                                                 review.created_at

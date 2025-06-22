@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { addFavorite, removeFavorite, checkFavorite, getAllFavorites } = require("../controllers/favoritesController");
+const {
+    addFavorite,
+    removeFavorite,
+    checkFavorite,
+    getAllFavorites,
+} = require("../controllers/favoritesController");
 const authenticateToken = require("../middleware/authMiddleware");
 
 // Tutte queste rotte richiedono l’utente autenticato
@@ -18,16 +23,16 @@ router.get("/list", async (req, res) => {
 
     try {
         const { data, error } = await supabase
-            .from('favorites')
-            .select('movie_id')
-            .eq('user_id', userId);
+            .from("favorites")
+            .select("movie_id")
+            .eq("user_id", userId);
 
         if (error) throw error;
 
         res.status(200).json({ favorites: data });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Errore interno del server' });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 

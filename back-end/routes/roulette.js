@@ -23,9 +23,7 @@ router.post("/:groupId", async (req, res) => {
     const { movies, userId } = req.body;
 
     if (!Array.isArray(movies)) {
-        return res
-            .status(400)
-            .json({ error: "Formato film non valido. Deve essere un array." });
+        return res.status(400).json({ error: "Invalid movie format." });
     }
 
     const { error } = await supabase

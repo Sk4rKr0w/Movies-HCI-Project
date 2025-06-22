@@ -1,41 +1,41 @@
 const supabase = require("../supabaseClient");
 
 const sendRequestToGroup = async (req, res) => {
-  const { groupId, userId } = req.body;
+    const { groupId, userId } = req.body;
 
-  if (!groupId || !userId) {
-    return res.status(400).json({ error: "Dati mancanti" });
-  }
-
-  try {
-    // Recupera l'array esistente
-    const { data: groupData, error: fetchError } = await supabase
-      .from("groups")
-      .select("pending_users")
-      .eq("id", groupId)
-      .single();
-
-    if (fetchError) throw fetchError;
-
-    const currentPending = groupData?.pending_users || [];
-    if (currentPending.includes(userId)) {
-      return res.status(400).json({ error: "Richiesta già inviata" });
+    if (!groupId || !userId) {
+        return res.status(400).json({ error: "Missing Data" });
     }
 
-    const updated = [...currentPending, userId];
+    try {
+        // Recupera l'array esistente
+        const { data: groupData, error: fetchError } = await supabase
+            .from("groups")
+            .select("pending_users")
+            .eq("id", groupId)
+            .single();
 
-    const { error: updateError } = await supabase
-      .from("groups")
-      .update({ pending_users: updated })
-      .eq("id", groupId);
+        if (fetchError) throw fetchError;
 
-    if (updateError) throw updateError;
+        const currentPending = groupData?.pending_users || [];
+        if (currentPending.includes(userId)) {
+            return res.status(400).json({ error: "Request already sent" });
+        }
 
-    res.status(200).json({ success: true });
-  } catch (err) {
-    console.error("Errore aggiornamento pending_users:", err);
-    res.status(500).json({ error: "Errore interno" });
-  }
+        const updated = [...currentPending, userId];
+
+        const { error: updateError } = await supabase
+            .from("groups")
+            .update({ pending_users: updated })
+            .eq("id", groupId);
+
+        if (updateError) throw updateError;
+
+        res.status(200).json({ success: true });
+    } catch (err) {
+        console.error("Error while updating pending_users:", err);
+        res.status(500).json({ error: "Internal Error" });
+    }
 };
 
 module.exports = { sendRequestToGroup };

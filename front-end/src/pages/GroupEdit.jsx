@@ -140,16 +140,16 @@ function GroupEdit() {
                 <div className="mt-4">
                     <label className="flex items-center space-x-3">
                         <input
-                        type="checkbox"
-                        checked={isPrivate}
-                        onChange={(e) => setIsPrivate(e.target.checked)}
-                        className="h-5 w-5"
+                            type="checkbox"
+                            checked={isPrivate}
+                            onChange={(e) => setIsPrivate(e.target.checked)}
+                            className="h-5 w-5"
                         />
                         <span className="text-yellow-400 font-medium">
-                        Make this group private
+                            Make this group private
                         </span>
                     </label>
-                    </div>
+                </div>
 
                 <div>
                     <label className="block font-medium">
@@ -202,9 +202,14 @@ function GroupEdit() {
                 <hr />
 
                 <div>
-                    <label className="block font-medium mb-3">
-                        Favorite Genres
-                    </label>
+                    <div className="w-full flex flex-row justify-start items-center gap-x-2 mb-3">
+                        <label className="block font-medium">
+                            Favorite Genres
+                        </label>
+                        <p className="text-sm text-gray-500">
+                            (Select at least 1 genre)
+                        </p>
+                    </div>
 
                     <div className="grid grid-cols-3 space-y-2">
                         {genreOptions.map((genre) => (
@@ -252,7 +257,7 @@ function GroupEdit() {
                         href="/groupwatch"
                         className="mt-3 cursor-pointer text-yellow-500 hover:text-yellow-400 transition text-center"
                     >
-                        Return to Home
+                        Return to Dashboard
                     </a>
                 </div>
             </form>

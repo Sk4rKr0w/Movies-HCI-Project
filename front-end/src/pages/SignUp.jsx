@@ -68,7 +68,16 @@ function SignUp() {
 
         // ✅ Validazione: almeno un genere selezionato
         if (favoriteGenres.length === 0) {
-            alert("Please select at leat one genre.");
+            alert("Please select at least one genre.");
+            return;
+        }
+
+        // ✅ Validazione: password con almeno 1 maiuscola, 1 numero e 1 carattere speciale
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&]).{8,}$/;
+        if (!passwordRegex.test(formData.password)) {
+            alert(
+                "Password must contain at least one uppercase letter, one number, and one special character and at least 8 characters."
+            );
             return;
         }
 
@@ -80,8 +89,8 @@ function SignUp() {
                     favorite_genres: favoriteGenres,
                 }
             );
-            alert("Registrazione avvenuta con successo!");
-            navigate("/");
+            alert("Registration completed successfully!");
+            navigate("/signin");
         } catch (err) {
             alert("Errore nella registrazione");
             console.error(err);
@@ -167,9 +176,14 @@ function SignUp() {
                                 id="password"
                                 name="password"
                                 type="password"
+                                title="Min 8 characters, 1 uppercase, 1 number, 1 special character"
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                             />
+                            <p class="text-sm text-gray-500 mt-1 text-left">
+                                Min 8 characters, 1 uppercase, 1 number, 1
+                                special character
+                            </p>
                         </div>
                         <div className="mb-4">
                             <label className="block text-white font-semibold mb-2">
@@ -195,6 +209,9 @@ function SignUp() {
                                     </label>
                                 ))}
                             </div>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Select at least 1 movie genre
+                            </p>
                         </div>
                         <button
                             type="submit"

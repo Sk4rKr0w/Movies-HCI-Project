@@ -1225,7 +1225,7 @@ function GroupProfile() {
                         href="/groupwatch"
                         className="text-sm text-yellow-400 hover:text-yellow-500 underline"
                     >
-                        Return to Home
+                        Return to Dashboard
                     </a>
                 </div>
             </div>

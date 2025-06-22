@@ -13,6 +13,9 @@ function Profile() {
     const [updateMessage, setUpdateMessage] = useState("");
     const [uploading, setUploading] = useState(false);
 
+    const [showWelcomePopUp, setWelcomePopUp] = useState(() => {
+        return localStorage.getItem("hideWelcomePopUp") !== "true";
+    });
     const [editingPassword, setEditingPassword] = useState(false);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -70,7 +73,7 @@ function Profile() {
     const refreshUser = (data) => {
         data;
         localStorage.setItem("user", JSON.stringify(data));
-        setUpdateMessage("✅ Modifiche salvate con successo!");
+        setUpdateMessage("✅ Changes saved successfully!");
 
         setTimeout(() => {
             window.location.reload();
@@ -446,7 +449,7 @@ function Profile() {
                                 }}
                                 className="font-medium mt-6 bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-4 rounded"
                             >
-                                Salva generi
+                                Save Preferences
                             </button>
                         </div>
                     </>
@@ -459,6 +462,58 @@ function Profile() {
                 <Favorites />
                 <WatchHistory />
             </div>
+
+            {showWelcomePopUp && (
+                <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+                    <div className="bg-yellow-400 text-black rounded-xl shadow-2xl p-6 max-w-2xl w-full mx-4 text-center overflow-y-auto max-h-[90vh]">
+                        <h2 className="text-3xl font-bold mb-4">
+                            🎉 Welcome to GURUFILM! 🎉
+                        </h2>
+                        <p className="mb-3">
+                            We are so excited to have you here! GURUFILM is your
+                            personal hub for discovering, exploring, and
+                            enjoying movies and series tailored exactly to your
+                            tastes and vibes.
+                        </p>
+                        <ul className="list-disc list-inside mb-4 text-left">
+                            <li className="my-2">
+                                🎬 Get smart, personalized recommendations based
+                                on your favorite genres — curated just for you.
+                            </li>
+                            <li className="my-2">
+                                💡 Take our interactive mood quiz to find the
+                                perfect movie for how you (or your group) feel
+                                right now.
+                            </li>
+                            <li className="my-2">
+                                🎲 Feeling adventurous? Spin the roulette and
+                                discover something totally unexpected!
+                            </li>
+                            <li className="my-2">
+                                👥 Create or join private groups to share lists,
+                                vote on what to watch, and enjoy content
+                                together with your friends.
+                            </li>
+                            <li className="my-2">
+                                📌 Keep track of your favorite titles and
+                                everything you’ve watched — all in one place.
+                            </li>
+                        </ul>
+                        <button
+                            onClick={() => {
+                                localStorage.setItem(
+                                    "hideWelcomePopUp",
+                                    "true"
+                                );
+                                setWelcomePopUp(false);
+                            }}
+                            className="cursor-pointer bg-black text-yellow-400 px-4 py-2 rounded hover:bg-gray-800"
+                        >
+                            Close and start exploring!
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -14,7 +14,9 @@ const addToHistory = async (req, res) => {
         .maybeSingle();
 
     if (existing.data) {
-        return res.status(409).json({ message: "🎥 Film già nello storico" });
+        return res
+            .status(409)
+            .json({ message: "🎥 Film already in watch history" });
     }
 
     // Inserimento
@@ -23,11 +25,11 @@ const addToHistory = async (req, res) => {
         .insert([{ user_id, movie_id, title, poster_path, overview }]);
 
     if (error) {
-        console.error("❌ Errore Supabase:", error);
+        console.error("❌ Error Supabase:", error);
         return res.status(500).json({ error: error.message });
     }
 
-    res.status(201).json({ message: "✅ Film aggiunto allo storico" });
+    res.status(201).json({ message: "✅ Added film to watch history" });
 };
 
 // Recupera lo storico dell’utente
@@ -41,7 +43,7 @@ const getHistory = async (req, res) => {
         .order("watched_at", { ascending: false });
 
     if (error) {
-        console.error("❌ Errore Supabase:", error);
+        console.error("❌ Error Supabase:", error);
         return res.status(500).json({ error: error.message });
     }
 
@@ -54,7 +56,7 @@ const removeFromHistory = async (req, res) => {
     const movie_id = req.query.movieId;
 
     if (!movie_id) {
-        return res.status(400).json({ error: "movieId mancante nella query" });
+        return res.status(400).json({ error: "movieId missing in query" });
     }
 
     const { error } = await supabase
@@ -64,11 +66,11 @@ const removeFromHistory = async (req, res) => {
         .eq("movie_id", movie_id);
 
     if (error) {
-        console.error("❌ Errore Supabase:", error);
+        console.error("❌ Error Supabase:", error);
         return res.status(500).json({ error: error.message });
     }
 
-    res.status(200).json({ message: "❌ Film rimosso dallo storico" });
+    res.status(200).json({ message: "❌ Removed film from watch history" });
 };
 
 module.exports = { addToHistory, getHistory, removeFromHistory };

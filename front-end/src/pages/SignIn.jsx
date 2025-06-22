@@ -49,7 +49,7 @@ function SignIn() {
             setErrorMessage("");
 
             setTimeout(() => {
-                navigate("/");
+                navigate("/profile");
                 window.location.reload();
             }, 1500);
         } catch (err) {
@@ -116,11 +116,15 @@ function SignIn() {
                                 id="email"
                                 name="email"
                                 type="email"
+                                title="Enter your email to login"
                                 placeholder="(e.g. mariorossi@example.com)"
                                 onChange={handleChange}
                                 value={formData.email}
                                 className="w-full px-4 py-2 rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                             />
+                            <p class="text-sm text-gray-500 mt-1 text-left">
+                                Enter your correct email to login
+                            </p>
                         </div>
 
                         <div>
@@ -134,10 +138,25 @@ function SignIn() {
                                 id="password"
                                 name="password"
                                 type="password"
+                                title="Enter a password with at least 8 characters"
                                 onChange={handleChange}
                                 value={formData.password}
                                 className="w-full px-4 py-2 rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                             />
+                            <div class="w-full flex flex-row justify-between">
+                                <p class="text-sm text-gray-500 mt-1 text-left max-w-[25ch]">
+                                    Enter a password with at least 8 characters
+                                </p>
+                                {/* Forgot password: */}
+                                <div className="text-right">
+                                    <NavLink
+                                        to="/forgot-password"
+                                        className="text-sm text-gray-400 hover:text-yellow-400 transition-colors duration-200"
+                                    >
+                                        Forgot password?
+                                    </NavLink>
+                                </div>
+                            </div>
                         </div>
 
                         <button
@@ -147,17 +166,6 @@ function SignIn() {
                             Sign in
                         </button>
 
-                        {/* Forgot password: */}
-                        <div className="text-right">
-                            <NavLink
-                            to="/forgot-password"
-                            className="text-sm text-gray-400 hover:text-yellow-400 transition-colors duration-200"
-                            >
-                            Forgot password?
-                            </NavLink>
-                        </div>
-
-                        
                         <NavLink
                             to="/signup"
                             className="block text-center text-sm text-gray-400 hover:text-yellow-400 transition-colors duration-200"

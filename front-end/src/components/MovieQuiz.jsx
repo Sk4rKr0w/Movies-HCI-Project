@@ -317,7 +317,7 @@ const MovieQuiz = ({ crossClicked, setCrossClicked }) => {
                                     onClick={() => (window.location.href = "/")}
                                     className="cursor-pointer bg-white text-black px-6 py-2 rounded-full hover:bg-gray-300"
                                 >
-                                    Return to Home
+                                    Return to HomePage
                                 </button>
                             </div>
                         </div>
@@ -348,7 +348,7 @@ const MovieQuiz = ({ crossClicked, setCrossClicked }) => {
                                     onClick={handleBack}
                                     className="font-semibold w-[25%] cursor-pointer mt-6 bg-yellow-400 text-black px-6 py-2 rounded-full hover:bg-yellow-500"
                                 >
-                                    Back
+                                    Go back to previous question
                                 </button>
                             )}
                         </>
