@@ -63,14 +63,14 @@ function GroupEdit() {
                             Array.isArray(parsedGenres) ? parsedGenres : []
                         );
                     } catch (err) {
-                        console.error("Errore parsing generi:", err);
+                        console.error("Error while parsing genres:", err);
                         setGenres([]);
                     }
                 } else {
                     setGenres(group.genres || []);
                 }
             } catch (err) {
-                console.error("Errore nel recupero del gruppo:", err);
+                console.error("Error while fetching group:", err);
             }
         };
 
@@ -92,7 +92,7 @@ function GroupEdit() {
             );
 
             setMessage({
-                text: "✅ Gruppo modificato con successo!",
+                text: "✅ Group updated successfully",
                 type: "success",
             });
 
@@ -101,9 +101,9 @@ function GroupEdit() {
                 navigate("/groupwatch");
             }, 1500);
         } catch (err) {
-            console.error("Errore nella modifica del gruppo:", err);
+            console.error("Error while updating group:", err);
             setMessage({
-                text: "❌ Errore nella modifica del gruppo.",
+                text: "❌ Error while updating group.",
                 type: "error",
             });
         }

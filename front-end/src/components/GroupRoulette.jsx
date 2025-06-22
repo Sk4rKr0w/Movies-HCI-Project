@@ -153,7 +153,7 @@ export default function GroupRoulette() {
     return (
         <div className="p-3 md:p-6 flex flex-col items-center text-gray-100 bg-gray-800/50 my-4 rounded-lg">
             <h1 className="text-2xl font-bold text-center mb-4 text-yellow-400">
-                🎲 Can’t decide what to watch? 🎲
+                🎲 Can't decide what to watch? 🎲
                 <br /> Let the roulette choose for you!
             </h1>
 

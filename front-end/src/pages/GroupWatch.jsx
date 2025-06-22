@@ -53,7 +53,7 @@ function GroupWatch() {
                 }
             })
             .catch((err) => {
-                console.error("Errore nel recupero utente:", err);
+                console.error("Error while fetching user:", err);
                 navigate("/signin"); // 👈 redirect anche in caso di errore API
             });
     }, []);
@@ -82,8 +82,8 @@ function GroupWatch() {
                 setJoinMessage("");
                 return;
             } catch (err) {
-                console.error("Errore nel recupero dei gruppi:", err);
-                setSearchMessage("Errore nel recupero dei gruppi.");
+                console.error("Error while fetching groups:", err);
+                setSearchMessage("Error while fetching groups.");
                 return;
             }
         }
@@ -110,8 +110,8 @@ function GroupWatch() {
                 resultsRef.current?.scrollIntoView({ behavior: "smooth" });
             }, 100);
         } catch (err) {
-            console.error("Errore durante la ricerca del gruppo:", err);
-            setSearchMessage("Errore nella ricerca del gruppo.");
+            console.error("Error during groups search:", err);
+            setSearchMessage("Error while searching for group.");
         }
     };
 
@@ -133,16 +133,14 @@ function GroupWatch() {
             setSearchMessage(res.data.message || "");
             setJoinMessage("");
         } catch (err) {
-            console.error("Errore nel reset:", err);
-            setSearchMessage("Errore nel recupero dei gruppi.");
+            console.error("Error during reset:", err);
+            setSearchMessage("Error while retrieving groups.");
         }
     };
 
     const handleJoinGroup = async (groupId) => {
         if (!groupId || !user) {
-            setJoinMessage(
-                "Devi essere loggato prima di entrare in un gruppo!"
-            );
+            setJoinMessage("You have to be signed it before joining a group!");
             return;
         }
 
@@ -151,11 +149,11 @@ function GroupWatch() {
                 groupId,
                 userId: user.id,
             });
-            setJoinMessage("Sei entrato nel gruppo con successo!");
+            setJoinMessage("You joined a group successfully");
             handleYourGroups(); // 👈 aggiorna i tuoi gruppi
         } catch (err) {
-            console.error("Errore durante l'unione al gruppo:", err);
-            setJoinMessage("Errore nell'unione al gruppo.");
+            console.error("Error while joining a group:", err);
+            setJoinMessage("Error while joining a group.");
         }
     };
 
@@ -181,10 +179,10 @@ function GroupWatch() {
                 )
             );
 
-            alert("Richiesta inviata! In attesa di approvazione.");
+            alert("Request sent! Waiting for approval.");
         } catch (err) {
-            console.error("Errore durante l'invio della richiesta:", err);
-            alert("Errore durante la richiesta di accesso.");
+            console.error("Error while sending your request:", err);
+            alert("Error during access request.");
         }
     };
 
@@ -197,7 +195,7 @@ function GroupWatch() {
             );
             setGroups(res.data.groups || []);
         } catch (err) {
-            console.error("Errore nel recupero dei gruppi:", err);
+            console.error("Error while retrieving groups data:", err);
         }
     };
 

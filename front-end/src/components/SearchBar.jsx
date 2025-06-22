@@ -23,7 +23,7 @@ function SearchBar({ className = "" }) {
                         setResults(topResults);
                     })
                     .catch((err) =>
-                        console.error("Errore nella fetch TMDB:", err)
+                        console.error("Error while fetching from TMDB:", err)
                     );
             } else {
                 setResults([]);
