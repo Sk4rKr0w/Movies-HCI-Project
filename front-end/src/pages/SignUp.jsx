@@ -92,7 +92,7 @@ function SignUp() {
             alert("Registration completed successfully!");
             navigate("/signin");
         } catch (err) {
-            alert("Errore nella registrazione");
+            alert("Error during sign up");
             console.error(err);
         }
     };

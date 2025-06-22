@@ -47,7 +47,7 @@ function Home() {
                 const data = await res.json();
                 if (data.favorite_genres) setUserGenres(data.favorite_genres);
             } catch (err) {
-                console.error("Errore nel recupero generi:", err);
+                console.error("Error while retrieving genres:", err);
             }
         };
 
@@ -104,7 +104,7 @@ function Home() {
 
             setTrending(moviesWithTrailers);
         } catch (err) {
-            console.error("Errore nel recupero dei film in tendenza", err);
+            console.error("Error while retrieving trending films", err);
         }
     };
 

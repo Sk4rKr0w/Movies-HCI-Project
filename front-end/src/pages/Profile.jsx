@@ -63,7 +63,7 @@ function Profile() {
                     setGenres(data.favorite_genres);
                 }
             } catch (err) {
-                console.error("Errore nel recupero dei generi:", err);
+                console.error("Error while retrieving genres:", err);
             }
         };
 
@@ -438,12 +438,12 @@ function Profile() {
                                             }
                                         );
                                         setUpdateMessage(
-                                            "✅ Generi aggiornati con successo!"
+                                            "✅ Genres update successfully!"
                                         );
                                     } catch (err) {
                                         console.error(err);
                                         setUpdateMessage(
-                                            "❌ Errore durante l'aggiornamento dei generi."
+                                            "❌ Error while updating genres."
                                         );
                                     }
                                 }}

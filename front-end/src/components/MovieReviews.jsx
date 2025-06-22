@@ -34,7 +34,7 @@ const MovieReviews = ({ movieId }) => {
                 setAllReviews(uniqueReviews);
                 setReviews(uniqueReviews.slice(0, 5));
             } catch (err) {
-                setError("Errore nel recupero delle recensioni.");
+                setError("Error while retrieving reviews.");
             } finally {
                 setLoading(false);
             }

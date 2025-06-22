@@ -35,7 +35,7 @@ function ContactUs() {
 
         // Verifica se tutti i campi sono stati compilati
         if (!formData.email || !formData.message) {
-            setError("Email e messaggio sono obbligatori.");
+            setError("Email and messagge required.");
             return;
         }
 
@@ -48,14 +48,14 @@ function ContactUs() {
 
             // Gestisci la risposta del server
             if (response.data) {
-                setSuccess("La tua richiesta è stata inviata con successo.");
+                setSuccess("Your request was successfully sent.");
                 setFormData({ email: "", subject: "", message: "" }); // Reset del form
                 setError("");
             }
         } catch (err) {
-            console.error("Errore nella richiesta:", err);
+            console.error("Error in your request:", err);
             setError(
-                "C'è stato un errore nell'invio della tua richiesta. Riprova più tardi."
+                "There was an error while sending your request. Retry later."
             );
             setSuccess("");
         }

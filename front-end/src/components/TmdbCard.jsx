@@ -14,7 +14,7 @@ const TmdbCard = ({ movieId, onVote, isVoted, showVoteButton = true }) => {
                 );
                 setMovie(res.data);
             } catch (err) {
-                console.error("Errore TMDB:", err);
+                console.error("Error TMDB:", err);
             }
         };
         fetchMovieDetails();
