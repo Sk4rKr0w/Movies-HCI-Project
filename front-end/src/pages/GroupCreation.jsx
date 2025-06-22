@@ -42,7 +42,7 @@ function GroupCreation() {
         e.preventDefault();
 
         if (!user) {
-            setMessage("Devi essere loggato per creare un gruppo.");
+            setMessage("You must log before creating a group.");
             return;
         }
 
@@ -64,16 +64,16 @@ function GroupCreation() {
                 }
             );
 
-            setMessage("✅ Gruppo creato con successo!");
+            setMessage("✅ Group created successfully!");
 
             setTimeout(() => {
                 navigate(`/groupwatch`);
             }, 1500);
         } catch (err) {
-            console.error("Errore nella creazione del gruppo:", err);
+            console.error("Error during the creation of the group:", err);
             const errorMessage =
                 err.response?.data?.message ||
-                "❌ Errore nella creazione del gruppo.";
+                "❌ Error during the creation of the group.";
             setMessage(errorMessage);
         }
     };

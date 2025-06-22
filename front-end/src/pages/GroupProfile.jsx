@@ -52,7 +52,7 @@ function GroupProfile() {
             );
             setTmdbResults(res.data.results || []);
         } catch (err) {
-            console.error("Errore nella ricerca TMDB:", err);
+            console.error("Error in TMDB search:", err);
         }
     };
 
@@ -84,7 +84,7 @@ function GroupProfile() {
                 setActiveSession(res.data.session || null);
             } catch (err) {
                 console.error(
-                    "Errore nel recupero della sessione attiva:",
+                    "Error retriving active session:",
                     err
                 );
             }
@@ -138,7 +138,7 @@ function GroupProfile() {
             );
             setMessages(res.data.messages);
         } catch (error) {
-            console.error("Errore nel recupero dei messaggi:", error);
+            console.error("Error retriving messages:", error);
         }
     };
 
@@ -236,7 +236,7 @@ function GroupProfile() {
     };
 
     const handleDeleteGroup = async () => {
-        if (!window.confirm("Sei sicuro di voler eliminare questo gruppo?"))
+        if (!window.confirm("Are you want to remove this group?"))
             return;
 
         try {
@@ -244,23 +244,23 @@ function GroupProfile() {
                 `http://localhost:3001/api/profileGroup/delete?id=${group.id}`
             );
             setMessage({
-                text: "Gruppo eliminato con successo.",
+                text: "Group removed successfully.",
                 type: "success",
             });
             setTimeout(() => {
                 navigate("/groupwatch");
             }, 1500);
         } catch (err) {
-            console.error("Errore durante l'eliminazione del gruppo:", err);
+            console.error("Error deleting group:", err);
             setMessage({
-                text: "Errore durante l'eliminazione del gruppo.",
+                text: "Error deleting group.",
                 type: "error",
             });
         }
     };
 
     const handleLeaveGroup = async () => {
-        if (!window.confirm("Sei sicuro di voler abbandonare questo gruppo?"))
+        if (!window.confirm("Are you sure you want to leave this group?"))
             return;
 
         try {
@@ -272,16 +272,16 @@ function GroupProfile() {
                 }
             );
             setMessage({
-                text: "Gruppo abbandonato con successo.",
+                text: "Group left successfully.",
                 type: "success",
             });
             setTimeout(() => {
                 navigate("/groupwatch");
             }, 1500);
         } catch (err) {
-            console.error("Errore durante l'abbandono del gruppo:", err);
+            console.error("Error leaving the group:", err);
             setMessage({
-                text: "Errore durante l'abbandono del gruppo.",
+                text: "Error leaving the group.",
                 type: "error",
             });
         }
@@ -300,9 +300,9 @@ function GroupProfile() {
             );
             setSearchResults(res.data.users);
         } catch (err) {
-            console.error("Errore nella ricerca degli utenti:", err);
+            console.error("Error searching for users:", err);
             setMessage({
-                text: "Errore nella ricerca degli utenti.",
+                text: "Error searching for users.",
                 type: "error",
             });
         }
@@ -318,7 +318,7 @@ function GroupProfile() {
                 }
             );
             setMessage({
-                text: "Utente aggiunto con successo!",
+                text: "Users added successfully!",
                 type: "success",
             });
             setTimeout(() => {
@@ -326,11 +326,11 @@ function GroupProfile() {
             }, 1500);
         } catch (err) {
             console.error(
-                "Errore durante l'aggiunta dell'utente al gruppo:",
+                "Error adding user to the group:",
                 err
             );
             setMessage({
-                text: "Errore durante l'aggiunta dell'utente.",
+                text: "Error adding user to the group.",
                 type: "error",
             });
         }
@@ -339,7 +339,7 @@ function GroupProfile() {
     const handleRemoveUserFromGroup = async (userIdToRemove) => {
         if (
             !window.confirm(
-                "Sei sicuro di voler rimuovere questo membro dal gruppo?"
+                "Are you sure you want to remvore this user from the group?"
             )
         )
             return;
@@ -352,7 +352,7 @@ function GroupProfile() {
                 }
             );
             setMessage({
-                text: "Utente rimosso con successo!",
+                text: "User removed successfully!",
                 type: "success",
             });
             setTimeout(() => {
@@ -360,11 +360,11 @@ function GroupProfile() {
             }, 1500);
         } catch (err) {
             console.error(
-                "Errore durante la rimozione dell'utente dal gruppo:",
+                "Error removing user from the group:",
                 err
             );
             setMessage({
-                text: "Errore durante la rimozione dell'utente.",
+                text: "Error removing user.",
                 type: "error",
             });
         }
@@ -380,7 +380,7 @@ function GroupProfile() {
                 }
             );
 
-            alert("Sessione di proposta avviata!");
+            alert("Proposal session started!");
             setActiveSession(res.data.session); // imposta la sessione corrente
             // aggiorna il gruppo se necessario
             const refreshedGroup = await axios.get(
@@ -388,8 +388,8 @@ function GroupProfile() {
             );
             setGroup(refreshedGroup.data.group);
         } catch (err) {
-            console.error("Errore nell'avvio della sessione:", err);
-            alert("Errore durante la creazione della sessione.");
+            console.error("Error starting the session:", err);
+            alert("Error during session creation.");
         }
     };
 
@@ -403,13 +403,13 @@ function GroupProfile() {
             );
             setTmdbResults(res.data.results);
         } catch (err) {
-            console.error("Errore nella ricerca TMDB:", err);
+            console.error("Error searching TMDB:", err);
         }
     };
 
     const proposeMovieFromTmdb = async (movie) => {
         if (!activeSession?.id) {
-            alert("Nessuna sessione di proposta attiva.");
+            alert("No active proposal session.");
             return;
         }
 
@@ -424,13 +424,13 @@ function GroupProfile() {
                 }
             );
 
-            alert(`Hai proposto "${movie.title}"`);
+            alert(`You proposed "${movie.title}"`);
             setTmdbQuery("");
             setTmdbResults([]);
             fetchMyProposals(); // aggiorna lista proposte personali
         } catch (err) {
-            console.error("Errore nella proposta:", err);
-            alert("Errore durante la proposta del film.");
+            console.error("Error during proposal:", err);
+            alert("Error during movie proposal.");
         }
     };
 
@@ -450,7 +450,7 @@ function GroupProfile() {
             );
             setMyProposals(res.data.proposals || []);
         } catch (err) {
-            console.error("Errore nel recupero delle proposte:", err);
+            console.error("Error retrieving proposals:", err);
         }
     };
 
@@ -467,7 +467,7 @@ function GroupProfile() {
             );
             setAllProposals(res.data.proposals || []);
         } catch (err) {
-            console.error("Errore nel recupero delle proposte:", err);
+            console.error("Error retrieving proposals:", err);
         }
     };
 
@@ -486,7 +486,7 @@ function GroupProfile() {
             );
             setMyVotes(res.data.votes || []);
         } catch (err) {
-            console.error("Errore nel recupero dei voti:", err);
+            console.error("Error retrieving votes:", err);
         }
     };
 
@@ -498,11 +498,11 @@ function GroupProfile() {
                 movie_id: movieId,
             });
 
-            alert("✅ Voto registrato!");
+            alert("✅ Vote registered!");
             fetchMyVotes(); // aggiorna i voti dell’utente
         } catch (err) {
-            console.error("Errore durante il voto:", err);
-            alert("❌ Hai già votato questo film.");
+            console.error("Error during voting:", err);
+            alert("❌ You have already voted this movie.");
         }
     };
 
@@ -514,14 +514,14 @@ function GroupProfile() {
                     groupId: group.id,
                 }
             );
-            alert("Fase di voto avviata!");
+            alert("Voting phase started!");
             const refreshedGroup = await axios.get(
                 `http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`
             );
             setGroup(refreshedGroup.data.group);
         } catch (err) {
-            console.error("Errore nel passaggio a voting:", err);
-            alert("Errore durante il cambio di fase.");
+            console.error("Error switching to voting phase:", err);
+            alert("Error during phase change.");
         }
     };
 
@@ -538,10 +538,10 @@ function GroupProfile() {
                 `http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`
             );
             setGroup(updated.data.group);
-            alert("Votazione chiusa!");
+            alert("Voting closed!");
         } catch (err) {
             console.error("Errore chiusura votazione:", err);
-            alert("Errore nella chiusura.");
+            alert("Error closing.");
         }
     };
 
@@ -555,7 +555,7 @@ function GroupProfile() {
             );
             setWinnerMovieId(res.data.winner.movie_id);
         } catch (err) {
-            console.error("Errore nel recupero del vincitore:", err);
+            console.error("Error retrieving winner:", err);
         }
     };
 
@@ -572,10 +572,10 @@ function GroupProfile() {
                 `http://localhost:3001/api/profilegroup/profilegroup?id=${group.id}`
             );
             setGroup(refreshed.data.group);
-            alert("Gruppo riportato all'inizio!");
+            alert("Group reset to the beginning!");
         } catch (err) {
-            console.error("Errore nel reset:", err);
-            alert("Errore durante il reset.");
+            console.error("Error resetting:", err);
+            alert("Error during reset.");
         }
     };
 
@@ -637,7 +637,7 @@ function GroupProfile() {
                                     : "No genres";
                             } catch (err) {
                                 console.error(
-                                    "Errore nel parsing dei generi:",
+                                    "Error parsing genres:",
                                     err
                                 );
                                 return "No genres";
@@ -752,7 +752,7 @@ function GroupProfile() {
                                                                 );
                                                             } catch (err) {
                                                                 console.error(
-                                                                    "Errore aggiornamento gruppo dopo approvazione:",
+                                                                    "Error updating group after approval:",
                                                                     err
                                                                 );
                                                             }
@@ -884,7 +884,7 @@ function GroupProfile() {
                                                 onClick={startProposingSession}
                                                 className="cursor-pointer px-6 py-3 bg-yellow-400 text-black font-semibold rounded-2xl shadow hover:bg-yellow-300 transition duration-200"
                                             >
-                                                🎬 Start Film Proposals
+                                                🎬 Start Movie Proposals
                                             </button>
                                         </div>
                                     )}
@@ -1246,8 +1246,8 @@ const MovieTitle = ({ movieId }) => {
                 );
                 setTitle(res.data.title);
             } catch (err) {
-                console.error("Errore TMDB:", err);
-                setTitle("Film sconosciuto");
+                console.error("TMDB error:", err);
+                setTitle("Unknown movie");
             }
         };
         fetchTitle();
@@ -1284,8 +1284,8 @@ const PendingUserItem = ({ userId, groupId, onApproved }) => {
             );
             onApproved();
         } catch (err) {
-            console.error("Errore approvazione:", err);
-            alert("Errore durante l'approvazione.");
+            console.error("Error during approval:", err);
+            alert("Error during the approval process.");
         }
     };
 
