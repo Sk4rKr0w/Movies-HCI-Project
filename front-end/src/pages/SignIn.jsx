@@ -45,7 +45,7 @@ function SignIn() {
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
 
-            setLoginMessage("✅ Login avvenuto con successo!");
+            setLoginMessage("✅ Logged successfully!");
             setErrorMessage("");
 
             setTimeout(() => {
@@ -53,7 +53,7 @@ function SignIn() {
                 window.location.reload();
             }, 1500);
         } catch (err) {
-            setErrorMessage("❌ Email o password non validi.");
+            setErrorMessage("❌ Email or password not valid.");
             setLoginMessage("");
             console.error(err);
         }
