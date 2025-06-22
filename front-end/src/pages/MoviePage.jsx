@@ -366,7 +366,7 @@ function MoviePage() {
                             </a>
                         ))
                     ) : (
-                        <p>Caricamento cast...</p>
+                        <p>Loading cast...</p>
                     )}
                 </div>
 
